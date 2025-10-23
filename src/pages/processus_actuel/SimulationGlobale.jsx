@@ -179,20 +179,31 @@ export default function SimulationGlobale() {
     <div className="bg-[#f8fafc] py-1 px-2">
       <div className="max-w-full mx-auto p-4 space-y-4">
         {/* Header */}
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-transparent bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text ">
-            Simulation Globale
-          </h1>
+        <div className="text-center space-y-3">
+          <div className="flex items-center justify-center gap-3 mb-1.5">
+            <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full opacity-80"></div>
+            <h1 className="text-xl font-bold text-gray-900">
+              Simulation{" "}
+              <span className="text-transparent bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text">
+                Globale
+              </span>
+            </h1>
+            <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full opacity-80"></div>
+          </div>
+          <p className="text-gray-600 text-xs max-w-2xl mx-auto leading-relaxed">
+            Analysez les besoins en effectif pour toutes les positions avec
+            précision et efficacité
+          </p>
         </div>
 
         {/* Input Form Card */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-          <div className="border-b border-gray-200 px-5 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-xl">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <div className="border-b border-gray-200 px-4 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-xl">
+            <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
               Paramètres de Simulation
             </h3>
           </div>
-          <div className="p-5">
+          <div className="p-4">
             {/* Form inputs and Summary Cards side by side */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               {/* Left side - Inputs */}
@@ -322,8 +333,8 @@ export default function SimulationGlobale() {
 
         {/* Results Table */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-          <div className="border-b border-gray-200 px-6 py-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <div className="border-b border-gray-200 px-4 py-1 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl">
+            <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
               Résultats de Simulation Globale
             </h3>
           </div>

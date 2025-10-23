@@ -28,7 +28,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       id: 'chronogramme', 
       label: 'Chronogramme de Traitement Unitaire', 
       icon: Clock,
-      path: '/'
+      path: '/chronogramme-unitaire'
     },
     { 
       id: 'referentiel', 

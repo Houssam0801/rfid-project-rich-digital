@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import SimulationParPosition from "./pages/processus_actuel/SimulationParPosition";
 import Layout from "./pages/Layout.jsx";
 import SimulationGlobale from "./pages/processus_actuel/SimulationGlobale";
+import ChronogrammeTraitement from "./pages/processus_actuel/ChronogrammeTraitement";
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="/" element={<Layout/>} >
           <Route path="simulation-position" element={<SimulationParPosition/>} />
           <Route path="simulation-globale" element={<SimulationGlobale/>} />
+          <Route path="chronogramme-unitaire" element={<ChronogrammeTraitement/>} />
         </Route>
       </Routes>
     </BrowserRouter>
