@@ -338,7 +338,7 @@ export default function EffectifComparisonModal({ onClose }) {
           {/* --- Simulation Parameters and Summary --- */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
             <div className="border-b border-gray-200 px-5 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-xl">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
                 Paramètres de Simulation
               </h3>
             </div>
@@ -487,7 +487,7 @@ export default function EffectifComparisonModal({ onClose }) {
           {/* --- Results Section (Table or Chart) --- */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200">
             <div className="border-b border-gray-200 px-5 py-1 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
                 {viewMode === "table"
                   ? "Tableau de Comparaison"
                   : "Graphe de Comparaison"}

@@ -1,11 +1,5 @@
 import { useState, useMemo, useRef } from "react";
-import {
-  X,
-  Search,
-  FileDown,
-  BarChart3,
-  Table,
-} from "lucide-react";
+import { X, Search, FileDown, BarChart3, Table } from "lucide-react";
 import ExcelJS from "exceljs";
 import {
   chronogrammeData,
@@ -13,6 +7,7 @@ import {
   chronogrammeParPositionData,
   chronogrammeTotal,
 } from "../../data/chronogrammeData";
+import CumulativeGanttChart from "../../components/CumulativeChart";
 
 export default function ChronogrammeTraitement() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -131,161 +126,24 @@ export default function ChronogrammeTraitement() {
     handleSearch();
   };
 
-  const cumulativeChartData = useMemo(() => {
-    const data = Object.entries(chronogrammeParPositionData)
-      .map(([position, data]) => ({
-        position,
-        duration: data.dureeHeures,
-      }))
-      .sort((a, b) => a.duration - b.duration);
-
-    data.push({
-      position: "Total Général",
-      duration: chronogrammeTotal.dureeHeures,
-    });
-
-    return data;
-  }, []);
-
-  const CumulativeBarChart = ({ data }) => {
-    const maxValue = 1.2;
-
-    const chartWidth = 900;
-    const marginLeft = 200;
-    const marginRight = 100;
-    const marginTop = 30;
-    const marginBottom = 50;
-    const barHeight = 25;
-    const barSpacing = 8;
-
-    const xScale = (value) => {
-      return (
-        marginLeft +
-        (value / maxValue) * (chartWidth - marginLeft - marginRight)
-      );
-    };
-
-    return (
-      <div className="w-full overflow-x-auto">
-        <svg
-          width={chartWidth}
-          height={
-            data.length * (barHeight + barSpacing) + marginTop + marginBottom
-          }
-          className="mx-auto"
-        >
-          <text
-            x={chartWidth / 2}
-            y={20}
-            textAnchor="middle"
-            className="text-sm font-semibold fill-gray-700"
-          >
-            Répartition Cumulative du Temps par Poste
-          </text>
-
-          {[0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2].map((tick) => (
-            <g key={tick}>
-              <line
-                x1={xScale(tick)}
-                y1={marginTop}
-                x2={xScale(tick)}
-                y2={
-                  data.length * (barHeight + barSpacing) +
-                  marginTop -
-                  barSpacing
-                }
-                stroke="#e5e7eb"
-                strokeDasharray="3,3"
-              />
-              <text
-                x={xScale(tick)}
-                y={
-                  data.length * (barHeight + barSpacing) +
-                  marginTop +
-                  20 -
-                  barSpacing
-                }
-                textAnchor="middle"
-                className="text-xs fill-gray-600"
-              >
-                {tick.toFixed(1)}
-              </text>
-            </g>
-          ))}
-
-          <text
-            x={chartWidth / 2}
-            y={
-              data.length * (barHeight + barSpacing) +
-              marginTop +
-              45 -
-              barSpacing
-            }
-            textAnchor="middle"
-            className="text-xs font-semibold fill-gray-700"
-          >
-            Cumul de Durée (Heures)
-          </text>
-
-          {data.map((item, index) => {
-            const y = marginTop + index * (barHeight + barSpacing);
-            const isTotal = item.position === "Total Général";
-            const barColor = isTotal ? "#1e3a8a" : "#3b82f6";
-
-            return (
-              <g key={item.position}>
-                <text
-                  x={marginLeft - 10}
-                  y={y + barHeight / 2 + 4}
-                  textAnchor="end"
-                  className="text-xs fill-gray-700"
-                >
-                  {item.position}
-                </text>
-
-                <rect
-                  x={xScale(0)}
-                  y={y}
-                  width={xScale(item.duration) - xScale(0)}
-                  height={barHeight}
-                  fill={barColor}
-                  rx={3}
-                  ry={3}
-                />
-
-                <text
-                  x={xScale(item.duration) + 8}
-                  y={y + barHeight / 2 + 4}
-                  className="text-xs font-semibold fill-gray-700"
-                >
-                  {item.duration.toFixed(2)}
-                </text>
-              </g>
-            );
-          })}
-        </svg>
-      </div>
-    );
-  };
-
   return (
     <div className="bg-[#f8fafc] py-1 px-2">
       <div className="max-w-full mx-auto p-4 space-y-4">
         <div className="text-center space-y-3">
           <div className="flex items-center justify-center gap-3 mb-1.5">
-            <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full opacity-80"></div>
-            <h1 className="text-xl font-bold text-gray-900">
+            <div className="w-1 h-7 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full opacity-80"></div>
+            <h1 className="text-2xl font-bold text-gray-900">
               Chronogramme de{" "}
               <span className="text-transparent bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text">
                 Traitement Unitaire
               </span>
             </h1>
-            <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full opacity-80"></div>
+            <div className="w-1 h-7 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full opacity-80"></div>
           </div>
-          <p className="text-gray-600 text-xs max-w-2xl mx-auto leading-relaxed">
+          {/* <p className="text-gray-600 text-xs max-w-2xl mx-auto leading-relaxed">
             Visualisez le déroulement temporel des tâches et optimisez votre
             processus de traitement
-          </p>
+          </p> */}
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
@@ -563,8 +421,12 @@ export default function ChronogrammeTraitement() {
                     </table>
                   </div>
                 ) : (
-                  <div className="flex justify-center py-4">
-                    <CumulativeBarChart data={cumulativeChartData} />
+                  <div className="flex justify-center">
+                    <CumulativeGanttChart
+                      data={chronogrammeParPositionData}
+                      total={chronogrammeTotal}
+                      unit="Heures"
+                    />
                   </div>
                 )}
               </div>

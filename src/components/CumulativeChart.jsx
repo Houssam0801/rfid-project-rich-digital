@@ -1,188 +1,226 @@
+// src/components/CumulativeGanttChart.jsx
 import React, { useMemo } from 'react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-  LabelList,
-} from 'recharts';
 
-/**
- * Composant de graphique pour afficher la durée cumulative par position,
- * reproduisant l'effet du diagramme de flux/Gantt cumulatif.
- * * @param {Array<Object>} rawData - Les données brutes de position, incluant les durées.
- * @param {string} unitKey - La clé des données à utiliser (ex: 'heures_calculees').
- * @param {string} unitDisplay - L'unité à afficher (ex: 'Heures').
- * @param {string} barColor - Couleur principale des barres.
- * @param {string} totalColor - Couleur de la barre 'Total Général'.
- * @param {string} excludePosition - Position à exclure du calcul cumulatif (ex: 'Chef Service').
- */
-const CumulativeChart = ({
-  rawData,
-  unitKey,
-  unitDisplay,
-  barColor = '#3B82F6', // Blue-500
-  totalColor = '#1e3a8a', // Blue-900
-  excludePosition = 'Chef Service',
-}) => {
+const CumulativeGanttChart = ({ data, total, unit = 'Heures' }) => {
+  // Define the correct process order based on your workflow
+  const processOrder = [
+    'Client',
+    'Agence',
+    'Chargé Réception dossier',
+    'Chargé dossier',
+    'Chargé saisie',
+    'Chargé Validation',
+    'Chargé production',
+    'Chargé envoi',
+    'Chargé archives',
+    'Chargé Numérisation',
+    'Chargé codes PIN',
+  ];
 
-  // --- 1. Préparation et Transformation des Données ---
+  // Prepare cumulative data following process order
   const chartData = useMemo(() => {
-    let cumulativeValue = 0;
-    let dataForChart = [];
+    let cumulative = 0;
+    const cumulativeData = [];
 
-    // 1. Filtrer et calculer le cumul
-    const filteredPositions = rawData.filter(
-        (pos) => pos.position !== excludePosition && pos.position !== 'Total Général'
-    ).map(pos => ({
-        position: pos.position,
-        value: pos[unitKey] || 0,
-    }));
+    processOrder.forEach((position) => {
+      if (data[position]) {
+        const duration = unit === 'Heures' 
+          ? data[position].dureeHeures 
+          : unit === 'Minutes' 
+          ? data[position].dureeMinutes 
+          : data[position].dureeSecondes;
 
-    // 2. Créer les entrées pour le graphique (avec la valeur 'Invisible' pour le décalage)
-    for (const item of filteredPositions) {
-      // Le 'gap' invisible est la valeur cumulative précédente
-      const invisibleGap = cumulativeValue;
-      
-      // La valeur visible est la durée propre de cette position
-      const visibleDuration = item.value;
-
-      dataForChart.push({
-        name: item.position,
-        // Les barres Recharts vont utiliser ces deux clés pour l'empilement
-        invisible: invisibleGap, 
-        visible: visibleDuration,
-        // Sauvegarde de la durée totale jusqu'à ce point pour l'étiquette
-        cumulative: cumulativeValue + visibleDuration,
-      });
-
-      cumulativeValue += visibleDuration;
-    }
-
-    // 3. Ajouter la barre 'Total Général'
-    dataForChart.push({
-      name: "Total Général",
-      invisible: 0, // Pas de décalage
-      visible: cumulativeValue, // Durée totale
-      cumulative: cumulativeValue,
+        // Only include positions with duration > 0
+        if (duration > 0) {
+          const start = cumulative;
+          cumulative += duration;
+          cumulativeData.push({
+            position,
+            start,
+            end: cumulative,
+            duration,
+          });
+        }
+      }
     });
-    
-    return dataForChart;
 
-  }, [rawData, unitKey, excludePosition]);
+    return cumulativeData;
+  }, [data, unit]);
 
-  if (chartData.length === 0) {
-    return <p className="text-center text-gray-500 p-4">Aucune donnée disponible pour le graphique.</p>;
-  }
+  // Get total value
+  const totalValue = useMemo(() => {
+    return unit === 'Heures' 
+      ? total.dureeHeures 
+      : unit === 'Minutes' 
+      ? total.dureeMinutes 
+      : total.dureeSecondes;
+  }, [total, unit]);
 
-  // Détermination de la durée maximale pour l'axe X
-  const totalMax = chartData[chartData.length - 1]?.cumulative || 1;
+  // Chart dimensions
+  const width = 1000;
+  const height = (chartData.length + 1) * 35 + 80; // +1 for total row
+  const marginLeft = 220;
+  const marginRight = 100;
+  const marginTop = 40;
+  const marginBottom = 50;
+  const barHeight = 22;
 
-
-  // --- Custom Tooltip pour afficher le cumul ---
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-        // payload[0] est la barre invisible, payload[1] est la barre visible
-        const visibleBar = payload.find(p => p.dataKey === 'visible');
-        const cumulativeValue = visibleBar ? visibleBar.payload.cumulative : 0;
-        
-        return (
-            <div className="bg-white p-3 border border-gray-300 rounded-lg shadow-xl text-sm min-w-[180px]">
-                <p className="font-bold text-gray-800 border-b pb-1 mb-1">{label}</p>
-                <p className="text-gray-700">Durée Propre: <span className="font-mono text-blue-700 font-semibold">{visibleBar.value.toFixed(2)} {unitDisplay.toLowerCase()}</span></p>
-                <p className="mt-1 pt-1 border-t text-sm font-semibold text-gray-900 flex justify-between">
-                    Cumul: <span className="font-mono">{cumulativeValue.toFixed(2)} {unitDisplay.toLowerCase()}</span>
-                </p>
-            </div>
-        );
-    }
-    return null;
+  // Scale function
+  const xScale = (value) => {
+    const maxValue = totalValue * 1.05; // 5% padding
+    return (
+      marginLeft +
+      (value / maxValue) * (width - marginLeft - marginRight)
+    );
   };
 
+  // Generate grid lines
+  const gridLines = useMemo(() => {
+    const maxValue = totalValue * 1.05;
+    const step = maxValue / 10;
+    return Array.from({ length: 11 }, (_, i) => i * step);
+  }, [totalValue]);
 
   return (
-    <div className="h-[500px] w-full bg-white p-4 rounded-lg shadow-inner border border-gray-200">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={chartData}
-          layout="vertical" // Pour un graphique horizontal
-          margin={{ top: 20, right: 60, left: 10, bottom: 20 }}
-          barCategoryGap="25%"
+    <div className="w-full overflow-x-auto py-2">
+      <svg
+        width={width}
+        height={height}
+        className="mx-auto"
+        style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
+      >
+        {/* Title */}
+        <text
+          x={width / 2}
+          y={15}
+          textAnchor="middle"
+          className="text-base font-bold fill-gray-800"
         >
-          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e5e7eb" />
+          Répartition Cumulative du Temps par Poste
+        </text>
 
-          {/* Axe X: Cumul de Durée */}
-          <XAxis
-            type="number"
-            domain={[0, totalMax * 1.1]} // Ajuste la plage
-            stroke="#374151"
-            tickLine={false}
-            axisLine={{ strokeWidth: 2, stroke: "#374151" }}
-            tick={{ fontSize: 11 }}
-            tickFormatter={(value) => `${value.toFixed(2)}`}
-            label={{
-                value: `Cumul de Durée (${unitDisplay})`,
-                position: "insideBottom",
-                offset: -10,
-                fill: "#374151",
-                fontSize: 12,
-                fontWeight: 600,
-            }}
-          />
-
-          {/* Axe Y: Positions */}
-          <YAxis
-            type="category"
-            dataKey="name"
-            stroke="#374151"
-            tickLine={false}
-            axisLine={false}
-            tick={{ fontSize: 12, fill: "#374151" }}
-            width={120}
-          />
-
-          {/* Tooltip personnalisé */}
-          <Tooltip content={<CustomTooltip unitDisplay={unitDisplay} />} />
-
-          {/* Barre INVISIBLE (pour créer le décalage 'left') */}
-          <Bar 
-            dataKey="invisible" 
-            stackId="a" 
-            fill="transparent" 
-            isAnimationActive={false} // Désactiver l'animation pour les barres invisibles
-          />
-          
-          {/* Barre VISIBLE (la durée propre de la position) */}
-          <Bar 
-            dataKey="visible" 
-            stackId="a" 
-            barSize={20}
-            radius={[0, 8, 8, 0]} // Coins arrondis à droite
-          >
-            {chartData.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                // Couleur différente pour le 'Total Général'
-                fill={entry.name === "Total Général" ? totalColor : barColor}
-              />
-            ))}
-            
-            {/* L'étiquette affiche la valeur cumulative totale (comme dans votre code Python) */}
-            <LabelList
-              dataKey="cumulative"
-              position="right"
-              formatter={(value) => value.toFixed(2)}
-              style={{ fill: "#374151", fontSize: 11, fontWeight: 600 }}
+        {/* Grid lines */}
+        {gridLines.map((tick, i) => (
+          <g key={i}>
+            <line
+              x1={xScale(tick)}
+              y1={marginTop}
+              x2={xScale(tick)}
+              y2={height - marginBottom}
+              stroke="#e5e7eb"
+              strokeDasharray="3,3"
+              strokeWidth="1"
             />
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+            <text
+              x={xScale(tick)}
+              y={height - marginBottom + 20}
+              textAnchor="middle"
+              className="text-xs fill-gray-600"
+            >
+              {tick.toFixed(2)}
+            </text>
+          </g>
+        ))}
+
+        {/* X-axis label */}
+        <text
+          x={width / 2}
+          y={height - 5}
+          textAnchor="middle"
+          className="text-sm font-semibold fill-gray-700"
+        >
+          Cumul de Durée ({unit})
+        </text>
+
+        {/* Bars - Gantt/Waterfall style following process order */}
+        {chartData.map((item, index) => {
+          const y = marginTop + index * 35;
+          const barWidth = xScale(item.end) - xScale(item.start);
+
+          return (
+            <g key={item.position}>
+              {/* Position label */}
+              <text
+                x={marginLeft - 10}
+                y={y + barHeight / 2 + 5}
+                textAnchor="end"
+                className="text-xs fill-gray-700"
+              >
+                {item.position}
+              </text>
+
+              {/* Bar segment - showing individual contribution */}
+              <rect
+                x={xScale(item.start)}
+                y={y}
+                width={barWidth}
+                height={barHeight}
+                fill="#3b82f6"
+                rx="4"
+                ry="4"
+                opacity="0.85"
+              />
+
+              {/* Cumulative value label at the end */}
+              <text
+                x={xScale(item.end) + 10}
+                y={y + barHeight / 2 + 5}
+                className="text-xs font-semibold fill-gray-700"
+              >
+                {item.end.toFixed(2)}
+              </text>
+            </g>
+          );
+        })}
+
+        {/* Total bar */}
+        {chartData.length > 0 && (
+          <g>
+            {/* Separator line */}
+            <line
+              x1={marginLeft - 10}
+              y1={marginTop + chartData.length * 35 - 5}
+              x2={width - marginRight}
+              y2={marginTop + chartData.length * 35 - 5}
+              stroke="#cbd5e1"
+              strokeWidth="2"
+            />
+
+            {/* Total label */}
+            <text
+              x={marginLeft - 10}
+              y={marginTop + chartData.length * 35 + barHeight / 2 + 5}
+              textAnchor="end"
+              className="text-sm font-bold fill-gray-900"
+            >
+              Total Général
+            </text>
+
+            {/* Total bar - full width from 0 to total */}
+            <rect
+              x={xScale(0)}
+              y={marginTop + chartData.length * 35}
+              width={xScale(totalValue) - xScale(0)}
+              height={barHeight}
+              fill="#1e3a8a"
+              rx="4"
+              ry="4"
+              opacity="0.9"
+            />
+
+            {/* Total value label */}
+            <text
+              x={xScale(totalValue) + 10}
+              y={marginTop + chartData.length * 35 + barHeight / 2 + 5}
+              className="text-sm font-bold fill-gray-900"
+            >
+              {totalValue.toFixed(2)}
+            </text>
+          </g>
+        )}
+      </svg>
     </div>
   );
 };
 
-export default CumulativeChart;
+export default CumulativeGanttChart;

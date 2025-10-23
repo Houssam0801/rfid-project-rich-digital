@@ -22,7 +22,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       id: 'normes', 
       label: 'Normes de Dimensionnement', 
       icon: FileText,
-      path: '/'
+      path: '/normes-dimensionnement'
     },
     { 
       id: 'chronogramme', 
@@ -34,13 +34,13 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       id: 'referentiel', 
       label: 'Référentiel', 
       icon: BookOpen,
-      path: '/'
+      path: '/referentiel-actuel'
     },
     { 
       id: 'schema', 
       label: 'Schéma Process', 
       icon: Network,
-      path: '/'
+      path: '/schema-process'
     },
   ];
 

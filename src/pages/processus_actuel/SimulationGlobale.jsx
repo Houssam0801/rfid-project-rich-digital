@@ -181,19 +181,19 @@ export default function SimulationGlobale() {
         {/* Header */}
         <div className="text-center space-y-3">
           <div className="flex items-center justify-center gap-3 mb-1.5">
-            <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full opacity-80"></div>
-            <h1 className="text-xl font-bold text-gray-900">
+            <div className="w-1 h-7 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full opacity-80"></div>
+            <h1 className="text-2xl font-bold text-gray-900">
               Simulation{" "}
               <span className="text-transparent bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text">
                 Globale
               </span>
             </h1>
-            <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full opacity-80"></div>
+            <div className="w-1 h-7 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full opacity-80"></div>
           </div>
-          <p className="text-gray-600 text-xs max-w-2xl mx-auto leading-relaxed">
+          {/* <p className="text-gray-600 text-xs max-w-2xl mx-auto leading-relaxed">
             Analysez les besoins en effectif pour toutes les positions avec
             précision et efficacité
-          </p>
+          </p> */}
         </div>
 
         {/* Input Form Card */}
