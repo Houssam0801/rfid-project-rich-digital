@@ -3,7 +3,6 @@ import { Outlet } from "react-router-dom";
 import { Menu } from "lucide-react";
 import Sidebar from "../Components/SideBar";
 
-
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -47,10 +46,7 @@ const Layout = () => {
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar */}
-      <Sidebar
-        isOpen={sidebarOpen}
-        setIsOpen={setSidebarOpen}
-      />
+      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
       {/* Main content area wrapper */}
       <div
@@ -61,27 +57,31 @@ const Layout = () => {
       `}
       >
         {/* Top Navigation Bar (Header) */}
-        <header className="flex items-center justify-between h-15 px-5 bg-white border-b border-gray-200 flex-shrink-0">
+        <header
+          className="flex items-center justify-between h-15 px-5 
+                  bg-gradient-to-r from-[#005EA8]/10 to-[#0A6BBC]/100 
+                  backdrop-blur-md border-b border-white/10 shadow-sm text-white flex-shrink-0"
+        >
           {/* Left side */}
           <div className="flex items-center gap-3">
             {/* Menu toggle for small screens */}
             {isMobile && ( // Show only on mobile
               <button
                 onClick={handleMenuToggle}
-                className="p-2.5 rounded-md hover:bg-gray-100 transition-colors"
+                className="p-2.5 rounded-md hover:bg-white/10 transition-colors"
                 aria-label="Toggle sidebar"
               >
-                <Menu className="w-6 h-6 text-gray-600" />
+                <Menu className="w-6 h-6 text-black" />
               </button>
             )}
-            
+
             {/* Welcome message - show on desktop when sidebar is open */}
             {!isMobile && sidebarOpen && (
               <div className="flex flex-col items-start">
-                <div className="text-base font-semibold text-gray-800">
+                <div className="text-base font-semibold text-black">
                   Bienvenue!
                 </div>
-                <div className="text-sm text-gray-500 mt-1">
+                <div className="text-sm text-black/80 mt-1">
                   {new Intl.DateTimeFormat("fr-FR", {
                     day: "numeric",
                     month: "long",
@@ -94,16 +94,21 @@ const Layout = () => {
 
           {/* Right side - Empty for now since we removed user dropdown */}
           <div className="flex items-center gap-6">
-            {/* You can add other header elements here later */}
+            <div className="p-1 rounded-md bg-white/80 flex items-center justify-center">
+              <img
+                src="/images/almav_bgremoved.png"
+                alt="Logo"
+                className="w-30 h-9 object-contain"
+              />
+            </div>
           </div>
         </header>
-
         {/* Main content area */}
         <main className="flex-1 overflow-y-scroll max-h-screen pt-0">
           <Outlet />
         </main>
       </div>
-      
+
       {/* Toast notifications */}
     </div>
   );

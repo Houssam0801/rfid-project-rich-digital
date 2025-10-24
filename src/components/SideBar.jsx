@@ -1,46 +1,54 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Building2, BarChart3, FileText, Clock, BookOpen, Network, X } from 'lucide-react';
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import {
+  Building2,
+  BarChart3,
+  FileText,
+  Clock,
+  BookOpen,
+  Network,
+  X,
+} from "lucide-react";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const location = useLocation();
 
   const navigationItems = [
-    { 
-      id: 'simulation-position', 
-      label: 'Simulation par Position', 
+    {
+      id: "simulation-position",
+      label: "Simulation par Position",
       icon: Building2,
-      path: '/simulation-position'
+      path: "/simulation-position",
     },
-    { 
-      id: 'simulation-globale', 
-      label: 'Simulation Globale', 
+    {
+      id: "simulation-globale",
+      label: "Simulation Globale",
       icon: BarChart3,
-      path: '/simulation-globale'
+      path: "/simulation-globale",
     },
-    { 
-      id: 'normes', 
-      label: 'Normes de Dimensionnement', 
+    {
+      id: "normes",
+      label: "Normes de Dimensionnement",
       icon: FileText,
-      path: '/normes-dimensionnement'
+      path: "/normes-dimensionnement",
     },
-    { 
-      id: 'chronogramme', 
-      label: 'Chronogramme de Traitement Unitaire', 
+    {
+      id: "chronogramme",
+      label: "Chronogramme de Traitement Unitaire",
       icon: Clock,
-      path: '/chronogramme-unitaire'
+      path: "/chronogramme-unitaire",
     },
-    { 
-      id: 'referentiel', 
-      label: 'Référentiel', 
+    {
+      id: "referentiel",
+      label: "Référentiel",
       icon: BookOpen,
-      path: '/referentiel-actuel'
+      path: "/referentiel-actuel",
     },
-    { 
-      id: 'schema', 
-      label: 'Schéma Process', 
+    {
+      id: "schema",
+      label: "Schéma Process",
       icon: Network,
-      path: '/schema-process'
+      path: "/schema-process",
     },
   ];
 
@@ -59,56 +67,82 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     <>
       {/* Overlay for mobile */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <aside className={`
-        fixed left-0 top-0 h-screen w-62 bg-white border-r border-gray-200 flex flex-col z-50
+      <aside
+        className={`
+        fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 flex flex-col z-50
         transform transition-transform duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        ${isOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0 lg:static
-      `}>
-        {/* Header */}
-        <div className="px-3 py-1 border-b border-gray-200 flex items-center justify-between mx-auto">
-          <div>
-            <h1 className="text-xl font-bold text-blue-600">TAWAZOON RH</h1>
-            <p className="text-sm text-gray-500 mt-1">Workforce Analytics</p>
+      `}
+      >
+        {/* Header with Logo */}
+        <div className="px-4 py-4 border-gray-200 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {/* Logo Container */}
+            <div className="p-0.5 rounded-lg bg-white/20 flex items-center justify-center shadow-sm">
+              <img
+                src="/images/LOGO_Tawazoon_RH_Mini.png"
+                alt="Tawazoon RH"
+                className="w-15 h-15 object-contain"
+              />
+            </div>
+
+            {/* App Name */}
+            <div className="flex flex-col">
+              <h1 className="text-lg font-bold text-gray-900 leading-tight">
+                TAWAZOON RH
+              </h1>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Analyse des Effectifs
+              </p>
+            </div>
           </div>
-          
+
           {/* Close button for mobile */}
-          <button 
+          <button
             onClick={() => setIsOpen(false)}
             className="lg:hidden p-2 rounded-md hover:bg-gray-100 transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 text-gray-600" />
           </button>
         </div>
 
+        {/* Divider - Best Practice */}
+        <div className="w-[95%] mx-auto h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent" />
+
         {/* Navigation */}
-        <nav className="flex-1 p-4">
+        <nav className="flex-1 px-3 py-4">
           <ul className="space-y-2">
             {navigationItems.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.path);
-              
+
               return (
                 <li key={item.id}>
                   <Link
                     to={item.path}
                     onClick={handleLinkClick}
                     className={`
-                      w-full flex items-center gap-3 px-2 py-3 rounded-lg text-left transition-all
-                      ${active
-                        ? "bg-blue-100 text-blue-700 border-l-4 border-blue-500"
-                        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                      w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-all
+                      ${
+                        active
+                          ? "bg-blue-100 text-blue-700 border-l-4 border-blue-500"
+                          : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                       }
                     `}
                   >
-                    <Icon className={`w-5 h-5 ${active ? 'text-blue-600' : 'text-gray-500'}`} />
+                    <Icon
+                      className={`w-5 h-5 ${
+                        active ? "text-blue-600" : "text-gray-500"
+                      }`}
+                    />
                     <span className="text-sm font-medium">{item.label}</span>
                   </Link>
                 </li>
@@ -120,7 +154,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         {/* Footer */}
         <div className="p-4 border-t border-gray-200">
           <p className="text-xs text-gray-500 text-center">
-            v1.0.0 - 2024
+            Version 1.0.0 • © 2025
           </p>
         </div>
       </aside>

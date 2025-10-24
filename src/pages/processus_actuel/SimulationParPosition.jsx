@@ -19,9 +19,19 @@ import {
   Folder,
   Package,
   ChevronDown,
+  FileDown,
 } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { referentiels, positionOptions } from "../../data/referentiels";
 import { simulationResults } from "../../data/results";
+import ExcelJS from "exceljs";
 
 // Utility functions
 const formatTime = (minutes, secondes) => {
@@ -65,31 +75,235 @@ export default function SimulationParPosition() {
   // Get results only if simulation has been run
   const currentResults = showResults ? simulationResults[position] : null;
 
+  // Excel export function
+  const handleExporterExcel = async () => {
+    try {
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Simulation_Position");
+
+      // Set column widths
+      worksheet.columns = [
+        { width: 8 },
+        { width: 35 },
+        { width: 10 },
+        { width: 10 },
+        { width: 12 }, // Table 1 columns
+        { width: 5 }, // Spacer
+        { width: 8 },
+        { width: 35 },
+        { width: 15 },
+        { width: 15 }, // Table 2 columns
+      ];
+
+      // Add title
+      const titleRow = worksheet.addRow([
+        "Simulation par Position - " + position,
+      ]);
+      titleRow.font = { bold: true, size: 16 };
+      titleRow.alignment = { horizontal: "center" };
+      worksheet.mergeCells("A1:J1");
+      worksheet.addRow([]); // Empty row
+
+      // Headers on the same row - Référentiel (merge 3 cells) and Résultats (merge 3 cells)
+      const headersRow = worksheet.addRow([
+        "Référentiel d'activités",
+        "",
+        "", // Will be merged A3:C3
+        "",
+        "", // Remaining cells for table 1
+        "", // Spacer
+        "Résultats de Simulation",
+        "",
+        "", // Will be merged G3:I3
+        "", // Remaining cell for table 2
+      ]);
+
+      // Merge cells for Référentiel d'activités (3 cells)
+      worksheet.mergeCells("A3:C3");
+      headersRow.getCell(1).value = "Référentiel d'activités";
+      headersRow.getCell(1).font = { bold: true, size: 14 };
+      headersRow.getCell(1).alignment = { horizontal: "center" };
+
+      // Merge cells for Résultats de Simulation (3 cells)
+      worksheet.mergeCells("G3:I3");
+      headersRow.getCell(7).value = "Résultats de Simulation";
+      headersRow.getCell(7).font = { bold: true, size: 14 };
+      headersRow.getCell(7).alignment = { horizontal: "center" };
+
+      // Table Subheaders
+      const subHeadersRow = worksheet.addRow([
+        "#",
+        "Activité",
+        "Min",
+        "Sec",
+        "Unité",
+        "", // Spacer
+        "#",
+        "Activité",
+        "Unités",
+        "Heures",
+      ]);
+      subHeadersRow.font = { bold: true };
+      subHeadersRow.alignment = { horizontal: "center" };
+
+      // Add data from both tables
+      const maxRows = Math.max(
+        currentReferentiel.length,
+        currentResults ? currentResults.results.length : 0
+      );
+
+      for (let i = 0; i < maxRows; i++) {
+        const rowData = [];
+
+        // Table 1 data
+        if (i < currentReferentiel.length) {
+          const activity = currentReferentiel[i];
+          rowData.push(
+            activity.order,
+            activity.activite,
+            activity.minutes,
+            activity.secondes,
+            activity.unite
+          );
+        } else {
+          rowData.push("", "", "", "", "");
+        }
+
+        // Spacer column
+        rowData.push("");
+
+        // Table 2 data
+        if (currentResults && i < currentResults.results.length) {
+          const result = currentResults.results[i];
+          rowData.push(
+            result.order,
+            result.activite,
+            result.nombreUnites,
+            result.heures
+          );
+        } else {
+          rowData.push("", "", "", "");
+        }
+
+        const row = worksheet.addRow(rowData);
+
+        // Align numeric columns to center
+        [2, 3, 8, 9].forEach((colIndex) => {
+          if (row.getCell(colIndex).value) {
+            row.getCell(colIndex).alignment = { horizontal: "center" };
+          }
+        });
+      }
+
+      // Add summary rows for table 2
+      if (currentResults) {
+        worksheet.addRow([]);
+
+        // Total heures nécessaires
+        const totalHeuresRow = worksheet.addRow([
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "Total heures nécessaires (Activité/jour)",
+          "",
+          currentResults.totalHeuresNecessaires + " h",
+        ]);
+        totalHeuresRow.getCell(8).alignment = { horizontal: "left" };
+        totalHeuresRow.getCell(9).alignment = { horizontal: "center" };
+        totalHeuresRow.getCell(9).font = { bold: true };
+
+        // Effectif nécessaire
+        const effectifRow = worksheet.addRow([
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          `Effectif nécessaire (base ${currentResults.heuresNetParJour}h /jour)`,
+          "",
+          currentResults.effectifNecessaire,
+        ]);
+        effectifRow.getCell(8).alignment = { horizontal: "left" };
+        effectifRow.getCell(9).alignment = { horizontal: "center" };
+        effectifRow.getCell(9).font = { bold: true };
+
+        // Effectif nécessaire Arrondi
+        const effectifArrondiRow = worksheet.addRow([
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          `Effectif nécessaire Arrondi (base ${currentResults.heuresNetParJour}h /jour)`,
+          "",
+          currentResults.effectifNecessaireArrondi,
+        ]);
+        effectifArrondiRow.getCell(8).alignment = { horizontal: "left" };
+        effectifArrondiRow.getCell(9).alignment = { horizontal: "center" };
+        effectifArrondiRow.getCell(9).font = { bold: true };
+      }
+
+      // Apply borders to all cells with data
+      worksheet.eachRow((row) => {
+        row.eachCell((cell) => {
+          if (cell.value) {
+            cell.border = {
+              top: { style: "thin" },
+              left: { style: "thin" },
+              bottom: { style: "thin" },
+              right: { style: "thin" },
+            };
+          }
+        });
+      });
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Simulation_Position_${position.replace(
+        /\s+/g,
+        "_"
+      )}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+      alert("Erreur lors de l'exportation Excel");
+    }
+  };
+
   return (
-    <div className="bg-[#f8fafc] py-1 px-2">
+    <div className="bg-slate-50 py-1 px-2">
       <div className="max-w-full mx-auto p-4 space-y-4">
         {/* Header */}
-        <div className="text-center space-y-3">
-          <div className="flex items-center justify-center gap-3 mb-1.5">
-            <div className="w-1 h-7 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full"></div>
-            <h1 className="text-2xl font-bold text-gray-800">
-              Simulation par{" "}
-              <span className="text-transparent bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text">
-                Position
-              </span>
-            </h1>
-            <div className="w-1 h-7 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full"></div>
-          </div>
-          {/* <p className="text-gray-600 text-xs max-w-2xl mx-auto leading-relaxed">
-            Analyse détaillée des besoins en effectif pour chaque poste
-            spécifique
-          </p> */}
+        <div className="text-center space-y-4">
+          <h1 className="text-2xl font-bold text-gray-800 relative inline-block px-2">
+            Simulation par{" "}
+            <span className="text-transparent bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text">
+              Position
+            </span>
+            <div className="absolute -bottom-0.5 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"></div>
+          </h1>
         </div>
 
         {/* Input Form Card */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-          <div className="border-b border-gray-200 px-4 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-xl">
-            <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+          <div className="border-b border-gray-200 px-4 py-1 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl">
+            <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
               Paramètres de Simulation
             </h3>
           </div>
@@ -210,7 +424,7 @@ export default function SimulationParPosition() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 mt-6 justify-center flex-wrap">
+            <div className="flex gap-3 mt-3 justify-center flex-wrap">
               <button
                 onClick={handleLancerSimulation}
                 className="cursor-pointer text-sm px-2 py-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-sm hover:shadow-md flex items-center gap-2"
@@ -225,6 +439,14 @@ export default function SimulationParPosition() {
                 <BarChart3 className="w-3 h-3" />
                 Afficher Graphe
               </button>
+              <button
+                onClick={handleExporterExcel}
+                disabled={!showResults}
+                className="cursor-pointer text-sm px-2 py-1 border-2 border-green-600 text-green-600 rounded-xl hover:bg-green-50 transition-all font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <FileDown className="w-3 h-3" />
+                Exporter Excel
+              </button>
             </div>
           </div>
         </div>
@@ -232,39 +454,39 @@ export default function SimulationParPosition() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Référentiel Table */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-            <div className="border-b border-gray-200 px-4 py-1 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl">
-              <h3 className="text-base font-semibold text-gray-900">
+            <div className="border-b border-gray-200 px-4 py-1 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl text-center">
+              <h3 className="text-base font-bold text-gray-900">
                 Référentiel d'activités
                 <span className="text-sm font-normal text-gray-500 ml-2">
                   ({position})
                 </span>
               </h3>
             </div>
-            <div className="p-5">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-2 px-3 text-xs font-semibold text-gray-700 uppercase tracking-wider">
+            <div className="px-4 py-2">
+              <div className="rounded-xl border border-gray-200 overflow-hidden">
+                <Table>
+                  <TableHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 ">
+                    <TableRow>
+                      <TableHead className="text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         #
-                      </th>
-                      <th className="text-left py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      </TableHead>
+                      <TableHead className="text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                         Activité
-                      </th>
-                      <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      </TableHead>
+                      <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
                         Min
-                      </th>
-                      <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      </TableHead>
+                      <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
                         Sec
-                      </th>
-                      <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      </TableHead>
+                      <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
                         Unité
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {currentReferentiel.map((activity, index) => (
-                      <tr
+                      <TableRow
                         key={activity.order}
                         className={
                           index % 2 === 0
@@ -272,69 +494,63 @@ export default function SimulationParPosition() {
                             : "bg-white hover:bg-gray-50"
                         }
                       >
-                        <td className="py-2 px-3 text-sm font-medium text-gray-900">
+                        <TableCell className="text-sm font-medium text-gray-900">
                           {activity.order}
-                        </td>
-                        <td className="py-2 px-3 text-sm text-gray-700">
+                        </TableCell>
+                        <TableCell className="text-sm text-gray-700">
                           {activity.activite}
-                        </td>
-                        <td className="py-2 px-3 text-sm text-center text-gray-700 font-medium">
+                        </TableCell>
+                        <TableCell className="text-sm text-center text-gray-700 font-medium">
                           {activity.minutes}
-                        </td>
-                        <td className="py-2 px-3 text-sm text-center text-gray-700 font-medium">
+                        </TableCell>
+                        <TableCell className="text-sm text-center text-gray-700 font-medium">
                           {activity.secondes}
-                        </td>
-                        <td className="py-2 px-3 text-center">
-                          <span
-                            className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                              activity.unite === "Sac"
-                                ? "bg-blue-100 text-blue-700 border border-blue-200"
-                                : "bg-green-100 text-green-700 border border-green-200"
-                            }`}
-                          >
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <span className="inline-block px-2 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
                             {activity.unite}
                           </span>
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     ))}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
               </div>
             </div>
           </div>
 
           {/* Results Table - Always visible but empty until simulation runs */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-            <div className="border-b border-gray-200 px-4 py-1 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl">
-              <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+            <div className="border-b border-gray-200 px-4 py-1 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl text-center">
+              <h3 className="text-base font-bold text-gray-900">
                 Résultats de Simulation
               </h3>
             </div>
-            <div className="p-5">
+            <div className="px-4 py-2">
               {/* Results Table */}
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-2 px-3 text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              <div className="rounded-xl border border-gray-200 overflow-hidden">
+                <Table>
+                  <TableHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                    <TableRow>
+                      <TableHead className="text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                         #
-                      </th>
-                      <th className="text-left py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      </TableHead>
+                      <TableHead className="text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                         Activité
-                      </th>
-                      <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      </TableHead>
+                      <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
                         Unités
-                      </th>
-                      <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      </TableHead>
+                      <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
                         Heures
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {!showResults ? (
-                      <tr>
-                        <td
-                          colSpan="4"
+                      <TableRow>
+                        <TableCell
+                          colSpan={4}
                           className="py-12 text-center text-gray-400"
                         >
                           <div className="flex flex-col items-center gap-2">
@@ -344,12 +560,12 @@ export default function SimulationParPosition() {
                               résultats
                             </p>
                           </div>
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     ) : (
                       <>
                         {currentResults.results.map((result, index) => (
-                          <tr
+                          <TableRow
                             key={result.order}
                             className={
                               index % 2 === 0
@@ -357,59 +573,59 @@ export default function SimulationParPosition() {
                                 : "bg-white hover:bg-gray-50"
                             }
                           >
-                            <td className="py-2 px-3 text-sm font-medium text-gray-900">
+                            <TableCell className="text-sm font-medium text-gray-900">
                               {result.order}
-                            </td>
-                            <td className="py-2 px-3 text-sm text-gray-700">
+                            </TableCell>
+                            <TableCell className="text-sm text-gray-700">
                               {result.activite}
-                            </td>
-                            <td className="py-2 px-3 text-sm text-center text-gray-700 font-medium">
+                            </TableCell>
+                            <TableCell className="text-sm text-center text-gray-700 font-medium">
                               {result.nombreUnites}
-                            </td>
-                            <td className="py-2 px-3 text-sm text-center text-gray-700 font-medium">
+                            </TableCell>
+                            <TableCell className="text-sm text-center text-gray-700 font-medium">
                               {result.heures}
-                            </td>
-                          </tr>
+                            </TableCell>
+                          </TableRow>
                         ))}
-                        <tr className="bg-blue-50 font-semibold border-t-2 border-blue-200 hover:bg-blue-100">
-                          <td
-                            colSpan="3"
-                            className="py-2 px-3 text-left text-sm text-gray-700"
+                        <TableRow className="bg-blue-50 font-semibold border-t-2 border-blue-200 hover:bg-blue-100">
+                          <TableCell
+                            colSpan={3}
+                            className="text-left text-sm text-gray-700"
                           >
                             Total heures nécessaires (Activité/jour)
-                          </td>
-                          <td className="py-2 px-3 text-sm text-center text-gray-900 font-bold">
+                          </TableCell>
+                          <TableCell className="text-sm text-center text-gray-900 font-bold">
                             {currentResults.totalHeuresNecessaires} h
-                          </td>
-                        </tr>
-                        <tr className="bg-blue-50 font-semibold hover:bg-blue-100">
-                          <td
-                            colSpan="3"
-                            className="py-2 px-3 text-left text-sm text-gray-700"
+                          </TableCell>
+                        </TableRow>
+                        <TableRow className="bg-blue-50 font-semibold hover:bg-blue-100">
+                          <TableCell
+                            colSpan={3}
+                            className="text-left text-sm text-gray-700"
                           >
                             Effectif nécessaire (base{" "}
                             {currentResults.heuresNetParJour}h /jour)
-                          </td>
-                          <td className="py-2 px-3 text-sm text-center text-gray-900 font-bold">
+                          </TableCell>
+                          <TableCell className="text-sm text-center text-gray-900 font-bold">
                             {currentResults.effectifNecessaire}
-                          </td>
-                        </tr>
-                        <tr className="bg-gradient-to-r from-blue-100 to-blue-200 font-bold border-t-2 border-blue-300">
-                          <td
-                            colSpan="3"
-                            className="py-2 px-3 text-left text-sm text-gray-900"
+                          </TableCell>
+                        </TableRow>
+                        <TableRow className="bg-gradient-to-r from-blue-100 to-blue-200 font-bold border-t-2 border-blue-300">
+                          <TableCell
+                            colSpan={3}
+                            className="text-left text-sm text-gray-900"
                           >
                             Effectif nécessaire Arrondi (base{" "}
                             {currentResults.heuresNetParJour}h /jour)
-                          </td>
-                          <td className="py-2 px-3 text-sm text-center text-gray-900">
+                          </TableCell>
+                          <TableCell className="text-sm text-center text-gray-900">
                             {currentResults.effectifNecessaireArrondi}
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       </>
                     )}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
               </div>
             </div>
           </div>
@@ -417,13 +633,25 @@ export default function SimulationParPosition() {
 
         {/* Chart Modal */}
         {showChart && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-gray-500/20 backdrop-blur-md flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-xl max-w-6xl w-full max-h-[90vh] overflow-auto">
               <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 bg-white">
-                <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                  <BarChart3 className="w-6 h-6 text-blue-600" />
-                  Temps unitaire par activité (min)
-                </h3>
+                <div className="flex items-start gap-3">
+                  <BarChart3 className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-xl font-semibold text-gray-900">
+                        Temps unitaire par activité (min)
+                      </h3>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-0.5">
+                      Position:{" "}
+                      <span className="font-medium text-blue-600">
+                        {position}
+                      </span>
+                    </p>
+                  </div>
+                </div>
                 <button
                   onClick={() => setShowChart(false)}
                   className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"

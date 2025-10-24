@@ -1,5 +1,19 @@
 import { useState, useMemo, useRef } from "react";
-import { X, Search, FileDown, BarChart3, Table } from "lucide-react";
+import {
+  X,
+  Search,
+  FileDown,
+  BarChart3,
+  Table as TableIcon,
+} from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../components/ui/table";
 import ExcelJS from "exceljs";
 import {
   chronogrammeData,
@@ -108,6 +122,83 @@ export default function ChronogrammeTraitement() {
     }
   };
 
+  const handleExporterChronogrammeParPosition = async () => {
+    try {
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Chronogramme par Position");
+
+      worksheet.columns = [
+        { width: 40 },
+        { width: 25 },
+        { width: 25 },
+        { width: 25 },
+      ];
+
+      const headerRow = worksheet.addRow([
+        "Position",
+        "Durée Cumulée (Secondes)",
+        "Durée Cumulée (Minutes)",
+        "Durée Cumulée (Heures)",
+      ]);
+      headerRow.font = { bold: true };
+      headerRow.alignment = { horizontal: "center" };
+
+      Object.entries(chronogrammeParPositionData).forEach(
+        ([position, data]) => {
+          const row = worksheet.addRow([
+            position,
+            data.dureeSecondes.toFixed(2),
+            data.dureeMinutes.toFixed(2),
+            data.dureeHeures.toFixed(2),
+          ]);
+          row.alignment = { horizontal: "left" };
+          row.getCell(2).alignment = { horizontal: "center" };
+          row.getCell(3).alignment = { horizontal: "center" };
+          row.getCell(4).alignment = { horizontal: "center" };
+        }
+      );
+
+      const totalRow = worksheet.addRow([
+        "TOTAL GÉNÉRAL",
+        chronogrammeTotal.dureeSecondes.toFixed(2),
+        chronogrammeTotal.dureeMinutes.toFixed(2),
+        chronogrammeTotal.dureeHeures.toFixed(2),
+      ]);
+      totalRow.font = { bold: true };
+      totalRow.alignment = { horizontal: "left" };
+      totalRow.getCell(2).alignment = { horizontal: "center" };
+      totalRow.getCell(3).alignment = { horizontal: "center" };
+      totalRow.getCell(4).alignment = { horizontal: "center" };
+
+      worksheet.eachRow((row) => {
+        row.eachCell((cell) => {
+          cell.border = {
+            top: { style: "thin" },
+            left: { style: "thin" },
+            bottom: { style: "thin" },
+            right: { style: "thin" },
+          };
+        });
+      });
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "Chronogramme_Par_Position.xlsx";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+      alert("Erreur lors de l'exportation Excel");
+    }
+  };
+
   const handleSearchInputChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
@@ -127,28 +218,21 @@ export default function ChronogrammeTraitement() {
   };
 
   return (
-    <div className="bg-[#f8fafc] py-1 px-2">
+    <div className="bg-slate-50 py-1 px-2">
       <div className="max-w-full mx-auto p-4 space-y-4">
-        <div className="text-center space-y-3">
-          <div className="flex items-center justify-center gap-3 mb-1.5">
-            <div className="w-1 h-7 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full opacity-80"></div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Chronogramme de{" "}
-              <span className="text-transparent bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text">
-                Traitement Unitaire
-              </span>
-            </h1>
-            <div className="w-1 h-7 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full opacity-80"></div>
-          </div>
-          {/* <p className="text-gray-600 text-xs max-w-2xl mx-auto leading-relaxed">
-            Visualisez le déroulement temporel des tâches et optimisez votre
-            processus de traitement
-          </p> */}
+        <div className="text-center space-y-4">
+          <h1 className="text-2xl font-bold text-gray-900 relative inline-block px-2">
+            Chronogramme de{" "}
+            <span className="text-transparent bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text">
+              Traitement Unitaire
+            </span>
+            <div className="absolute -bottom-0.5 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"></div>
+          </h1>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-          <div className="border-b border-gray-200 px-4 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-xl">
-            <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+          <div className="border-b border-gray-200 px-4 py-1 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl">
+            <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
               Recherche et Actions
             </h3>
           </div>
@@ -197,18 +281,19 @@ export default function ChronogrammeTraitement() {
 
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                 <button
-                  onClick={handleExporterExcel}
-                  className="cursor-pointer w-full sm:w-auto text-sm px-3 py-1 border-2 border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-all font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
-                >
-                  <FileDown className="w-4 h-4" />
-                  Exporter Excel
-                </button>
-                <button
                   onClick={() => setShowModal(true)}
                   className="cursor-pointer w-full sm:w-auto text-sm px-3 py-1 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-all font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
                 >
                   <BarChart3 className="w-4 h-4" />
                   Chronogramme
+                </button>
+
+                <button
+                  onClick={handleExporterExcel}
+                  className="cursor-pointer w-full sm:w-auto text-sm px-3 py-1 border-2 border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-all font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
+                >
+                  <FileDown className="w-4 h-4" />
+                  Exporter Excel
                 </button>
               </div>
             </div>
@@ -216,8 +301,8 @@ export default function ChronogrammeTraitement() {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-          <div className="border-b border-gray-200 px-4 py-2 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl">
-            <h3 className="text-base font-semibold text-gray-900">
+          <div className="border-b border-gray-200 px-4 py-2 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl text-center">
+            <h3 className="text-base font-bold text-gray-900">
               Détail des Tâches
               {searchTerm && (
                 <span className="text-sm font-normal text-gray-500 ml-2">
@@ -227,42 +312,42 @@ export default function ChronogrammeTraitement() {
               )}
             </h3>
           </div>
-          <div className="p-5">
-            <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
-              <table className="w-full">
-                <thead className="sticky top-0 bg-white z-10">
-                  <tr className="border-b-2 border-gray-200">
-                    <th className="text-left py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+          <div className="px-2 py-2">
+            <div className="rounded-xl border border-gray-200 overflow-hidden">
+              <Table>
+                <TableHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 sticky top-0">
+                  <TableRow>
+                    <TableHead className="text-left text-xs font-bold text-gray-700 uppercase tracking-wider w-3/12">
                       Tâche
-                    </th>
-                    <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-2/12">
                       Responsable
-                    </th>
-                    <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/12">
                       Durée (Min)
-                    </th>
-                    <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/12">
                       Durée (Sec)
-                    </th>
-                    <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                      Temps Cumulé (Min)
-                    </th>
-                    <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                      Temps Cumulé (Sec)
-                    </th>
-                    <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                      Temps Cumulé (m:s)
-                    </th>
-                    <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                      Temps Cumulé (Heure)
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
+                    </TableHead>
+                    <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/12">
+                      Cumulé (Min)
+                    </TableHead>
+                    <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/12">
+                      Cumulé (Sec)
+                    </TableHead>
+                    <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/12">
+                      Cumulé (m:s)
+                    </TableHead>
+                    <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-2/12">
+                      Cumulé (Heure)
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {filteredData.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan="8"
+                    <TableRow>
+                      <TableCell
+                        colSpan={8}
                         className="py-12 text-center text-gray-400"
                       >
                         <div className="flex flex-col items-center gap-2">
@@ -273,11 +358,11 @@ export default function ChronogrammeTraitement() {
                               : "Aucune donnée disponible"}
                           </p>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ) : (
                     filteredData.map((item, index) => (
-                      <tr
+                      <TableRow
                         key={index}
                         className={
                           index % 2 === 0
@@ -285,41 +370,41 @@ export default function ChronogrammeTraitement() {
                             : "bg-white hover:bg-gray-50"
                         }
                       >
-                        <td className="py-2 px-3 text-sm text-gray-700">
+                        <TableCell className="text-sm text-gray-700 w-3/12">
                           {item.tache}
-                        </td>
-                        <td className="py-2 px-3 text-sm text-center text-gray-700 font-medium">
+                        </TableCell>
+                        <TableCell className="text-sm text-center text-gray-700 font-medium w-2/12">
                           {item.responsable}
-                        </td>
-                        <td className="py-2 px-3 text-sm text-center text-gray-700">
+                        </TableCell>
+                        <TableCell className="text-sm text-center text-gray-700 w-1/12">
                           {item.dureeMin}
-                        </td>
-                        <td className="py-2 px-3 text-sm text-center text-gray-700">
+                        </TableCell>
+                        <TableCell className="text-sm text-center text-gray-700 w-1/12">
                           {item.dureeSec}
-                        </td>
-                        <td className="py-2 px-3 text-sm text-center text-gray-700">
+                        </TableCell>
+                        <TableCell className="text-sm text-center text-gray-700 w-1/12">
                           {item.tempsCumuleMin}
-                        </td>
-                        <td className="py-2 px-3 text-sm text-center text-gray-700">
+                        </TableCell>
+                        <TableCell className="text-sm text-center text-gray-700 w-1/12">
                           {item.tempsCumuleSec}
-                        </td>
-                        <td className="py-2 px-3 text-sm text-center text-gray-700 font-medium">
+                        </TableCell>
+                        <TableCell className="text-sm text-center text-gray-700 font-medium w-1/12">
                           {item.tempsCumuleMS}
-                        </td>
-                        <td className="py-2 px-3 text-sm text-center text-gray-900 font-bold">
+                        </TableCell>
+                        <TableCell className="text-sm text-center text-gray-900 font-bold w-2/12">
                           {item.tempsCumuleHeure}
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     ))
                   )}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           </div>
         </div>
 
         {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="fixed inset-0 bg-gray-500/20 backdrop-blur-md flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-100">
               <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 bg-white z-10 rounded-t-xl">
                 <div className="flex-1 flex justify-center">
@@ -337,7 +422,7 @@ export default function ChronogrammeTraitement() {
               </div>
 
               <div className="p-3 space-y-3">
-                <div className="flex justify-center">
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <button
                     onClick={() =>
                       setViewMode(viewMode === "table" ? "chart" : "table")
@@ -351,74 +436,89 @@ export default function ChronogrammeTraitement() {
                       </>
                     ) : (
                       <>
-                        <Table className="w-4 h-4" />
+                        <TableIcon className="w-4 h-4" />
                         Afficher Tableau
                       </>
                     )}
+                  </button>
+
+                  <button
+                    onClick={handleExporterChronogrammeParPosition}
+                    disabled={
+                      Object.keys(chronogrammeParPositionData).length === 0
+                    }
+                    className="text-sm px-3 py-1.5 border-2 border-green-600 text-green-600 rounded-xl hover:bg-green-50 transition-all font-medium flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <FileDown className="w-4 h-4" />
+                    Exporter Excel
                   </button>
                 </div>
 
                 {viewMode === "table" ? (
                   <div className="overflow-x-auto">
-                    <table className="w-[85%] mx-auto">
-                      <thead>
-                        <tr className="border-b-2 border-gray-200">
-                          <th className="text-left py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                            Position
-                          </th>
-                          <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                            Durée Cumulée (Secondes)
-                          </th>
-                          <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                            Durée Cumulée (Minutes)
-                          </th>
-                          <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                            Durée Cumulée (Heures)
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {Object.entries(chronogrammeParPositionData).map(
-                          ([position, data], index) => (
-                            <tr
-                              key={position}
-                              className={
-                                index % 2 === 0
-                                  ? "bg-gray-50 hover:bg-gray-100"
-                                  : "bg-white hover:bg-gray-50"
-                              }
-                            >
-                              <td className="py-2 px-3 text-sm text-gray-700 font-medium">
-                                {position}
-                              </td>
-                              <td className="py-2 px-3 text-sm text-center text-gray-700">
-                                {data.dureeSecondes.toFixed(2)}
-                              </td>
-                              <td className="py-2 px-3 text-sm text-center text-gray-700">
-                                {data.dureeMinutes.toFixed(2)}
-                              </td>
-                              <td className="py-2 px-3 text-sm text-center text-gray-900 font-bold">
-                                {data.dureeHeures.toFixed(2)}
-                              </td>
-                            </tr>
-                          )
-                        )}
-                        <tr className="bg-gradient-to-r from-blue-100 to-blue-200 font-bold border-t-2 border-blue-300">
-                          <td className="py-3 px-4 text-sm text-gray-900">
-                            Total Général
-                          </td>
-                          <td className="py-3 px-4 text-sm text-center text-gray-900">
-                            {chronogrammeTotal.dureeSecondes.toFixed(2)}
-                          </td>
-                          <td className="py-3 px-4 text-sm text-center text-gray-900">
-                            {chronogrammeTotal.dureeMinutes.toFixed(2)}
-                          </td>
-                          <td className="py-3 px-4 text-sm text-center text-gray-900">
-                            {chronogrammeTotal.dureeHeures.toFixed(2)}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow w-[85%] mx-auto">
+                      <div className="rounded-xl border border-gray-200 overflow-hidden">
+                        <Table>
+                          <TableHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                            <TableRow>
+                              <TableHead className="text-left text-xs font-bold text-gray-700 uppercase tracking-wider w-2/5">
+                                Position
+                              </TableHead>
+                              <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/5">
+                                Durée Cumulée (Secondes)
+                              </TableHead>
+                              <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/5">
+                                Durée Cumulée (Minutes)
+                              </TableHead>
+                              <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/5">
+                                Durée Cumulée (Heures)
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {Object.entries(chronogrammeParPositionData).map(
+                              ([position, data], index) => (
+                                <TableRow
+                                  key={position}
+                                  className={
+                                    index % 2 === 0
+                                      ? "bg-gray-50 hover:bg-gray-100"
+                                      : "bg-white hover:bg-gray-50"
+                                  }
+                                >
+                                  <TableCell className="text-sm text-gray-700 font-medium w-2/5">
+                                    {position}
+                                  </TableCell>
+                                  <TableCell className="text-sm text-center text-gray-700 w-1/5">
+                                    {data.dureeSecondes.toFixed(2)}
+                                  </TableCell>
+                                  <TableCell className="text-sm text-center text-gray-700 w-1/5">
+                                    {data.dureeMinutes.toFixed(2)}
+                                  </TableCell>
+                                  <TableCell className="text-sm text-center text-gray-900 font-bold w-1/5">
+                                    {data.dureeHeures.toFixed(2)}
+                                  </TableCell>
+                                </TableRow>
+                              )
+                            )}
+                            <TableRow className="bg-gradient-to-r from-blue-100 to-blue-200 font-bold border-t-2 border-blue-300">
+                              <TableCell className="text-sm text-gray-900 w-2/5">
+                                Total Général
+                              </TableCell>
+                              <TableCell className="text-sm text-center text-gray-900 w-1/5">
+                                {chronogrammeTotal.dureeSecondes.toFixed(2)}
+                              </TableCell>
+                              <TableCell className="text-sm text-center text-gray-900 w-1/5">
+                                {chronogrammeTotal.dureeMinutes.toFixed(2)}
+                              </TableCell>
+                              <TableCell className="text-sm text-center text-gray-900 w-1/5">
+                                {chronogrammeTotal.dureeHeures.toFixed(2)}
+                              </TableCell>
+                            </TableRow>
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <div className="flex justify-center">

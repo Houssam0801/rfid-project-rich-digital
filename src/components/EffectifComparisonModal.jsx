@@ -7,7 +7,7 @@ import {
   Clock,
   Folder,
   Package,
-  Table,
+  Table as TableIcon,
   GitCompare, // Include GitCompare icon for title
 } from "lucide-react";
 import {
@@ -22,101 +22,116 @@ import {
   LabelList,
   Legend,
 } from "recharts";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./ui/table";
 
 import ExcelJS from "exceljs";
 
 // Import mock data
 import { comparisonData } from "../data/comparisonSimulation";
 
-
 // Utility component for displaying the comparison table
 const ComparisonTable = ({ data, totals }) => {
   return (
     <div className="overflow-x-auto py-2">
-      <table className="w-[95%] mx-auto">
-        <thead>
-          <tr className="border-b border-gray-200">
-            <th className="text-left py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-              Position
-            </th>
-            <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-              Effectif Actuel
-            </th>
-            <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-              FTE Calculé
-            </th>
-            <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-              FTE Calculé Arrondi
-            </th>
-            <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-              Écart (FTE)
-            </th>
-            <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-              Écart Arrondi
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item, index) => {
-            // Apply a color for positive/negative écarts
-            const ecartClass =
-              item.ecartFTE > 0
-                ? "text-red-600 font-semibold"
-                : item.ecartFTE < 0
-                ? "text-green-600 font-semibold"
-                : "text-gray-700";
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow w-[95%] mx-auto">
+        <div className="rounded-xl border border-gray-200 overflow-hidden">
+          <Table>
+            <TableHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
+              <TableRow>
+                <TableHead className="text-left text-xs font-bold text-gray-700 uppercase tracking-wider w-1/4">
+                  Position
+                </TableHead>
+                <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/6">
+                  Effectif Actuel
+                </TableHead>
+                <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/6">
+                  FTE Calculé
+                </TableHead>
+                <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/6">
+                  FTE Calculé Arrondi
+                </TableHead>
+                <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/6">
+                  Écart (FTE)
+                </TableHead>
+                <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/6">
+                  Écart Arrondi
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.map((item, index) => {
+                // Apply a color for positive/negative écarts
+                const ecartClass =
+                  item.ecartFTE > 0
+                    ? "text-red-600 font-semibold"
+                    : item.ecartFTE < 0
+                    ? "text-green-600 font-semibold"
+                    : "text-gray-700";
 
-            return (
-              <tr
-                key={item.position}
-                className={
-                  index % 2 === 0
-                    ? "bg-gray-50 hover:bg-gray-100"
-                    : "bg-white hover:bg-gray-50"
-                }
-              >
-                <td className="py-2 px-3 text-sm text-gray-700">
-                  {item.position}
-                </td>
-                <td className="py-2 px-3 text-sm text-center text-gray-700 font-medium">
-                  {item.effectifActuel}
-                </td>
-                <td className="py-2 px-3 text-sm text-center text-gray-700 font-medium">
-                  {item.fteCalcule.toFixed(2)}
-                </td>
-                <td className="py-2 px-3 text-sm text-center text-gray-900 font-bold">
-                  {item.fteCalculeArrondi}
-                </td>
-                <td className={`py-2 px-3 text-sm text-center ${ecartClass}`}>
-                  {item.ecartFTE.toFixed(2)}
-                </td>
-                <td className="py-2 px-3 text-sm text-center text-gray-900 font-bold">
-                  {item.ecartArrondi}
-                </td>
-              </tr>
-            );
-          })}
-          {/* Total Row - Keeping the original single total row */}
-          <tr className="bg-gradient-to-r from-blue-100 to-blue-200 font-bold border-t-2 border-blue-300">
-            <td className="py-2 px-3 text-sm text-gray-900">TOTAL GÉNÉRAL</td>
-            <td className="py-2 px-3 text-sm text-center text-gray-900">
-              {totals.totalActuel}
-            </td>
-            <td className="py-2 px-3 text-sm text-center text-gray-900">
-              {totals.totalFTE.toFixed(2)}
-            </td>
-            <td className="py-2 px-3 text-sm text-center text-gray-900">
-              {totals.totalFTEArrondi}
-            </td>
-            <td className="py-2 px-3 text-sm text-center text-gray-900">
-              {totals.totalEcartFTE.toFixed(2)}
-            </td>
-            <td className="py-2 px-3 text-sm text-center text-gray-900">
-              {totals.totalEcartArrondi}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                return (
+                  <TableRow
+                    key={item.position}
+                    className={
+                      index % 2 === 0
+                        ? "bg-gray-50 hover:bg-gray-100"
+                        : "bg-white hover:bg-gray-50"
+                    }
+                  >
+                    <TableCell className="text-sm text-gray-700 w-1/4">
+                      {item.position}
+                    </TableCell>
+                    <TableCell className="text-sm text-center text-gray-700 font-medium w-1/6">
+                      {item.effectifActuel}
+                    </TableCell>
+                    <TableCell className="text-sm text-center text-gray-700 font-medium w-1/6">
+                      {item.fteCalcule.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-sm text-center text-gray-900 font-bold w-1/6">
+                      {item.fteCalculeArrondi}
+                    </TableCell>
+                    <TableCell
+                      className={`text-sm text-center ${ecartClass} w-1/6`}
+                    >
+                      {item.ecartFTE.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-sm text-center text-gray-900 font-bold w-1/6">
+                      {item.ecartArrondi}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+              {/* Total Row - Keeping the original single total row */}
+              <TableRow className="bg-gradient-to-r from-blue-100 to-blue-200 font-bold border-t-2 border-blue-300">
+                <TableCell className="text-sm text-gray-900 w-1/4">
+                  TOTAL GÉNÉRAL
+                </TableCell>
+                <TableCell className="text-sm text-center text-gray-900 w-1/6">
+                  {totals.totalActuel}
+                </TableCell>
+                <TableCell className="text-sm text-center text-gray-900 w-1/6">
+                  {totals.totalFTE.toFixed(2)}
+                </TableCell>
+                <TableCell className="text-sm text-center text-gray-900 w-1/6">
+                  {totals.totalFTEArrondi}
+                </TableCell>
+                <TableCell className="text-sm text-center text-gray-900 w-1/6">
+                  {totals.totalEcartFTE.toFixed(2)}
+                </TableCell>
+                <TableCell className="text-sm text-center text-gray-900 w-1/6">
+                  {totals.totalEcartArrondi}
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+      </div>
     </div>
   );
 };
@@ -316,7 +331,8 @@ export default function EffectifComparisonModal({ onClose }) {
   }, [currentResults]);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 bg-gray-500/20 backdrop-blur-md flex items-center justify-center z-50 p-4">
+      {" "}
       <div className="bg-white rounded-xl shadow-2xl max-w-7xl w-full max-h-[95vh] overflow-y-auto transform transition-all duration-300 scale-100">
         {/* Modal Header */}
         <div className="border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 bg-white z-10 rounded-t-xl">
@@ -337,7 +353,7 @@ export default function EffectifComparisonModal({ onClose }) {
         <div className="p-5 space-y-5">
           {/* --- Simulation Parameters and Summary --- */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-            <div className="border-b border-gray-200 px-5 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-xl">
+            <div className="border-b border-gray-200 px-5 py-1 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl">
               <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
                 Paramètres de Simulation
               </h3>
@@ -437,7 +453,7 @@ export default function EffectifComparisonModal({ onClose }) {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-3 mt-6 justify-center flex-wrap">
+              <div className="flex gap-3 mt-4 justify-center flex-wrap">
                 <button
                   onClick={handleLancerSimulation}
                   className="cursor-pointer text-sm px-2 py-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-sm hover:shadow-md flex items-center gap-2"
@@ -445,18 +461,7 @@ export default function EffectifComparisonModal({ onClose }) {
                   <Play className="w-3 h-3" />
                   Lancer simulation
                 </button>
-                <button
-                  onClick={handleExporterExcel}
-                  disabled={!showResults}
-                  className={`text-sm px-2 py-1 border-2 rounded-xl font-medium flex items-center gap-2 transition-all ${
-                    showResults
-                      ? "cursor-pointer border-green-600 text-green-600 hover:bg-green-50"
-                      : "cursor-not-allowed border-gray-300 text-gray-400 opacity-50"
-                  }`}
-                >
-                  <FileDown className="w-3 h-3" />
-                  Exporter Excel
-                </button>
+
                 <button
                   onClick={() =>
                     setViewMode(viewMode === "table" ? "chart" : "table")
@@ -475,10 +480,23 @@ export default function EffectifComparisonModal({ onClose }) {
                     </>
                   ) : (
                     <>
-                      <Table className="w-3 h-3" />
+                      <TableIcon className="w-3 h-3" />
                       Afficher Tableau
                     </>
                   )}
+                </button>
+
+                <button
+                  onClick={handleExporterExcel}
+                  disabled={!showResults}
+                  className={`text-sm px-2 py-1 border-2 rounded-xl font-medium flex items-center gap-2 transition-all ${
+                    showResults
+                      ? "cursor-pointer border-green-600 text-green-600 hover:bg-green-50"
+                      : "cursor-not-allowed border-gray-300 text-gray-400 opacity-50"
+                  }`}
+                >
+                  <FileDown className="w-3 h-3" />
+                  Exporter Excel
                 </button>
               </div>
             </div>
@@ -486,8 +504,8 @@ export default function EffectifComparisonModal({ onClose }) {
 
           {/* --- Results Section (Table or Chart) --- */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-            <div className="border-b border-gray-200 px-5 py-1 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl">
-              <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+            <div className="border-b border-gray-200 px-4 py-1 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl text-center">
+              <h3 className="text-base font-semibold text-gray-900">
                 {viewMode === "table"
                   ? "Tableau de Comparaison"
                   : "Graphe de Comparaison"}

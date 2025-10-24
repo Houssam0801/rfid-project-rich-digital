@@ -21,6 +21,14 @@ import {
   Package,
   GitCompare,
 } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../components/ui/table";
 
 import { simulationGlobaleData } from "../../data/simulationGlobale";
 
@@ -176,30 +184,23 @@ export default function SimulationGlobale() {
     : [];
 
   return (
-    <div className="bg-[#f8fafc] py-1 px-2">
+    <div className="bg-slate-50 py-1 px-2">
       <div className="max-w-full mx-auto p-4 space-y-4">
         {/* Header */}
-        <div className="text-center space-y-3">
-          <div className="flex items-center justify-center gap-3 mb-1.5">
-            <div className="w-1 h-7 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full opacity-80"></div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Simulation{" "}
-              <span className="text-transparent bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text">
-                Globale
-              </span>
-            </h1>
-            <div className="w-1 h-7 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full opacity-80"></div>
-          </div>
-          {/* <p className="text-gray-600 text-xs max-w-2xl mx-auto leading-relaxed">
-            Analysez les besoins en effectif pour toutes les positions avec
-            précision et efficacité
-          </p> */}
+        <div className="text-center space-y-4">
+          <h1 className="text-2xl font-bold text-gray-900 relative inline-block px-2">
+            Simulation{" "}
+            <span className="text-transparent bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text">
+              Globale
+            </span>
+            <div className="absolute -bottom-0.5 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"></div>
+          </h1>
         </div>
 
         {/* Input Form Card */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-          <div className="border-b border-gray-200 px-4 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-xl">
-            <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+          <div className="border-b border-gray-200 px-4 py-1 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl">
+            <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
               Paramètres de Simulation
             </h3>
           </div>
@@ -297,7 +298,7 @@ export default function SimulationGlobale() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 mt-6 justify-center flex-wrap">
+            <div className="flex gap-3 mt-4 justify-center flex-wrap">
               <button
                 onClick={handleLancerSimulation}
                 className="cursor-pointer text-sm px-2 py-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-sm hover:shadow-md flex items-center gap-2"
@@ -305,13 +306,7 @@ export default function SimulationGlobale() {
                 <Play className="w-3 h-3" />
                 Lancer Simulation
               </button>
-              <button
-                onClick={handleExporterExcel}
-                className="cursor-pointer text-sm px-2 py-1 border-2 border-green-600 text-green-600 rounded-xl hover:bg-green-50 transition-all font-medium flex items-center gap-2"
-              >
-                <FileDown className="w-3 h-3" />
-                Exporter Excel
-              </button>
+
               <button
                 onClick={() => setShowChart(true)}
                 className="cursor-pointer text-sm px-2 py-1 border-2 border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 transition-all font-medium flex items-center gap-2"
@@ -327,41 +322,48 @@ export default function SimulationGlobale() {
                 <GitCompare className="w-3 h-3" />
                 Comparatif Effectifs
               </button>
+              <button
+                onClick={handleExporterExcel}
+                className="cursor-pointer text-sm px-2 py-1 border-2 border-green-600 text-green-600 rounded-xl hover:bg-green-50 transition-all font-medium flex items-center gap-2"
+              >
+                <FileDown className="w-3 h-3" />
+                Exporter Excel
+              </button>
             </div>
           </div>
         </div>
 
         {/* Results Table */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-          <div className="border-b border-gray-200 px-4 py-1 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl">
-            <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+          <div className="border-b border-gray-200 px-4 py-1 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl text-center">
+            <h3 className="text-base font-bold text-gray-900">
               Résultats de Simulation Globale
             </h3>
           </div>
-          <div className="p-5">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+          <div className="px-4 py-2">
+            <div className="rounded-xl border border-gray-200 overflow-hidden">
+              <Table>
+                <TableHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                  <TableRow>
+                    <TableHead className="text-left text-xs font-bold text-gray-700 uppercase tracking-wider w-2/5">
                       Position
-                    </th>
-                    <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/5">
                       Heures
-                    </th>
-                    <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/5">
                       Besoin Effectifs
-                    </th>
-                    <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/5">
                       Besoin Effectifs Arrondi
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {!showResults ? (
-                    <tr>
-                      <td
-                        colSpan="4"
+                    <TableRow>
+                      <TableCell
+                        colSpan={4}
                         className="py-12 text-center text-gray-400"
                       >
                         <div className="flex flex-col items-center gap-2">
@@ -371,12 +373,12 @@ export default function SimulationGlobale() {
                             résultats
                           </p>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ) : (
                     <>
                       {currentResults.positions.map((position, index) => (
-                        <tr
+                        <TableRow
                           key={position.position}
                           className={
                             index % 2 === 0
@@ -384,66 +386,67 @@ export default function SimulationGlobale() {
                               : "bg-white hover:bg-gray-50"
                           }
                         >
-                          <td className="py-2 px-3 text-sm text-gray-700">
+                          <TableCell className="text-sm text-gray-700 w-2/5">
                             {position.position}
-                          </td>
-                          <td className="py-2 px-3 text-sm text-center text-gray-700 font-medium">
+                          </TableCell>
+                          <TableCell className="text-sm text-center text-gray-700 font-medium w-1/5">
                             {position.heures.toFixed(2)}
-                          </td>
-                          <td className="py-2 px-3 text-sm text-center text-gray-700 font-medium">
+                          </TableCell>
+                          <TableCell className="text-sm text-center text-gray-700 font-medium w-1/5">
                             {position.besoinEffectifs.toFixed(2)}
-                          </td>
-                          <td className="py-2 px-3 text-sm text-center text-gray-900 font-bold">
+                          </TableCell>
+                          <TableCell className="text-sm text-center text-gray-900 font-bold w-1/5">
                             {position.besoinEffectifsArrondi}
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       ))}
                       {/* Totals rows */}
-                      <tr className="bg-blue-50 font-semibold border-t-2 border-blue-200 hover:bg-blue-100">
-                        <td className="py-2 px-3 text-left text-sm text-gray-700">
+                      <TableRow className="bg-blue-50 font-semibold border-t-2 border-blue-200 hover:bg-blue-100">
+                        <TableCell className="text-left text-sm text-gray-700 w-2/5">
                           Total heures nécessaires (Activités/jour)
-                        </td>
-                        <td className="py-2 px-3 text-sm text-center text-gray-900 font-bold">
+                        </TableCell>
+                        <TableCell className="text-sm text-center text-gray-900 font-bold w-1/5">
                           {currentResults.totaux.totalHeures} h
-                        </td>
-                        <td className="py-2 px-3 text-sm text-center"></td>
-                        <td className="py-2 px-3 text-sm text-center"></td>
-                      </tr>
-                      <tr className="bg-blue-50 font-semibold hover:bg-blue-100">
-                        <td className="py-2 px-3 text-left text-sm text-gray-700">
+                        </TableCell>
+                        <TableCell className="text-sm text-center w-1/5"></TableCell>
+                        <TableCell className="text-sm text-center w-1/5"></TableCell>
+                      </TableRow>
+                      <TableRow className="bg-blue-50 font-semibold hover:bg-blue-100">
+                        <TableCell className="text-left text-sm text-gray-700 w-2/5">
                           Effectif nécessaire (base{" "}
                           {currentResults.heuresNetParJour}h /jour)
-                        </td>
-                        <td className="py-2 px-3 text-sm text-center"></td>
-                        <td className="py-2 px-3 text-sm text-center text-gray-900 font-bold">
+                        </TableCell>
+                        <TableCell className="text-sm text-center w-1/5"></TableCell>
+                        <TableCell className="text-sm text-center text-gray-900 font-bold w-1/5">
                           {currentResults.totaux.totalEffectifsCalcules.toFixed(
                             2
                           )}
-                        </td>
-                        <td className="py-2 px-3 text-sm text-center"></td>
-                      </tr>
-                      <tr className="bg-gradient-to-r from-blue-100 to-blue-200 font-bold border-t-2 border-blue-300">
-                        <td className="py-2 px-3 text-left text-sm text-gray-900">
+                        </TableCell>
+                        <TableCell className="text-sm text-center w-1/5"></TableCell>
+                      </TableRow>
+                      <TableRow className="bg-gradient-to-r from-blue-100 to-blue-200 font-bold border-t-2 border-blue-300">
+                        <TableCell className="text-left text-sm text-gray-900 w-2/5">
                           Effectif nécessaire Arrondi (base{" "}
                           {currentResults.heuresNetParJour}h /jour)
-                        </td>
-                        <td className="py-2 px-3 text-sm text-center"></td>
-                        <td className="py-2 px-3 text-sm text-center"></td>
-                        <td className="py-2 px-3 text-sm text-center text-gray-900">
+                        </TableCell>
+                        <TableCell className="text-sm text-center w-1/5"></TableCell>
+                        <TableCell className="text-sm text-center w-1/5"></TableCell>
+                        <TableCell className="text-sm text-center text-gray-900 w-1/5">
                           {currentResults.totaux.totalBesoinEffectifsArrondi}
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     </>
                   )}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           </div>
         </div>
 
         {/* Chart Modal */}
         {showChart && showResults && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-gray-500/20 backdrop-blur-md flex items-center justify-center z-50 p-4">
+            {" "}
             <div className="bg-white rounded-xl shadow-xl max-w-6xl w-full max-h-[90vh] overflow-auto">
               <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 bg-white">
                 <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">

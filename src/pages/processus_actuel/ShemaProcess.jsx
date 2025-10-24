@@ -62,29 +62,23 @@ export default function ShemaProcess() {
   };
 
   return (
-    <div className="bg-[#f8fafc] pt-1 px-2 ">
+    <div className="bg-slate-50 pt-1 px-2 ">
       <div className="max-w-full mx-auto p-4 space-y-4">
         {/* Header - Updated for Schema Process */}
-        <div className="text-center space-y-3">
-          <div className="flex items-center justify-center gap-3 mb-1.5">
-            <div className="w-1 h-7 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full opacity-80"></div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Schéma du{" "}
-              <span className="text-transparent bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text">
-                Processus
-              </span>
-            </h1>
-            <div className="w-1 h-7 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full opacity-80"></div>
-          </div>
-          {/* <p className="text-gray-600 text-xs max-w-2xl mx-auto leading-relaxed">
-            Explorez la représentation visuelle complète du processus actuel avec nos schémas détaillés
-          </p> */}
+        <div className="text-center space-y-4">
+          <h1 className="text-2xl font-bold text-gray-900 relative inline-block px-2">
+            Schéma du{" "}
+            <span className="text-transparent bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text">
+              Processus
+            </span>
+            <div className="absolute -bottom-0.5 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"></div>
+          </h1>
         </div>
 
         {/* Main Content Card */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-          <div className="border-b border-gray-200 px-4 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-xl">
-            <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+          <div className="border-b border-gray-200 px-4 py-1 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl">
+            <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
               Schéma du Processus Actuel
             </h3>
           </div>
@@ -166,7 +160,7 @@ export default function ShemaProcess() {
 
         {/* Full Screen Zoom Modal */}
         {isZoomed && (
-          <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-gray-500/20 backdrop-blur-md flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-xl max-w-7xl w-full max-h-[95vh] overflow-hidden animate-in fade-in duration-300">
               <div className="border-b border-gray-200 px-6 py-2 flex items-center justify-between bg-white">
                 <h3 className="text-lg font-semibold text-gray-900">

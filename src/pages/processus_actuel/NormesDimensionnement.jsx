@@ -1,5 +1,13 @@
 import { useState } from "react";
 import { X, FileDown, Users } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../components/ui/table";
 import ExcelJS from "exceljs";
 import {
   normesData,
@@ -153,110 +161,111 @@ export default function NormesDimensionnement() {
   };
 
   return (
-    <div className="bg-[#f8fafc] py-1 px-2">
+    <div className="bg-slate-50 py-1 px-2">
       <div className="max-w-full mx-auto p-4 space-y-4">
-        <div className="text-center space-y-3">
-          <div className="flex items-center justify-center gap-3 mb-1.5">
-            <div className="w-1 h-7 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full opacity-80"></div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Normes de{" "}
-              <span className="text-transparent bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text">
-                Dimensionnement
-              </span>
-            </h1>
-            <div className="w-1 h-7 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full opacity-80"></div>
-          </div>
+        {/* Header */}
+        <div className="text-center space-y-4">
+          <h1 className="text-2xl font-bold text-gray-900 relative inline-block px-2">
+            Normes de{" "}
+            <span className="text-transparent bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text">
+              Dimensionnement
+            </span>
+            <div className="absolute -bottom-0.5 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"></div>
+          </h1>
         </div>
-
-
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
           <div className="border-b border-gray-200 px-5 py-2.5 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl">
             {/* Use flex-row and justify-between to place items on opposite ends */}
             <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
               {/* 1. Header Title (on the left) */}
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-bold text-gray-900">
                 Normes par Activité
               </h3>
 
               {/* 2. Action Buttons (on the right) */}
               <div className="flex flex-col sm:flex-row gap-2">
-                {/* Exporter Excel Button */}
-                <button
-                  onClick={handleExporterNormes}
-                  className="cursor-pointer w-full sm:w-auto text-sm px-2 py-2 border-2 border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-all font-medium flex items-center justify-center gap-1 shadow-sm hover:shadow-md"
-                >
-                  <FileDown className="w-3.5 h-3.5" />
-                  Exporter Excel
-                </button>
-
                 {/* Capacité Nominale Button */}
                 <button
                   onClick={() => setShowCapaciteModal(true)}
-                  className="cursor-pointer w-full sm:w-auto text-sm px-2 py-2 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-all font-medium flex items-center justify-center gap-1 shadow-sm hover:shadow-md"
+                  className="cursor-pointer w-full sm:w-auto text-sm px-2 py-1.5 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-all font-medium flex items-center justify-center gap-1 shadow-sm hover:shadow-md"
                 >
                   <Users className="w-3.5 h-3.5" />
                   Capacité Nominale
                 </button>
+
+                {/* Exporter Excel Button */}
+                <button
+                  onClick={handleExporterNormes}
+                  className="cursor-pointer w-full sm:w-auto text-sm px-2 py-1.5 border-2 border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-all font-medium flex items-center justify-center gap-1 shadow-sm hover:shadow-md"
+                >
+                  <FileDown className="w-3.5 h-3.5" />
+                  Exporter Excel
+                </button>
               </div>
             </div>
           </div>
-          <div className="p-5">
-            <div className="overflow-x-auto ">
-              <table className="w-full">
-                <thead className="sticky top-0 bg-white z-10">
-                  <tr className="border-b-2 border-gray-200">
-                    <th className="text-left py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+          <div className="px-4 py-2">
+            <div className="rounded-xl border border-gray-200 overflow-hidden">
+              <Table>
+                <TableHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 sticky top-0">
+                  <TableRow>
+                    <TableHead className="text-left text-xs font-bold text-gray-700 uppercase tracking-wider w-2/5">
                       Activité
-                    </th>
-                    <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/5">
                       Position
-                    </th>
-                    <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/5">
                       Minutes
-                    </th>
-                    <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/5">
                       Secondes
-                    </th>
-                    <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    </TableHead>
+                    <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/5">
                       Unité
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {normesData.map((item, index) => (
-                    <tr
+                    <TableRow
                       key={index}
-                      className={
-                        index % 2 === 0
-                          ? "bg-gray-50 hover:bg-gray-100"
-                          : "bg-white hover:bg-gray-50"
-                      }
+                      className={` text-sm
+                     ${
+                       index % 2 === 0
+                         ? "bg-gray-50 hover:bg-gray-100"
+                         : "bg-white hover:bg-gray-50"
+                     }
+                      `}
                     >
-                      <td className="py-2 px-3 text-sm text-gray-700">
+                      <TableCell className=" text-gray-700 w-2/5">
                         {item.activite}
-                      </td>
-                      <td className="py-2 px-3 text-sm text-center text-gray-700 font-medium">
+                      </TableCell>
+                      <TableCell className=" text-center text-gray-700 font-medium w-1/5">
                         {item.position}
-                      </td>
-                      <td className="py-2 px-3 text-sm text-center text-gray-700">
+                      </TableCell>
+                      <TableCell className=" text-center text-gray-700 w-1/5">
                         {item.minutes}
-                      </td>
-                      <td className="py-2 px-3 text-sm text-center text-gray-700">
+                      </TableCell>
+                      <TableCell className=" text-center text-gray-700 w-1/5">
                         {item.secondes}
-                      </td>
-                      <td className="py-2 px-3 text-sm text-center text-gray-900 font-bold">
-                        {item.unite}
-                      </td>
-                    </tr>
+                      </TableCell>
+                      <TableCell className="text-center w-1/5">
+                        <span className="inline-block px-3 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
+                          {item.unite}
+                        </span>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           </div>
         </div>
 
         {showCapaciteModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="fixed inset-0 bg-gray-500/20 backdrop-blur-md flex items-center justify-center z-50 p-4">
+            {" "}
             <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-100">
               <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 bg-white z-10 rounded-t-xl">
                 <div className="flex-1 flex justify-center">
@@ -285,59 +294,63 @@ export default function NormesDimensionnement() {
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b-2 border-gray-200">
-                        <th className="text-left py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                          Position
-                        </th>
-                        <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                          Temps/Dossier
-                        </th>
-                        <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                          Dossiers/Mois
-                        </th>
-                        <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                          Dossiers/Jour
-                        </th>
-                        <th className="text-center py-2 px-3 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                          Dossiers/Heure
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {Object.entries(capaciteNominaleData).map(
-                        ([key, data], index) => (
-                          <tr
-                            key={key}
-                            className={
-                              key === "Total"
-                                ? "bg-gradient-to-r from-blue-100 to-blue-200 font-bold border-t-2 border-blue-300"
-                                : index % 2 === 0
-                                ? "bg-gray-50 hover:bg-gray-100"
-                                : "bg-white hover:bg-gray-50"
-                            }
-                          >
-                            <td className="py-2 px-3 text-sm text-gray-700 font-medium">
-                              {data.position}
-                            </td>
-                            <td className="py-2 px-3 text-sm text-center text-gray-700">
-                              {data.tempsDossier}
-                            </td>
-                            <td className="py-2 px-3 text-sm text-center text-gray-700">
-                              {data.dossiersMois || ""}
-                            </td>
-                            <td className="py-2 px-3 text-sm text-center text-gray-700">
-                              {data.dossiersJour || ""}
-                            </td>
-                            <td className="py-2 px-3 text-sm text-center text-gray-900 font-bold">
-                              {data.dossiersHeure || ""}
-                            </td>
-                          </tr>
-                        )
-                      )}
-                    </tbody>
-                  </table>
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow w-[90%] mx-auto">
+                    <div className="rounded-xl border border-gray-200 overflow-hidden">
+                      <Table>
+                        <TableHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                          <TableRow>
+                            <TableHead className="text-left text-xs font-bold text-gray-700 uppercase tracking-wider w-2/5">
+                              Position
+                            </TableHead>
+                            <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/5">
+                              Temps/Dossier
+                            </TableHead>
+                            <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/5">
+                              Dossiers/Mois
+                            </TableHead>
+                            <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/5">
+                              Dossiers/Jour
+                            </TableHead>
+                            <TableHead className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-1/5">
+                              Dossiers/Heure
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {Object.entries(capaciteNominaleData).map(
+                            ([key, data], index) => (
+                              <TableRow
+                                key={key}
+                                className={
+                                  key === "Total"
+                                    ? "bg-gradient-to-r from-blue-100 to-blue-200 font-bold border-t-2 border-blue-300"
+                                    : index % 2 === 0
+                                    ? "bg-gray-50 hover:bg-gray-100"
+                                    : "bg-white hover:bg-gray-50"
+                                }
+                              >
+                                <TableCell className="text-sm text-gray-700 font-medium w-2/5">
+                                  {data.position}
+                                </TableCell>
+                                <TableCell className="text-sm text-center text-gray-700 w-1/5">
+                                  {data.tempsDossier}
+                                </TableCell>
+                                <TableCell className="text-sm text-center text-gray-700 w-1/5">
+                                  {data.dossiersMois || ""}
+                                </TableCell>
+                                <TableCell className="text-sm text-center text-gray-700 w-1/5">
+                                  {data.dossiersJour || ""}
+                                </TableCell>
+                                <TableCell className="text-sm text-center text-gray-900 font-bold w-1/5">
+                                  {data.dossiersHeure || ""}
+                                </TableCell>
+                              </TableRow>
+                            )
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
