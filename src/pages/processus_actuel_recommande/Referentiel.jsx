@@ -5,17 +5,16 @@ import { ChevronLeft, ChevronRight, FileDown, ZoomIn, X } from "lucide-react";
 const images = [
   {
     id: 1,
-    src: "/images/Référentiel_1.png", // removed 'public'
-    alt: "Schéma Référentiel Étape 1",
-    description:
-      "Structure du processus : réception et distribution des dossiers.",
+    src: "/images/Référentiel_1.png",
+    alt: "Schéma Référentiel 1",
+    description: "Benchmark e-sign : DIGICERT et ENTRUST.",
   },
   {
     id: 2,
-    src: "/images/Référentiel_2.png", // removed 'public'
-    alt: "Schéma Référentiel Étape 2",
-    description: "Détail des étapes de traitement et de vérification.",
-  },
+    src: "/images/Référentiel_2.png",
+    alt: "Schéma Référentiel 2",
+    description: "Benchmark e-sign : DOCUSIGN et IDNOW.",
+  }
 ];
 
 export default function Referentiel() {
@@ -62,24 +61,33 @@ export default function Referentiel() {
   };
 
   return (
-    <div className="bg-slate-50 pt-1 px-2 ">
+    <div className="bg-slate-50">
       <div className="max-w-full mx-auto p-4 space-y-4">
-        {/* Header - Matching SimulationGlobale design */}
-        <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold text-gray-900 relative inline-block px-2">
-            Référentiel du{" "}
-            <span className="text-transparent bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text">
-              Processus
-            </span>
-            <div className="absolute -bottom-0.5 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"></div>
-          </h1>
+        {/* Header avec le nouveau design cohérent */}
+        <div className="relative mb-4">
+          <div className="relative bg-white rounded-2xl shadow-lg px-6 py-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-1 h-7 bg-[#005EA8] rounded-full"></div>
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    Référentiel du{" "}
+                    <span className="text-[#005EA8]">Processus</span>
+                  </h1>
+                </div>
+                <p className="text-xs text-gray-500 ml-3 font-medium">
+                  Documentation technique • Benchmarks et standards
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Main Content Card */}
+        {/* Main Content Card - Consistent styling */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
           <div className="border-b border-gray-200 px-4 py-1 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl">
-            <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
-              Schémas du Processus
+            <h3 className="text-base font-bold text-gray-900 flex items-center justify-center gap-2">
+              Documentation et Références
             </h3>
           </div>
           <div className="p-4">
@@ -95,11 +103,10 @@ export default function Referentiel() {
                   Image {currentIndex + 1} sur {totalImages}
                 </span>
 
-                {/* Action Buttons */}
+                {/* Action Buttons - Consistent styling */}
                 <button
                   onClick={toggleZoom}
-                  className="cursor-pointer p-1.5 rounded-lg border border-blue-600 text-blue-600 hover:bg-blue-50 transition-all font-medium flex items-center gap-1 text-xs"
-                  title="Agrandir l'image"
+                  className="cursor-pointer text-sm px-2 py-1 border-2 border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 transition-all font-medium flex items-center gap-2"
                 >
                   <ZoomIn className="w-3 h-3" />
                   Zoom
@@ -107,8 +114,7 @@ export default function Referentiel() {
 
                 <button
                   onClick={handleDownload}
-                  className="cursor-pointer text-xs px-2 py-1.5 border-2 border-green-600 text-green-600 rounded-xl hover:bg-green-50 transition-all font-medium flex items-center gap-1"
-                  title="Télécharger l'image actuelle"
+                  className="cursor-pointer text-sm px-2 py-1 border-2 border-green-600 text-green-600 rounded-xl hover:bg-green-50 transition-all font-medium flex items-center gap-2"
                 >
                   <FileDown className="w-3 h-3" />
                   Télécharger
@@ -116,8 +122,8 @@ export default function Referentiel() {
               </div>
             </div>
 
-            {/* Image Container - **FIXED** with max-h-[500px] and min-h-[300px] to resolve height/parsing issues */}
-            <div className="relative bg-[#ebebeb] rounded-lg overflow-hidden max-h-[600px] min-h-[540px]">
+            {/* Image Container - Consistent dimensions */}
+            <div className="relative bg-[#ebebeb] rounded-lg overflow-hidden max-h-[600px] min-h-[500px]">
               <div className="flex items-center justify-center h-full w-full">
                 <div className="flex items-center justify-center h-full w-full">
                   {/* Current Image with Simple Fade Animation */}
@@ -158,15 +164,19 @@ export default function Referentiel() {
           </div>
         </div>
 
-        {/* Full Screen Zoom Modal - No changes needed */}
+        {/* Full Screen Zoom Modal - Consistent with other pages */}
         {isZoomed && (
           <div className="fixed inset-0 bg-gray-500/20 backdrop-blur-md flex items-center justify-center z-50 p-4">
-            {" "}
             <div className="bg-white rounded-xl shadow-xl max-w-7xl w-full max-h-[95vh] overflow-hidden animate-in fade-in duration-300">
               <div className="border-b border-gray-200 px-6 py-2 flex items-center justify-between bg-white">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {currentImage.alt}
-                </h3>
+                <div className="flex items-center gap-3">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {currentImage.alt}
+                  </h3>
+                  <span className="text-xs font-medium text-gray-600 px-2 py-1 rounded-full bg-blue-100">
+                    Référentiel
+                  </span>
+                </div>
                 <button
                   onClick={() => setIsZoomed(false)}
                   className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
@@ -187,7 +197,9 @@ export default function Referentiel() {
               </div>
 
               <div className="border-t border-gray-200 px-6 py-2 flex flex-col sm:flex-row items-center justify-between bg-gray-50 space-y-2 sm:space-y-0">
-                <p className="text-sm text-gray-600 text-center sm:text-left"></p>
+                <p className="text-sm text-gray-600 text-center sm:text-left">
+                  {currentImage.description}
+                </p>
                 <div className="flex items-center space-x-3">
                   <button
                     onClick={goToPrevious}

@@ -8,7 +8,9 @@ import {
   Folder,
   Package,
   Table as TableIcon,
-  GitCompare, // Include GitCompare icon for title
+  GitCompare,
+  Gauge,
+  Activity, // Include GitCompare icon for title
 } from "lucide-react";
 import {
   BarChart,
@@ -34,9 +36,10 @@ import {
 import ExcelJS from "exceljs";
 
 // Import mock data
-import { comparisonData } from "../data/comparisonSimulation";
+import { comparisonDataActuel } from "../data/comparisonSimulation";
 
 // Utility component for displaying the comparison table
+// Utility component for displaying the comparison table (UPDATED)
 const ComparisonTable = ({ data, totals }) => {
   return (
     <div className="overflow-x-auto py-2">
@@ -67,11 +70,19 @@ const ComparisonTable = ({ data, totals }) => {
             </TableHeader>
             <TableBody>
               {data.map((item, index) => {
-                // Apply a color for positive/negative écarts
-                const ecartClass =
+                // Apply a color for positive/negative écarts for FTE (Surplus: Red, Deficit: Green)
+                const ecartFTEClass =
                   item.ecartFTE > 0
                     ? "text-red-600 font-semibold"
                     : item.ecartFTE < 0
+                    ? "text-green-600 font-semibold"
+                    : "text-gray-700";
+
+                // APPLY THE SAME LOGIC to Écart Arrondi
+                const ecartArrondiClass =
+                  item.ecartArrondi > 0
+                    ? "text-red-600 font-semibold"
+                    : item.ecartArrondi < 0
                     ? "text-green-600 font-semibold"
                     : "text-gray-700";
 
@@ -97,11 +108,14 @@ const ComparisonTable = ({ data, totals }) => {
                       {item.fteCalculeArrondi}
                     </TableCell>
                     <TableCell
-                      className={`text-sm text-center ${ecartClass} w-1/6`}
+                      className={`text-sm text-center ${ecartFTEClass} w-1/6`}
                     >
                       {item.ecartFTE.toFixed(2)}
                     </TableCell>
-                    <TableCell className="text-sm text-center text-gray-900 font-bold w-1/6">
+                    <TableCell
+                      // UPDATED: Apply ecartArrondiClass here
+                      className={`text-sm text-center ${ecartArrondiClass} font-bold w-1/6`}
+                    >
                       {item.ecartArrondi}
                     </TableCell>
                   </TableRow>
@@ -202,7 +216,7 @@ const ComparisonChart = ({ chartData }) => {
   );
 };
 
-export default function EffectifComparisonModal({ onClose }) {
+export default function EffectifComparisonModalActuel({ onClose }) {
   // Form inputs
   const [nombreSacs, setNombreSacs] = useState(50);
   const [nombreDossiers, setNombreDossiers] = useState(6500);
@@ -213,7 +227,7 @@ export default function EffectifComparisonModal({ onClose }) {
   const [viewMode, setViewMode] = useState("table"); // 'table' or 'chart'
 
   // This would be replaced by actual API response based on inputs
-  const currentResults = showResults ? comparisonData : null;
+  const currentResults = showResults ? comparisonDataActuel : null;
 
   const handleLancerSimulation = () => {
     // In a real app, this would fetch data based on the three parameters
@@ -354,101 +368,104 @@ export default function EffectifComparisonModal({ onClose }) {
           {/* --- Simulation Parameters and Summary --- */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
             <div className="border-b border-gray-200 px-5 py-1 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl">
-              <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+              <h3 className="text-base font-bold text-gray-900 flex items-center justify-center gap-2">
                 Paramètres de Simulation
               </h3>
             </div>
-            <div className="p-5">
+            <div className="p-4">
               {/* Form inputs and Summary Cards side by side */}
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                {/* Left side - Inputs */}
-                <div className="space-y-4">
-                  {/* Inputs grid - 3 inputs in one line */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    {/* Nombre de sacs */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                        <Package className="w-4 h-4 text-blue-500" />
-                        Sacs / jour
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        value={nombreSacs}
-                        onChange={(e) =>
-                          setNombreSacs(parseInt(e.target.value) || 0)
-                        }
-                        className="w-full text-xs px-2 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                      />
-                    </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-2">
+                {/* Sacs / jour */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                    <Package className="w-4 h-4 text-blue-500" />
+                    Sacs / jour
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={nombreSacs}
+                    onChange={(e) =>
+                      setNombreSacs(parseInt(e.target.value) || 0)
+                    }
+                    className="w-full text-xs px-2 py-1.5 border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  />
+                </div>
 
-                    {/* Nombre dossiers */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                        <Folder className="w-4 h-4 text-blue-500" />
-                        Dossiers / Mois
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        value={nombreDossiers}
-                        onChange={(e) =>
-                          setNombreDossiers(parseInt(e.target.value) || 0)
-                        }
-                        className="w-full text-xs px-2 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                      />
-                    </div>
+                {/* Dossiers / Mois */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                    <Folder className="w-4 h-4 text-blue-500" />
+                    Dossiers / Mois
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={nombreDossiers}
+                    onChange={(e) =>
+                      setNombreDossiers(parseInt(e.target.value) || 0)
+                    }
+                    className="w-full text-xs px-2 py-1.5 border border-blue-200 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  />
+                </div>
 
-                    {/* Productivité */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                        <Clock className="w-4 h-4 text-blue-500" />
-                        Productivité %
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="number"
-                          min="1"
-                          max="100"
-                          value={productivite}
-                          onChange={(e) =>
-                            setProductivite(parseInt(e.target.value) || 0)
-                          }
-                          className="w-full text-xs px-2 py-1.5 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                        />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
-                          %
-                        </span>
-                      </div>
-                    </div>
+                {/* Productivité */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                    <Gauge className="w-4 h-4 text-blue-500" />
+                    Productivité %
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="1"
+                      max="100"
+                      value={productivite}
+                      onChange={(e) =>
+                        setProductivite(parseInt(e.target.value) || 0)
+                      }
+                      className="w-full text-xs px-2 py-1.5 pr-10 border border-blue-200 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
+                      %
+                    </span>
                   </div>
                 </div>
 
-                {/* Right side - Summary Cards */}
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4 xl:mt-5">
-                    <div className="text-center bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-0.5 border border-blue-200 hover:shadow-md transition-shadow">
-                      <p className="text-xs font-medium text-blue-700">
-                        Dossiers/jour
-                      </p>
-                      <p className="text-sm font-bold text-blue-800">
-                        {currentResults
-                          ? currentResults.totaux.dossiersParJour
-                          : "--"}
-                      </p>
-                    </div>
+                {/* Dossiers/jour */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                  <Activity className="w-4 h-4 text-blue-500" />
+                    Dossiers/jour
+                  </label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={
+                      currentResults
+                        ? currentResults.totaux.dossiersParJour
+                        : "--"
+                    }
+                    className="w-full text-sm px-2 py-1 text-center font-bold border border-blue-200 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 text-blue-800 focus:outline-none"
+                  />
+                </div>
 
-                    <div className="text-center bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-0.5 border border-blue-200 hover:shadow-md transition-shadow">
-                      <p className="text-xs font-medium text-blue-700">
-                        Heures net/jour
-                      </p>
-                      <p className="text-sm font-bold text-blue-800">
-                        {currentResults
-                          ? `${currentResults.totaux.heuresNetParJour}h`
-                          : "--"}
-                      </p>
-                    </div>
-                  </div>
+                {/* Heures net/jour */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                    <Clock className="w-4 h-4 text-blue-500" />
+                    Heures net/jour
+                  </label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={
+                      currentResults
+                        ? `${currentResults.totaux.heuresNetParJour}h`
+                        : "--"
+                    }
+                    className="w-full text-sm px-2 py-1 text-center font-bold border border-blue-200 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 text-blue-800 focus:outline-none"
+                  />
                 </div>
               </div>
 
@@ -505,7 +522,7 @@ export default function EffectifComparisonModal({ onClose }) {
           {/* --- Results Section (Table or Chart) --- */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200">
             <div className="border-b border-gray-200 px-4 py-1 bg-gradient-to-r from-gray-50 to-blue-50 rounded-t-xl text-center">
-              <h3 className="text-base font-semibold text-gray-900">
+              <h3 className="text-base font-bold text-gray-900">
                 {viewMode === "table"
                   ? "Tableau de Comparaison"
                   : "Graphe de Comparaison"}
