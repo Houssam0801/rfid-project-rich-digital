@@ -317,7 +317,7 @@ export default function SimulationParPositionActuel() {
                     Position à simuler
                   </label>
                   <Select value={position} onValueChange={setPosition}>
-                    <SelectTrigger className="h-7.5! w-full text-xs border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors flex justify-between items-center px-2">
+                    <SelectTrigger className="h-7.5! w-full text-xs font-semibold border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors flex justify-between items-center px-2">
                       <SelectValue placeholder="Choisir une position" />
                     </SelectTrigger>
 
@@ -348,7 +348,7 @@ export default function SimulationParPositionActuel() {
                     onChange={(e) =>
                       setNombreSacs(parseInt(e.target.value) || 0)
                     }
-                    className="w-full text-xs px-2 py-1.5 border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    className="w-full text-sm font-semibold px-2 py-1 border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   />
                 </div>
 
@@ -365,7 +365,7 @@ export default function SimulationParPositionActuel() {
                     onChange={(e) =>
                       setNombreDossiers(parseInt(e.target.value) || 0)
                     }
-                    className="w-full text-xs px-2 py-1.5 border border-blue-200 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    className="w-full text-sm font-semibold px-2 py-1 border border-blue-200 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   />
                 </div>
 
@@ -384,7 +384,7 @@ export default function SimulationParPositionActuel() {
                       onChange={(e) =>
                         setProductivite(parseInt(e.target.value) || 0)
                       }
-                      className="w-full text-xs px-2 py-1.5 pr-10 border border-blue-200 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      className="w-full text-sm font-semibold px-2 py-1 pr-10 border border-blue-200 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
                       %
@@ -406,7 +406,7 @@ export default function SimulationParPositionActuel() {
                   type="text"
                   readOnly
                   value={currentResults ? currentResults.dossiersParJour : "--"}
-                  className="w-full  text-sm px-2 py-1 text-center font-bold border border-blue-200 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 text-blue-800 focus:outline-none"
+                  className="w-full text-sm px-2 py-1 text-center font-bold border border-blue-200 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 text-blue-800 focus:outline-none"
                 />
               </div>
 

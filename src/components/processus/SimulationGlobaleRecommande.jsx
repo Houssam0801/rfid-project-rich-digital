@@ -196,7 +196,7 @@ export default function SimulationGlobaleRecommande() {
                 min="1"
                 value={nombreSacs}
                 onChange={(e) => setNombreSacs(parseInt(e.target.value) || 0)}
-                className="w-full text-xs px-2 py-1.5 border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full text-sm font-semibold px-2 py-1 border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               />
             </div>
 
@@ -213,7 +213,7 @@ export default function SimulationGlobaleRecommande() {
                 onChange={(e) =>
                   setNombreDossiers(parseInt(e.target.value) || 0)
                 }
-                className="w-full text-xs px-2 py-1.5 border border-blue-200 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full text-sm font-semibold px-2 py-1 border border-blue-200 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               />
             </div>
 
@@ -232,7 +232,7 @@ export default function SimulationGlobaleRecommande() {
                   onChange={(e) =>
                     setProductivite(parseInt(e.target.value) || 0)
                   }
-                  className="w-full text-xs px-2 py-1.5 pr-10 border border-blue-200 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="w-full text-sm font-semibold px-2 py-1 pr-10 border border-blue-200 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
                   %

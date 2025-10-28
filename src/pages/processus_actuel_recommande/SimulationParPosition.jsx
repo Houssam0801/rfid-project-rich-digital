@@ -9,7 +9,7 @@ const SimulationParPosition = () => {
     <div className="bg-slate-50">
       <div className="max-w-full mx-auto p-4 space-y-4">
         <div className="relative mb-5">
-          <div className="relative bg-white rounded-2xl shadow-lg px-6 py-2 ">
+          <div className="relative bg-white rounded-2xl shadow-lg px-6 py-2">
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-1">
