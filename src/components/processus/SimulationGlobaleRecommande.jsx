@@ -189,7 +189,7 @@ export default function SimulationGlobaleRecommande() {
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
                 <Package className="w-4 h-4 text-blue-500" />
-                Nombre de sacs / jour
+                Sacs / jour
               </label>
               <input
                 type="number"
@@ -204,7 +204,7 @@ export default function SimulationGlobaleRecommande() {
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
                 <Folder className="w-4 h-4 text-blue-500" />
-                Nombre dossiers / Mois
+                Dossiers / Mois
               </label>
               <input
                 type="number"

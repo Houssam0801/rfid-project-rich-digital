@@ -20,8 +20,8 @@ import {
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const location = useLocation();
-  const [isEffectifsOpen, setIsEffectifsOpen] = useState(false);
-  const [isResultsOpen, setIsResultsOpen] = useState(true);
+  const [isEffectifsOpen, setIsEffectifsOpen] = useState(true);
+  const [isResultsOpen, setIsResultsOpen] = useState(false);
 
   const effectifsItems = [
     {
@@ -170,7 +170,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               `}
             >
               <div className="flex items-center gap-3">
-                <div className="p-1.5 rounded-lg bg-green-500 shadow-sm">
+                <div className="p-1.5 rounded-lg bg-blue-500 shadow-sm">
                   <Users className="w-4 h-4 text-white" />
                 </div>
                 <span className="text-sm font-semibold text-gray-900 group-hover:text-gray-700">
@@ -199,7 +199,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                         flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all group
                         ${
                           active
-                            ? "bg-green-50 text-green-700 border-l-2 border-green-500 -ml-0.5"
+                            ? "bg-blue-50 text-blue-700 border-l-2 border-blue-500 -ml-0.5"
                             : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                         }
                       `}
@@ -207,13 +207,13 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                       <Icon
                         className={`w-4 h-4 ${
                           active
-                            ? "text-green-600"
+                            ? "text-blue-600"
                             : "text-gray-400 group-hover:text-gray-600"
                         }`}
                       />
                       <span className="font-medium flex-1">{item.label}</span>
                       {active && (
-                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                        <div className="w-2 h-2 rounded-full bg-blue-500" />
                       )}
                     </Link>
                   );
