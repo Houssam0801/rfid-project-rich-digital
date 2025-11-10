@@ -1,16 +1,18 @@
 import { TrendingUp, Clock, Target, Award, BarChart3 } from 'lucide-react';
-import { mockVehicles } from '../data/mockData';
+import { mockVehicles, marques } from '../data/mockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function Reports() {
   const avgTimePerZone = [
-    { zone: 'Port - Arrivée', hours: 2.5 },
-    { zone: 'Stockage VIP A', hours: 48.3 },
-    { zone: 'Stockage VIP B', hours: 36.7 },
-    { zone: 'Préparation Luxe', hours: 6.2 },
-    { zone: 'Contrôle Qualité Premium', hours: 3.8 },
-    { zone: 'Zone de Livraison VIP', hours: 4.1 },
-    { zone: 'Showroom', hours: 0.8 },
+    { zone: 'Port - Arrivée', hours: 3.1 },
+    { zone: 'Zone de réception', hours: 1.5 },
+    { zone: 'Zone de stockage', hours: 72.5 },
+    { zone: 'Lavage', hours: 1.2 },
+    { zone: 'Atelier', hours: 8.4 },
+    { zone: 'Zone de préparation', hours: 4.8 },
+    { zone: 'Zone de chargement de batterie', hours: 2.1 },
+    { zone: 'Zone d’expédition', hours: 3.5 },
+    { zone: 'Showroom', hours: 12.2 },
   ];
 
   const maxHours = Math.max(...avgTimePerZone.map((z) => z.hours));
@@ -21,11 +23,15 @@ export default function Reports() {
   }, {});
 
   const totalVehicles = mockVehicles.length;
-  const marqueData = Object.entries(vehiclesByMarque).map(([marque, count]) => ({
-    marque,
-    count,
-    percentage: Math.round((count / totalVehicles) * 100),
-  }));
+  const marqueData = Object.entries(vehiclesByMarque).map(([marque, count]) => {
+    const marqueInfo = marques.find(m => m.label === marque);
+    return {
+      marque,
+      count,
+      percentage: Math.round((count / totalVehicles) * 100),
+      image: marqueInfo ? marqueInfo.image : '',
+    };
+  }).sort((a, b) => b.count - a.count);
 
   const deliveryStats = {
     onTime: 92,
@@ -51,7 +57,7 @@ export default function Reports() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="shadow-sm hover:shadow-md transition-shadow duration-300">
-          <CardHeader className="flex-row items-center space-x-2">
+          <CardHeader className="flex flex-row items-center space-x-2">
             <Clock className="w-5 h-5 text-primary" />
             <CardTitle className="text-xl">Temps Moyen par Zone</CardTitle>
           </CardHeader>
@@ -79,16 +85,19 @@ export default function Reports() {
         </Card>
 
         <Card className="shadow-sm hover:shadow-md transition-shadow duration-300">
-          <CardHeader className="flex-row items-center space-x-2">
+          <CardHeader className="flex flex-row items-center space-x-2">
             <BarChart3 className="w-5 h-5 text-primary" />
             <CardTitle className="text-xl">Répartition par Marque</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {marqueData.map((item) => (
-                <div key={item.marque} className="bg-accent rounded-lg p-4 border border-border">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-card-foreground font-medium">{item.marque}</span>
+                <div key={item.marque} className="bg-accent rounded-lg p-2 border border-border">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center space-x-1">
+                      {item.image && <img src={item.image} alt={item.marque} className="w-12 h-10 object-contain" />}
+                      <span className="text-card-foreground font-medium">{item.marque}</span>
+                    </div>
                     <div className="flex items-center space-x-3">
                       <span className="text-muted-foreground text-sm">{item.count} véhicules</span>
                       <span className="text-primary font-bold">{item.percentage}%</span>
@@ -108,7 +117,7 @@ export default function Reports() {
       </div>
 
       <Card className="shadow-sm hover:shadow-md transition-shadow duration-300">
-        <CardHeader className="flex-row items-center space-x-2">
+        <CardHeader className="flex flex-row items-center space-x-2">
           <Target className="w-5 h-5 text-primary" />
           <CardTitle className="text-xl">Performance de Livraison</CardTitle>
         </CardHeader>
@@ -133,35 +142,6 @@ export default function Reports() {
         </CardContent>
       </Card>
 
-      <div className="bg-gradient-to-br from-primary/10 to-blue-900/10 rounded-xl border border-primary/30 p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
-        <div className="flex items-start justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-card-foreground mb-2">Objectif Fiabilité 2025</h2>
-            <p className="text-muted-foreground mb-4">Atteindre 99.5% de fiabilité du stock avec traçabilité complète</p>
-            <div className="flex items-center space-x-4">
-              <div className="bg-primary/20 px-4 py-2 rounded-lg border border-primary/40">
-                <p className="text-xs text-muted-foreground">Actuel</p>
-                <p className="text-xl font-bold text-primary">99.2%</p>
-              </div>
-              <div className="text-muted-foreground">→</div>
-              <div className="bg-green-500/20 px-4 py-2 rounded-lg border border-green-500/40">
-                <p className="text-xs text-muted-foreground">Cible</p>
-                <p className="text-xl font-bold text-green-500">99.5%</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-green-500/10 p-4 rounded-lg border border-green-500/30">
-            <Award className="w-12 h-12 text-green-500" />
-          </div>
-        </div>
-        <div className="mt-6 w-full bg-muted rounded-full h-3">
-          <div
-            className="bg-gradient-to-r from-primary to-green-500 h-3 rounded-full"
-            style={{ width: '94%' }}
-          />
-        </div>
-        <p className="text-xs text-muted-foreground mt-2">94% de progression vers l'objectif</p>
-      </div>
     </div>
   );
 }
@@ -204,9 +184,11 @@ function DeliveryCard({ label, percentage, color }) {
   const colors = colorClasses[color];
 
   return (
-    <div className={`${colors.bg} rounded-lg p-6 border ${colors.border} shadow-sm hover:shadow-md transition-shadow`}>
-      <p className="text-muted-foreground text-sm mb-3">{label}</p>
-      <p className={`text-5xl font-bold ${colors.text} mb-2`}>{percentage}%</p>
+    <div className={`${colors.bg} rounded-lg p-3 border ${colors.border} shadow-sm hover:shadow-md transition-shadow`}>
+        <div className="flex items-center justify-between mb-2">
+      <p className="text-muted-foreground text-base mb-3">{label}</p>
+      <p className={`text-3xl font-bold ${colors.text} mb-2`}>{percentage}%</p>
+      </div>
       <div className="w-full bg-muted rounded-full h-2">
         <div
           className={`h-2 rounded-full bg-gradient-to-r ${colors.gradient}`}

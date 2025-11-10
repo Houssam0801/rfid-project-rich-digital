@@ -164,17 +164,44 @@ const generateVehicles = (count, status) => {
   });
 };
 
-const vehiclesEnStockage = generateVehicles(5988, "En Stockage");
+const vehiclesEnStockage = generateVehicles(2500, "En Stockage");
 const vehiclesEnPreparation = generateVehicles(21, "En Préparation");
 const vehiclesPretsALivrer = generateVehicles(38, "Prêt à Livrer");
 const vehiclesLivres = generateVehicles(280, "Livré");
 
-export const mockVehicles = [
+let allVehicles = [
   ...vehiclesEnStockage,
   ...vehiclesEnPreparation,
   ...vehiclesPretsALivrer,
   ...vehiclesLivres,
 ].map((vehicle, i) => ({ ...vehicle, id: `vehicle-${i}`, vin: generateVIN(i) }));
+
+// Zone distribution
+const zoneCounts = {
+  'Port - Arrivée': 214,
+  'Zone de réception': 20,
+  'Zone de stockage': 2500,
+  'Atelier': 18,
+  'Lavage': 8,
+  'Zone de préparation': 25,
+  'Zone de chargement de batterie': 8,
+  'Zone d’expédition': 16,
+  'Showroom': 30,
+};
+
+let vehicleIndex = 0;
+const zonesForDistribution = Object.keys(zoneCounts);
+for (const zone of zonesForDistribution) {
+  const count = zoneCounts[zone];
+  for (let i = 0; i < count; i++) {
+    if (allVehicles[vehicleIndex]) {
+      allVehicles[vehicleIndex].zone = zone;
+      vehicleIndex++;
+    }
+  }
+}
+
+export const mockVehicles = allVehicles;
 
 export const mockZones = [
   {
@@ -326,8 +353,8 @@ export const mockAlerts = [
 ];
 
 export const getKPIs = () => {
-  const total = 6327;
-  const enStockage = 5988;
+  const total = 2839;
+  const enStockage = 2500;
   const enPreparation = 21;
   const pretsALivrer = 38;
   const livres = 280;

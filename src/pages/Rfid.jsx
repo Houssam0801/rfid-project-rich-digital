@@ -10,7 +10,7 @@ export default function Rfid() {
   const recentReadings = sortedReadings.slice(0, 20);
 
   const stats = {
-    totalTags: mockRFIDTags.length,
+    totalTags: mockRFIDTags.length + 200, // Assuming 50 tags have been deactivated or removed
     totalReadings: mockRFIDReadings.length,
     readingsToday: mockRFIDReadings.filter((r) => {
       const today = new Date();
@@ -34,15 +34,15 @@ export default function Rfid() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={Tag} label="Tags Actifs" value={stats.totalTags} color="blue" />
+        <StatCard icon={Tag} label="Tags en Total" value={stats.totalTags} color="blue" />
+        <StatCard icon={Tag} label="Tags Actifs" value={stats.activeTags} color="blue" />
         <StatCard icon={Activity} label="Lectures Totales" value={stats.totalReadings} color="purple" />
         <StatCard icon={Clock} label="Lectures Aujourd'hui" value={stats.readingsToday} color="green" />
-        <StatCard icon={Radio} label="Taux de Lecture" value="99.8%" color="orange" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2 shadow-sm hover:shadow-md transition-shadow duration-300">
-          <CardHeader className="flex-row items-center space-x-2">
+          <CardHeader className="flex flex-row items-center space-x-2">
             <Activity className="w-5 h-5 text-primary" />
             <CardTitle className="text-xl">Lectures RFID Récentes</CardTitle>
           </CardHeader>
@@ -84,7 +84,7 @@ export default function Rfid() {
         </Card>
 
         <Card className="shadow-sm hover:shadow-md transition-shadow duration-300">
-          <CardHeader className="flex-row items-center space-x-2">
+          <CardHeader className="flex flex-row items-center space-x-2">
             <Tag className="w-5 h-5 text-primary" />
             <CardTitle className="text-xl">Tags Associés</CardTitle>
           </CardHeader>
@@ -116,7 +116,7 @@ export default function Rfid() {
         <CardHeader>
           <CardTitle className="text-xl">Technologie RFID Utilisée</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div className="space-y-4">
             <TechDetail
               label="Fréquence"
@@ -144,11 +144,6 @@ export default function Rfid() {
               label="Durée de Vie"
               value="> 10 ans"
               description="Tags durables résistants aux conditions extérieures"
-            />
-            <TechDetail
-              label="Taux de Lecture"
-              value="99.8%"
-              description="Fiabilité exceptionnelle du système"
             />
           </div>
         </CardContent>
@@ -184,7 +179,7 @@ function StatCard({ icon: Icon, label, value, color }) {
 
 function TechDetail({ label, value, description }) {
   return (
-    <div className="bg-accent rounded-lg p-4 border border-border shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-accent rounded-lg p-3 border border-border shadow-sm hover:shadow-md transition-shadow">
       <p className="text-muted-foreground text-sm mb-1">{label}</p>
       <p className="text-card-foreground font-bold text-lg mb-2">{value}</p>
       <p className="text-muted-foreground text-xs">{description}</p>

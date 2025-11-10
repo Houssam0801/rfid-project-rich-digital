@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import { Search, Eye, X, Filter, ChevronsUpDown, Check, ArrowUp, ArrowDown, SearchX } from 'lucide-react';
-import { mockVehicles, mockVehicleHistory, marques, modeles, couleurs, zones } from '../data/mockData';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -46,13 +45,15 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
+// Import your mock data
+import { mockVehicles, mockVehicleHistory, marques, modeles, couleurs, zones } from '../data/mockData';
+
 const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50, 100];
 
 export default function Vehicles() {
   const [searchVIN, setSearchVIN] = useState('');
   const [selectedMarque, setSelectedMarque] = useState('');
   const [selectedModele, setSelectedModele] = useState('');
-  const [selectedAnnee, setSelectedAnnee] = useState('');
   const [selectedCouleur, setSelectedCouleur] = useState('');
   const [selectedZone, setSelectedZone] = useState('');
   const [sortField, setSortField] = useState('derniereMAJ');
@@ -63,11 +64,7 @@ export default function Vehicles() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
 
-  const availableModeles = useMemo(() => (selectedMarque ? modeles[selectedMarque] : []), [selectedMarque]);
-  
-  const availableYears = useMemo(() => Array.from(
-    new Set(mockVehicles.filter((v) => !selectedMarque || v.marque === selectedMarque).map((v) => v.annee))
-  ).sort((a, b) => b - a).map(String), [selectedMarque]);
+  const availableModeles = useMemo(() => (selectedMarque ? (modeles[selectedMarque] || []) : []), [selectedMarque]);
 
   // Filter and sort vehicles
   const filteredVehicles = useMemo(() => mockVehicles
@@ -75,7 +72,6 @@ export default function Vehicles() {
       if (searchVIN && !v.vin.toLowerCase().includes(searchVIN.toLowerCase())) return false;
       if (selectedMarque && v.marque !== selectedMarque) return false;
       if (selectedModele && v.modele !== selectedModele) return false;
-      if (selectedAnnee && v.annee !== parseInt(selectedAnnee)) return false;
       if (selectedCouleur && v.couleur !== selectedCouleur) return false;
       if (selectedZone && v.zone !== selectedZone) return false;
       return true;
@@ -86,7 +82,7 @@ export default function Vehicles() {
       const bValue = b[sortField];
       const comparison = aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
       return sortDirection === 'asc' ? comparison : -comparison;
-    }), [searchVIN, selectedMarque, selectedModele, selectedAnnee, selectedCouleur, selectedZone, sortField, sortDirection]);
+    }), [searchVIN, selectedMarque, selectedModele, selectedCouleur, selectedZone, sortField, sortDirection]);
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredVehicles.length / itemsPerPage);
@@ -117,7 +113,6 @@ export default function Vehicles() {
     setSearchVIN('');
     setSelectedMarque('');
     setSelectedModele('');
-    setSelectedAnnee('');
     setSelectedCouleur('');
     setSelectedZone('');
     setCurrentPage(1);
@@ -128,13 +123,19 @@ export default function Vehicles() {
     setCurrentPage(1);
   };
 
-  const activeFiltersCount = [searchVIN, selectedMarque, selectedModele, selectedAnnee, selectedCouleur, selectedZone].filter(Boolean).length;
+  const activeFiltersCount = [searchVIN, selectedMarque, selectedModele, selectedCouleur, selectedZone].filter(Boolean).length;
 
   const selectedVehicle = useMemo(() => {
     if (!selectedVehicleVin) return null;
     const vehicle = mockVehicles.find((v) => v.vin === selectedVehicleVin);
+    if (!vehicle) return null;
     const history = mockVehicleHistory[selectedVehicleVin];
-    return { ...vehicle, history };
+    const marqueInfo = marques.find(m => m.label === vehicle.marque);
+    return { 
+      ...vehicle, 
+      history,
+      marqueImage: marqueInfo ? marqueInfo.image : '',
+    };
   }, [selectedVehicleVin]);
 
   // Generate page numbers to display
@@ -201,12 +202,12 @@ export default function Vehicles() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             <div className="relative lg:col-span-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Rechercher par VIN..."
+                placeholder="Rechercher par N° châssis..."
                 value={searchVIN}
                 onChange={(e) => handleFilterChange(setSearchVIN)(e.target.value)}
                 className="pl-10"
@@ -218,9 +219,8 @@ export default function Vehicles() {
               onChange={(value) => {
                 handleFilterChange(setSelectedMarque)(value);
                 setSelectedModele('');
-                setSelectedAnnee('');
               }}
-              options={marques}
+              options={marques.map(m => m.label)}
               placeholder="Marque"
             />
 
@@ -229,14 +229,6 @@ export default function Vehicles() {
               onChange={handleFilterChange(setSelectedModele)}
               options={availableModeles}
               placeholder="Modèle"
-              disabled={!selectedMarque}
-            />
-
-            <FilterCombobox
-              value={selectedAnnee}
-              onChange={handleFilterChange(setSelectedAnnee)}
-              options={availableYears}
-              placeholder="Année"
               disabled={!selectedMarque}
             />
 
@@ -258,19 +250,18 @@ export default function Vehicles() {
       </Card>
 
       <Card>
-        <CardContent className="p-0">
+        <CardContent className="py-0 px-4">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <SortableTableHeader field="vin" currentSort={sortField} direction={sortDirection} onSort={handleSort}>VIN</SortableTableHeader>
+                  <SortableTableHeader field="vin" currentSort={sortField} direction={sortDirection} onSort={handleSort}>N° châssis</SortableTableHeader>
                   <SortableTableHeader field="marque" currentSort={sortField} direction={sortDirection} onSort={handleSort}>Marque</SortableTableHeader>
                   <SortableTableHeader field="modele" currentSort={sortField} direction={sortDirection} onSort={handleSort}>Modèle</SortableTableHeader>
-                  <SortableTableHeader field="annee" currentSort={sortField} direction={sortDirection} onSort={handleSort}>Année</SortableTableHeader>
                   <SortableTableHeader field="couleur" currentSort={sortField} direction={sortDirection} onSort={handleSort}>Couleur</SortableTableHeader>
                   <SortableTableHeader field="zone" currentSort={sortField} direction={sortDirection} onSort={handleSort}>Zone</SortableTableHeader>
                   <SortableTableHeader field="derniereMAJ" currentSort={sortField} direction={sortDirection} onSort={handleSort}>Dernière MAJ</SortableTableHeader>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -280,7 +271,6 @@ export default function Vehicles() {
                       <TableCell className="font-mono text-primary">{vehicle.vin}</TableCell>
                       <TableCell>{vehicle.marque}</TableCell>
                       <TableCell className="text-muted-foreground">{vehicle.modele}</TableCell>
-                      <TableCell className="text-muted-foreground">{vehicle.annee}</TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <span className="w-3 h-3 rounded-full border" style={{ backgroundColor: getColorHex(vehicle.couleur) }} />
@@ -291,7 +281,7 @@ export default function Vehicles() {
                         <Badge variant="secondary">{vehicle.zone}</Badge>
                       </TableCell>
                       <TableCell className="text-muted-foreground">{new Date(vehicle.derniereMAJ).toLocaleString('fr-FR')}</TableCell>
-                      <TableCell>
+                      <TableCell className="text-center">
                         <Button className="cursor-pointer" variant="ghost" size="sm" onClick={() => setSelectedVehicleVin(vehicle.vin)}>
                           <Eye className="w-4 h-4 mr-2" />
                           Détails
@@ -316,11 +306,11 @@ export default function Vehicles() {
 
           {/* Pagination Controls */}
           {filteredVehicles.length > 0 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 pt-4 border-t">
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-muted-foreground">Afficher</span>
                 <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
-                  <SelectTrigger className="w-[70px]">
+                  <SelectTrigger className="w-[75px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -331,15 +321,6 @@ export default function Vehicles() {
                     ))}
                   </SelectContent>
                 </Select>
-                <span className="text-sm text-muted-foreground">
-                  résultats par page
-                </span>
-              </div>
-
-              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <span>
-                  {startIndex + 1}-{Math.min(endIndex, filteredVehicles.length)} sur {filteredVehicles.length}
-                </span>
               </div>
 
               <Pagination>
@@ -469,7 +450,16 @@ function VehicleDetailsDialog({ vehicle, isOpen, onClose }) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Détails du Véhicule: {vehicle.vin}</DialogTitle>
+          <div className="flex items-center space-x-4">
+            {vehicle.marqueImage && (
+              <img 
+                src={vehicle.marqueImage} 
+                alt={vehicle.marque} 
+                className="w-15 h-15 object-contain" 
+              />
+            )}
+            <DialogTitle>Détails du Véhicule: {vehicle.vin}</DialogTitle>
+          </div>
         </DialogHeader>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
           <DetailItem label="Marque" value={vehicle.marque} />
@@ -486,7 +476,7 @@ function VehicleDetailsDialog({ vehicle, isOpen, onClose }) {
               <div key={index} className="flex space-x-3">
                 <div className="flex flex-col items-center">
                   <div className="w-3 h-3 bg-primary rounded-full" />
-                  <div className="flex-grow w-px bg-border" />
+                  <div className="flex-grow w-1 bg-border" />
                 </div>
                 <div className="pb-4">
                   <p className="font-medium">{event.zone}</p>

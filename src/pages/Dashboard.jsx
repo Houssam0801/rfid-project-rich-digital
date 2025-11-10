@@ -25,6 +25,27 @@ export default function Dashboard() {
 
   const maxZoneCount = Math.max(...Object.values(vehiclesByZone));
 
+  const zoneOrder = [
+    'Port - Arrivée',
+    'Zone de stockage',
+    'Zone de réception',
+    'Lavage',
+    'Atelier',
+    'Zone de préparation',
+    'Zone de chargement de batterie',
+    'Zone d’expédition',
+    'Showroom'
+  ];
+
+  const sortedVehiclesByZone = Object.entries(vehiclesByZone).sort(([zoneA], [zoneB]) => {
+      const indexA = zoneOrder.indexOf(zoneA);
+      const indexB = zoneOrder.indexOf(zoneB);
+      if (indexA === -1 && indexB === -1) return 0;
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+      return indexA - indexB;
+  });
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
@@ -87,7 +108,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {Object.entries(vehiclesByZone).map(([zone, count]) => {
+              {sortedVehiclesByZone.map(([zone, count]) => {
                 const percentage = (count / maxZoneCount) * 100;
                 return (
                   <div key={zone}>
