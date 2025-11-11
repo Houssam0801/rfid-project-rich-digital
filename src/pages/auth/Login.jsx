@@ -20,7 +20,7 @@ export default function Login() {
       </div>
 
       {/* Login Card Container */}
-      <div className="relative z-10 h-full w-full flex items-center justify-center px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 h-full w-full flex items-center justify-center px-4 sm:px-6 lg:px-8 shadow-3xl">
         <div className="w-full max-w-lg">
         <div className="bg-white dark:bg-card rounded-lg shadow-xl p-8 space-y-6">
           {/* Logo & Title */}
@@ -32,7 +32,7 @@ export default function Login() {
                 className="h-16 w-50 rounded-xl"
               />
             </div>
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-foreground">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground">
               Connexion à votre compte
             </h2>
           </div>
@@ -43,7 +43,7 @@ export default function Login() {
             <div className="space-y-2">
               <Label
                 htmlFor="email"
-                className="text-sm font-medium text-gray-700 dark:text-foreground"
+                className="text-base font-medium text-gray-700 dark:text-foreground"
               >
                 Votre email
               </Label>
@@ -59,7 +59,7 @@ export default function Login() {
             <div className="space-y-2">
               <Label
                 htmlFor="password"
-                className="text-sm font-medium text-gray-700 dark:text-foreground"
+                className="text-base font-medium text-gray-700 dark:text-foreground"
               >
                 Mot de passe
               </Label>
@@ -97,7 +97,7 @@ export default function Login() {
             {/* Login Button */}
             <Button
               onClick={handleSubmit}
-              className="w-full h-11 bg-[#234367] hover:bg-[#234367]/90 text-white font-medium rounded-md"
+              className="w-full h-11 bg-[#234367] hover:bg-[#234367]/90 text-white font-medium rounded-md mt-5"
             >
               Se connecter
             </Button>

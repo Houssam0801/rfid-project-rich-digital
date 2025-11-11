@@ -114,10 +114,8 @@ export default function Landing() {
                   transition={{ duration: 0.6, delay: 0.6 }}
                   className="text-base md:text-lg text-[var(--landing-text)]/70 dark:text-muted-foreground max-w-2xl text-center"
                 >
-                  Transformez votre gestion logistique avec{" "}
-                  <strong className="text-[var(--landing-primary)]">SmartTrace Pulse</strong>. Une solution RFID simple et
-                  performante pour localiser vos véhicules, fluidifier les
-                  opérations et garantir une traçabilité sans faille.
+                  Suivez <strong>vos véhicules</strong> en temps réel, fidélisez
+                  vos clients et garantissez une expérience sans faille.
                 </motion.p>
 
                 {/* Features Grid */}
@@ -131,17 +129,17 @@ export default function Landing() {
                     {
                       icon: Truck,
                       title: "Traçabilité complète",
-                      text: "Localisez vos véhicules dans chaque zone : port, stockage, atelier ou livraison.",
+                      text: "Suivez vos véhicules dans chaque zone du site.",
                     },
                     {
                       icon: BarChart3,
                       title: "Analyse & performance",
-                      text: "Consultez vos indicateurs clés : taux d'occupation, délais, conformité.",
+                      text: "Visualisez vos taux, délais et niveaux d’activité.",
                     },
                     {
                       icon: ShieldCheck,
                       title: "Fiabilité & sécurité",
-                      text: "Des données précises, sécurisées et toujours alignées avec la réalité terrain.",
+                      text: "Données exactes et protégées en temps réel.",
                     },
                   ].map((feature, i) => {
                     const IconComponent = feature.icon;
@@ -222,7 +220,9 @@ function StatItem({ label, value, icon: Icon }) {
       <p className="text-[var(--landing-text)] dark:text-foreground text-3xl font-bold mb-2">
         {value}
       </p>
-      <p className="text-[var(--landing-text)]/70 dark:text-muted-foreground">{label}</p>
+      <p className="text-[var(--landing-text)]/70 dark:text-muted-foreground">
+        {label}
+      </p>
     </div>
   );
 }

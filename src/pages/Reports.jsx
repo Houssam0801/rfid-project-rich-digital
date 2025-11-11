@@ -49,7 +49,7 @@ export default function Reports() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard icon={Clock} label="Délais moyenne de livraison" value="54h 20" trend="-8%" trendPositive={false} color="blue" />
+        <MetricCard icon={Clock} label="Délai moyen de livraison" value="54h 20" trend="-8%" trendPositive={false} color="blue" />
         <MetricCard icon={AlertTriangle} label="Véhicules non conformes" value="8" trend="+2" trendPositive={false} color="red" />
         <MetricCard icon={TrendingUp} label="Véhicules livrés à temps (OTD)" value="92%" trend="+3%" trendPositive={true} color="green" />
         <MetricCard icon={ClockAlert} label="Retard moyen à la livraison" value="6h 50" trend="+15min" trendPositive={false} color="orange" />
