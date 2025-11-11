@@ -117,7 +117,7 @@ export default function Dashboard() {
                         {zone}
                       </span>
                       <span className="text-card-foreground font-semibold">
-                        {count}
+                        {count.toLocaleString("fr-FR")}
                       </span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
@@ -195,7 +195,7 @@ export default function Dashboard() {
                   <p className="text-sm text-muted-foreground mb-2">
                     {zone.nom}
                   </p>
-                  <p className="text-2xl font-bold">{zone.taux}%</p>
+                  <p className="text-2xl font-bold">{zone.taux.toLocaleString("fr-FR")}%</p>
                 </div>
               );
             })}
@@ -225,7 +225,7 @@ function KPICard({ title, value, icon: Icon, color }) {
       </CardHeader>
       <CardContent>
         <p className="text-3xl font-bold text-card-foreground text-center">
-          {value}
+          {typeof value === 'number' ? value.toLocaleString("fr-FR") : value}
         </p>
       </CardContent>
     </Card>

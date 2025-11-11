@@ -170,7 +170,7 @@ function StatCard({ icon: Icon, label, value, color }) {
       </CardHeader>
       <CardContent>
         <p className="text-3xl font-bold text-card-foreground text-center">
-          {value}
+          {typeof value === 'number' ? value.toLocaleString("fr-FR") : value}
         </p>
       </CardContent>
     </Card>

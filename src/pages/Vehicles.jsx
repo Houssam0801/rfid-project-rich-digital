@@ -174,10 +174,10 @@ export default function Vehicles() {
         <div>
           <h1 className="text-3xl font-bold text-card-foreground">Gestion des Véhicules</h1>
           <p className="text-muted-foreground mt-1">
-            {filteredVehicles.length} véhicule{filteredVehicles.length > 1 ? 's' : ''} trouvé{filteredVehicles.length > 1 ? 's' : ''}
+            {filteredVehicles.length.toLocaleString("fr-FR")} véhicule{filteredVehicles.length > 1 ? 's' : ''} trouvé{filteredVehicles.length > 1 ? 's' : ''}
             {filteredVehicles.length > 0 && (
               <span className="text-xs ml-2">
-                (Page {currentPage} sur {totalPages})
+                (Page {currentPage.toLocaleString("fr-FR")} sur {totalPages.toLocaleString("fr-FR")})
               </span>
             )}
           </p>
@@ -252,10 +252,10 @@ export default function Vehicles() {
       <Card>
         <CardContent className="py-0 px-4">
           <div className="overflow-x-auto">
-            <Table>
+            <Table className="table-fixed">
               <TableHeader>
                 <TableRow>
-                  <SortableTableHeader field="vin" currentSort={sortField} direction={sortDirection} onSort={handleSort}>N° châssis</SortableTableHeader>
+                  <SortableTableHeader field="vin" currentSort={sortField} direction={sortDirection} onSort={handleSort} className="w-[250px]">N° châssis</SortableTableHeader>
                   <SortableTableHeader field="marque" currentSort={sortField} direction={sortDirection} onSort={handleSort}>Marque</SortableTableHeader>
                   <SortableTableHeader field="modele" currentSort={sortField} direction={sortDirection} onSort={handleSort}>Modèle</SortableTableHeader>
                   <SortableTableHeader field="couleur" currentSort={sortField} direction={sortDirection} onSort={handleSort}>Couleur</SortableTableHeader>
@@ -268,7 +268,7 @@ export default function Vehicles() {
                 {paginatedVehicles.length > 0 ? (
                   paginatedVehicles.map((vehicle) => (
                     <TableRow key={vehicle.id}>
-                      <TableCell className="font-mono text-primary">{vehicle.vin}</TableCell>
+                      <TableCell className="font-mono text-primary w-[250px]">{vehicle.vin}</TableCell>
                       <TableCell>{vehicle.marque}</TableCell>
                       <TableCell className="text-muted-foreground">{vehicle.modele}</TableCell>
                       <TableCell>
@@ -291,7 +291,7 @@ export default function Vehicles() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={8} className="h-30 text-center p-5">
+                    <TableCell colSpan={7} className="h-30 text-center p-5">
                       <div className="flex flex-col items-center justify-center space-y-2 text-muted-foreground">
                         <SearchX className="w-12 h-12" />
                         <p className="font-semibold text-lg">Aucun véhicule trouvé</p>
@@ -431,10 +431,10 @@ function FilterCombobox({ value, onChange, options, placeholder, disabled = fals
   );
 }
 
-function SortableTableHeader({ children, field, currentSort, direction, onSort }) {
+function SortableTableHeader({ children, field, currentSort, direction, onSort, className }) {
   const isActive = currentSort === field;
   return (
-    <TableHead className="cursor-pointer" onClick={() => onSort(field)}>
+    <TableHead className={cn("cursor-pointer", className)} onClick={() => onSort(field)}>
       <div className="flex items-center space-x-2">
         <span>{children}</span>
         {isActive && (direction === 'asc' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />)}
@@ -464,7 +464,7 @@ function VehicleDetailsDialog({ vehicle, isOpen, onClose }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
           <DetailItem label="Marque" value={vehicle.marque} />
           <DetailItem label="Modèle" value={vehicle.modele} />
-          <DetailItem label="Année" value={vehicle.annee.toString()} />
+          <DetailItem label="Année" value={vehicle.annee.toLocaleString("fr-FR")} />
           <DetailItem label="Couleur" value={vehicle.couleur} />
           <DetailItem label="Zone Actuelle" value={<Badge variant="secondary">{vehicle.zone}</Badge>} />
           <DetailItem label="Dernière MAJ" value={new Date(vehicle.derniereMAJ).toLocaleString('fr-FR')} />

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 
 const navItems = [
-  { id: 'dashboard', label: 'Tableau de Bord', icon: LayoutDashboard, path: '/' },
+  { id: 'dashboard', label: 'Tableau de Bord', icon: LayoutDashboard, path: '/tableau-bord' },
   { id: 'vehicles', label: 'Véhicules', icon: Car, path: '/vehicles' },
   { id: 'zones', label: 'Zones', icon: MapPin, path: '/zones' },
   { id: 'rfid', label: 'RFID & Tags', icon: Radio, path: '/rfid' },

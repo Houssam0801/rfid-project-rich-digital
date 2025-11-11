@@ -1,4 +1,4 @@
-import { TrendingUp, Clock, Target, Award, BarChart3 } from 'lucide-react';
+import { TrendingUp, Clock, Target, Award, BarChart3, AlertTriangle, ClockAlert } from 'lucide-react';
 import { mockVehicles, marques } from '../data/mockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -49,10 +49,10 @@ export default function Reports() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard icon={Clock} label="Temps Moyen de Transit" value="54.2h" trend="-8%" trendPositive={false} color="blue" />
-        <MetricCard icon={Target} label="Fiabilité du Stock" value="99.2%" trend="+0.5%" trendPositive={true} color="green" />
-        <MetricCard icon={TrendingUp} label="Véhicules à Temps" value="92%" trend="+3%" trendPositive={true} color="purple" />
-        <MetricCard icon={Award} label="Taux de Satisfaction" value="4.8/5" trend="+0.2" trendPositive={true} color="orange" />
+        <MetricCard icon={Clock} label="Délais moyenne de livraison" value="54h 20" trend="-8%" trendPositive={false} color="blue" />
+        <MetricCard icon={AlertTriangle} label="Véhicules non conformes" value="8" trend="+2" trendPositive={false} color="red" />
+        <MetricCard icon={TrendingUp} label="Véhicules livrés à temps (OTD)" value="92%" trend="+3%" trendPositive={true} color="green" />
+        <MetricCard icon={ClockAlert} label="Retard moyen à la livraison" value="6h 50" trend="+15min" trendPositive={false} color="orange" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -99,8 +99,8 @@ export default function Reports() {
                       <span className="text-card-foreground font-medium">{item.marque}</span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <span className="text-muted-foreground text-sm">{item.count} véhicules</span>
-                      <span className="text-primary font-bold">{item.percentage}%</span>
+                      <span className="text-muted-foreground text-sm">{item.count.toLocaleString("fr-FR")} véhicules</span>
+                      <span className="text-primary font-bold">{item.percentage.toLocaleString("fr-FR")}%</span>
                     </div>
                   </div>
                   <div className="w-full bg-muted rounded-full h-2">
@@ -150,6 +150,7 @@ function MetricCard({ icon: Icon, label, value, trend, trendPositive, color }) {
   const colorClasses = {
     blue: 'text-primary',
     green: 'text-green-500',
+    red: 'text-red-500',
     purple: 'text-purple-500',
     orange: 'text-orange-500',
   };
@@ -164,7 +165,7 @@ function MetricCard({ icon: Icon, label, value, trend, trendPositive, color }) {
       </CardHeader>
       <CardContent>
         <p className="text-3xl font-bold text-card-foreground text-center">
-          {value}
+          {typeof value === 'number' ? value.toLocaleString("fr-FR") : value}
         </p>
         <p className={`text-xs text-center ${trendPositive ? 'text-green-500' : 'text-red-500'}`}>
           {trend} par rapport à hier
@@ -187,7 +188,7 @@ function DeliveryCard({ label, percentage, color }) {
     <div className={`${colors.bg} rounded-lg p-3 border ${colors.border} shadow-sm hover:shadow-md transition-shadow`}>
         <div className="flex items-center justify-between mb-2">
       <p className="text-muted-foreground text-base mb-3">{label}</p>
-      <p className={`text-3xl font-bold ${colors.text} mb-2`}>{percentage}%</p>
+      <p className={`text-3xl font-bold ${colors.text} mb-2`}>{percentage.toLocaleString("fr-FR")}%</p>
       </div>
       <div className="w-full bg-muted rounded-full h-2">
         <div
