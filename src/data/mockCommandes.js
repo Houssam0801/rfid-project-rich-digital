@@ -6,6 +6,7 @@
 // ========================================
 
 import { mockArticles, mockClients } from './mockData';
+import { findArticleSlot } from './mockEmplacements';
 
 // Helper pour générer des timestamps
 const generateTimestamp = (daysAgo, hoursAgo = 0) => {
@@ -199,7 +200,7 @@ export const mockCommandes = [
         designation: "Tête de lit Capitonnée",
         category: "Tête de lit",
         quantity: 2,
-        picked: 2,
+        picked: 0,  // CHANGÉ: 0 pickés sur 2
         inProduction: 0,
         inStockage: 2,    // 100% en stockage
         articleIds: articlesEnStock.slice(8, 10).map(a => a.id),
@@ -209,7 +210,7 @@ export const mockCommandes = [
         designation: "Coussin Marocain Brodé",
         category: "Coussin décoratif",
         quantity: 6,
-        picked: 6,
+        picked: 0,  // CHANGÉ: 0 pickés sur 6
         inProduction: 0,
         inStockage: 6,    // 100% en stockage
         articleIds: articlesEnStock.slice(10, 16).map(a => a.id),
@@ -217,7 +218,7 @@ export const mockCommandes = [
       }
     ],
     totalArticles: 8,
-    pickedArticles: 8,
+    pickedArticles: 0,  // CHANGÉ: 0 pickés sur 8
     stockageProgress: 100, // 100% en stockage
     createdAt: generateTimestamp(3, 10),
     updatedAt: generateTimestamp(0, 5),
@@ -236,12 +237,12 @@ export const mockCommandes = [
         designation: "Banquette Salon Moderne",
         category: "Banquette",
         quantity: 1,
-        picked: 1,        // Déjà 1/1 pické
+        picked: 0,        // CHANGÉ: 0/1 pické
         inProduction: 0,
         inStockage: 1,    // 100% en stockage
         isMultiPiece: true,
         articleIds: [articlesEnStock[16]?.id].filter(Boolean),
-        tagIds: [],
+        tagIds: ["TAG-2024-00040"], // TAG ID de la banquette principale
         pieces: [
           { name: "Pièce centrale", picked: true, inStockage: true, tagId: "TAG-2024-00040" },
           { name: "Angle gauche", picked: true, inStockage: true, tagId: "TAG-2024-00041" },
@@ -252,8 +253,8 @@ export const mockCommandes = [
         ]
       }
     ],
-    totalArticles: 5,
-    pickedArticles: 5,
+    totalArticles: 7,  // CHANGÉ: 1 banquette + 6 pièces = 7 total
+    pickedArticles: 7,  // CHANGÉ: 0 pickés
     stockageProgress: 100, // 100% en stockage
     createdAt: generateTimestamp(2, 8),
     updatedAt: generateTimestamp(0, 1),
@@ -704,14 +705,21 @@ export const getNextArticleToPick = (commandeId) => {
   for (const articleLine of commande.articles) {
     if (articleLine.picked < articleLine.quantity) {
       const pickedCount = articleLine.picked;
-      const articleId = articleLine.articleIds[pickedCount];
-      const article = mockArticles.find(a => a.id === articleId);
+
+      // Get tag ID for the next unpicked article
+      const tagId = articleLine.tagIds && articleLine.tagIds[pickedCount];
+      const article = tagId ? mockArticles.find(a => a.tagId === tagId) : null;
 
       if (article) {
+        // Find the slot where this article is stored
+        const slotInfo = findArticleSlot(article.id);
+
         return {
           article,
           articleLine,
           remaining: articleLine.quantity - articleLine.picked,
+          slot: slotInfo?.slot || null,
+          zone: slotInfo?.zone || null,
         };
       }
     }

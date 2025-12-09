@@ -80,6 +80,41 @@ articlesEnStock.forEach(article => {
   }
 });
 
+// IMPORTANT: Place specific articles from picking commandes in precise locations
+// This ensures the picking system can locate them
+
+// CMD-2024-0160: Tête de lit Capitonnée (2 items) - Place in STK-2
+const placeArticleInSlot = (grid, slotId, tagId, category) => {
+  const slot = grid.slots.find(s => s.id === slotId);
+  if (slot) {
+    slot.status = 'occupied';
+    slot.tagId = tagId;
+    slot.category = category;
+    const article = mockArticles.find(a => a.tagId === tagId);
+    if (article) slot.articleId = article.id;
+  }
+};
+
+// Tête de lit Capitonnée - in STK-2
+placeArticleInSlot(gridSTK2, 'A1', 'TAG-2024-10030', 'Tête de lit');
+placeArticleInSlot(gridSTK2, 'A2', 'TAG-2024-10031', 'Tête de lit');
+
+// Coussin Marocain Brodé (6 items) - in STK-3
+placeArticleInSlot(gridSTK3, 'B1', 'TAG-2024-10032', 'Coussin décoratif');
+placeArticleInSlot(gridSTK3, 'B2', 'TAG-2024-10033', 'Coussin décoratif');
+placeArticleInSlot(gridSTK3, 'B3', 'TAG-2024-10034', 'Coussin décoratif');
+placeArticleInSlot(gridSTK3, 'B4', 'TAG-2024-10035', 'Coussin décoratif');
+placeArticleInSlot(gridSTK3, 'B5', 'TAG-2024-10036', 'Coussin décoratif');
+placeArticleInSlot(gridSTK3, 'B6', 'TAG-2024-10037', 'Coussin décoratif');
+
+// CMD-2024-0161: Banquette Salon Moderne - in STK-2
+placeArticleInSlot(gridSTK2, 'C3', 'TAG-2024-00040', 'Banquette');
+placeArticleInSlot(gridSTK2, 'C4', 'TAG-2024-00041', 'Banquette');
+placeArticleInSlot(gridSTK2, 'C5', 'TAG-2024-00042', 'Banquette');
+placeArticleInSlot(gridSTK2, 'C6', 'TAG-2024-00043', 'Banquette');
+placeArticleInSlot(gridSTK2, 'D3', 'TAG-2024-00044', 'Banquette');
+placeArticleInSlot(gridSTK2, 'D4', 'TAG-2024-00045', 'Banquette');
+
 // Export des grilles
 export const emplacementsSTK1 = gridSTK1;
 export const emplacementsSTK2 = gridSTK2;
@@ -200,4 +235,9 @@ export const getZoneStats = (zoneId) => {
     empty,
     occupancyRate: Math.round((occupied / grid.totalSlots) * 100),
   };
+};
+
+// Helper: Get articles ready for storage (Inbound)
+export const getInboundArticles = () => {
+    return mockArticles.filter(a => a.status === 'En production');
 };

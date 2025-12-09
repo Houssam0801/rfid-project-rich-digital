@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { Warehouse, Search, CheckCircle, MapPin, Tag, Package } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Warehouse, Search, CheckCircle, MapPin, Tag, Package, ArrowRight, Truck } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import StorageGrid from '../components/operations/StorageGrid';
 import { mockArticles } from '../data/mockData';
-import { emplacementsByZone, suggestOptimalSlot, getZoneStats } from '../data/mockEmplacements';
+import { emplacementsByZone, suggestOptimalSlot, getZoneStats, getInboundArticles } from '../data/mockEmplacements';
 
 export default function Stockage() {
   const [tagInput, setTagInput] = useState('');
@@ -14,24 +14,35 @@ export default function Stockage() {
   const [suggestion, setSuggestion] = useState(null);
   const [selectedZone, setSelectedZone] = useState('STK-1');
   const [recentStorageHistory, setRecentStorageHistory] = useState([]);
+  
+  // Get inbound articles (ready to store)
+  const inboundArticles = useMemo(() => getInboundArticles(), []);
 
-  const handleSearchTag = () => {
-    const article = mockArticles.find(a =>
-      a.tagId.toLowerCase().includes(tagInput.toLowerCase()) &&
-      a.status === 'En production'
+  const handleSearchTag = (searchTag = tagInput) => {
+    const article = mockArticles.find(a => 
+      a.tagId.toLowerCase() === searchTag.toLowerCase() && 
+      (a.status === 'En production' || a.status === 'En réception')
     );
 
     if (article) {
-      setCurrentArticle(article);
-      const optimalSlot = suggestOptimalSlot(article);
-      setSuggestion(optimalSlot);
-      if (optimalSlot && optimalSlot.suggested) {
-        setSelectedZone(optimalSlot.suggested.zone);
-      }
+      selectArticleForStorage(article);
     } else {
       alert('Tag non trouvé ou article déjà stocké');
       setCurrentArticle(null);
       setSuggestion(null);
+    }
+  };
+
+  const selectArticleForStorage = (article) => {
+    setCurrentArticle(article);
+    setTagInput(article.tagId);
+    
+    // Get suggestion
+    const optimalSlot = suggestOptimalSlot(article);
+    setSuggestion(optimalSlot);
+    
+    if (optimalSlot && optimalSlot.suggested) {
+      setSelectedZone(optimalSlot.suggested.zone);
     }
   };
 
@@ -48,7 +59,10 @@ export default function Stockage() {
     };
 
     setRecentStorageHistory([newEntry, ...recentStorageHistory.slice(0, 4)]);
-    alert(`Article ${currentArticle.tagId} stocké en ${suggestion.suggested.zone}-${suggestion.suggested.id}!`);
+    
+    // Simulation Update (In a real app, this would update the backend)
+    currentArticle.status = 'En stock';
+    currentArticle.currentZone = suggestion.suggested.zone;
 
     // Reset
     setCurrentArticle(null);
@@ -75,222 +89,216 @@ export default function Stockage() {
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-card-foreground">Stockage - Rangement Articles</h1>
+        <h1 className="text-3xl font-bold text-card-foreground flex items-center gap-3">
+          <Warehouse className="w-8 h-8 text-primary" />
+          Stockage & Rangement
+        </h1>
         <p className="text-muted-foreground mt-1">
-          Trouvez l'emplacement optimal pour ranger chaque article
+          Gérez l'entrée en stock des articles depuis la production
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Panel */}
-        <div className="lg:col-span-1 space-y-4">
-          {/* Scanner Tag */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center space-x-2">
-                <Search className="w-5 h-5" />
-                <span>Scanner ou Saisir Tag</span>
-              </CardTitle>
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+        
+        {/* Left Column: Inbound List & Search */}
+        <div className="xl:col-span-1 space-y-4">
+            
+          {/* Manual Search */}
+          <Card  className="pt-0 gap-0">
+            <CardHeader className="py-2">
+              <CardTitle className="text-base">Scanner un Article</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex space-x-2">
+            <CardContent>
+              <div className="flex gap-2">
                 <Input
-                  placeholder="TAG-2024-XXXXX"
+                  placeholder="Scannez Tag RFID..."
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSearchTag()}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearchTag()}
                   className="font-mono"
                 />
-                <Button onClick={handleSearchTag}>
+                <Button size="icon" onClick={() => handleSearchTag()}>
                   <Search className="w-4 h-4" />
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Scannez le tag RFID ou saisissez le numéro manuellement
-              </p>
             </CardContent>
           </Card>
 
-          {/* Article Info */}
-          {currentArticle && (
-            <Card className="border-primary">
-              <CardHeader className="bg-primary/10">
-                <CardTitle className="text-lg flex items-center space-x-2">
-                  <Package className="w-5 h-5" />
-                  <span>Article à Stocker</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 pt-6">
-                <div className="text-center">
-                  <div className="w-20 h-20 mx-auto mb-3 bg-accent rounded-lg flex items-center justify-center">
-                    <Package className="w-10 h-10 text-primary" />
-                  </div>
-                  <p className="font-semibold text-lg text-card-foreground">{currentArticle.designation}</p>
-                  <Badge variant="outline" className="mt-2">{currentArticle.category}</Badge>
-                </div>
-
-                <div className="space-y-2 bg-accent p-3 rounded-lg">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Tag ID:</span>
-                    <span className="font-mono font-semibold">{currentArticle.tagId}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Lot (OF):</span>
-                    <span className="font-mono">{currentArticle.lot}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Catégorie:</span>
-                    <span>{currentArticle.category}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Provenance:</span>
-                    <Badge variant="secondary">{currentArticle.currentZone}</Badge>
-                  </div>
-                </div>
-
-                {suggestion && suggestion.suggested && (
-                  <div className="bg-green-500/10 border border-green-500/30 p-4 rounded-lg">
-                    <p className="text-sm font-semibold text-green-700 dark:text-green-300 mb-2">
-                      Emplacement Suggéré
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <MapPin className="w-5 h-5 text-green-600" />
-                        <span className="font-mono font-bold text-lg text-card-foreground">
-                          {suggestion.suggested.zone} - {suggestion.suggested.id}
-                        </span>
-                      </div>
+          {/* Inbound List */}
+          <Card className="pt-0 flex flex-col max-h-[600px] gap-1">
+            <CardHeader className="py-3 bg-muted/30">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Truck className="w-4 h-4" />
+                Articles en Attente ({inboundArticles.filter(a => a.status === 'En production').length})
+              </CardTitle>
+            </CardHeader>
+            <div className="flex-1 px-4 py-2 h-[350px] overflow-y-auto">
+              <div className="space-y-2">
+                {inboundArticles.filter(a => a.status === 'En production').map((article) => (
+                  <div 
+                    key={article.id}
+                    onClick={() => selectArticleForStorage(article)}
+                    className={`p-3 rounded-lg border cursor-pointer transition-all hover:border-primary group ${
+                      currentArticle?.id === article.id 
+                        ? 'bg-primary/5 border-primary ring-1 ring-primary/20' 
+                        : 'bg-card border-border hover:shadow-md'
+                    }`}
+                  >
+                    <div className="flex justify-between items-start mb-1">
+                      <span className="font-semibold text-sm line-clamp-1">{article.designation}</span>
+                      {currentArticle?.id === article.id && <CheckCircle className="w-3 h-3 text-primary" />}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Zone {suggestion.suggested.zone} • {zoneStats[suggestion.suggested.zone]?.occupancyRate}% occupation
-                    </p>
+                    <div className="flex justify-between items-center text-xs text-muted-foreground">
+                      <span className="font-mono bg-muted px-1 rounded">{article.tagId}</span>
+                      <Badge variant="outline" className="text-[10px] h-5">{article.category}</Badge>
+                    </div>
+                  </div>
+                ))}
+                {inboundArticles.filter(a => a.status === 'En production').length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground text-sm">
+                    Aucun article en attente
                   </div>
                 )}
+              </div>
+            </div>
+          </Card>
+        </div>
 
-                <Button
-                  onClick={handleConfirmStorage}
-                  className="w-full"
-                  size="lg"
-                  disabled={!suggestion}
-                >
-                  <CheckCircle className="w-5 h-5 mr-2" />
-                  Confirmer Stockage
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Alternatives */}
-          {suggestion && suggestion.alternatives && suggestion.alternatives.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">Emplacements Alternatifs</CardTitle>
+        {/* Middle Column: Current Article Action */}
+        <div className="xl:col-span-1 space-y-4">
+           {currentArticle ? (
+            <Card className=" pt-0 border-primary/50 shadow-lg h-full flex flex-col ">
+              <CardHeader className="bg-primary/5 py-2 rounded-t-xl">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Package className="w-5 h-5 text-primary" />
+                  Article Sélectionné
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {suggestion.alternatives.map((alt, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleSlotClick(alt, 'alternative')}
-                      className="w-full flex items-center justify-between p-2 bg-yellow-500/10 border border-yellow-500/30 rounded hover:bg-yellow-500/20 transition-colors"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <MapPin className="w-4 h-4 text-yellow-600" />
-                        <span className="font-mono text-sm font-semibold">{alt.zone} - {alt.id}</span>
-                      </div>
-                      <span className="text-xs text-muted-foreground">Vide</span>
-                    </button>
-                  ))}
+              <CardContent className="space-y-6 pt-6 flex-1">
+                <div className="text-center space-y-2">
+                   <div className="w-16 h-16 bg-muted rounded-2xl mx-auto flex items-center justify-center mb-2">
+                      <Package className="w-8 h-8 text-muted-foreground" />
+                   </div>
+                   <h3 className="font-bold text-lg leading-tight">{currentArticle.designation}</h3>
+                   <div className="flex gap-2 justify-center flex-wrap">
+                      <Badge variant="secondary">{currentArticle.category}</Badge>
+                      <Badge variant="outline">{currentArticle.size}</Badge>
+                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          )}
 
-          {/* Zone Stats */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Zones Disponibles</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {Object.entries(zoneStats).map(([zone, stats]) => (
-                <div key={zone} className="flex items-center justify-between p-2 bg-accent rounded">
-                  <span className="text-sm font-semibold">{zone}</span>
-                  <div className="text-right">
-                    <p className="text-sm font-semibold">{stats.empty} places libres</p>
-                    <p className="text-xs text-muted-foreground">{stats.occupancyRate}% occupation</p>
+                <div className="space-y-3 bg-muted/40 p-4 rounded-xl border">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Tag ID</span>
+                    <span className="font-mono font-bold text-foreground">{currentArticle.tagId}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Lot (OF)</span>
+                    <span className="font-mono">{currentArticle.lot}</span>
                   </div>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
 
-        {/* Right Panel - Storage Grid */}
-        <div className="lg:col-span-2 space-y-4">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Plan de la Zone de Stockage</CardTitle>
-                <div className="flex space-x-2">
-                  {['STK-1', 'STK-2', 'STK-3'].map(zone => (
-                    <Button
-                      key={zone}
-                      variant={selectedZone === zone ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setSelectedZone(zone)}
-                    >
-                      {zone}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <StorageGrid
-                zone={selectedZone}
-                emplacements={emplacementsByZone[selectedZone]}
-                highlightSlot={suggestion?.suggested?.zone === selectedZone ? suggestion.suggested.id : null}
-                alternativeSlots={suggestion?.alternatives?.filter(a => a.zone === selectedZone) || []}
-                mode="stockage"
-                onSlotClick={handleSlotClick}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Recent History */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Historique Stockage Récent</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {recentStorageHistory.length > 0 ? (
-                <div className="space-y-2">
-                  {recentStorageHistory.map((entry, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-accent rounded-lg border border-border">
-                      <div className="flex items-center space-x-3">
-                        <CheckCircle className="w-5 h-5 text-green-500" />
-                        <div>
-                          <p className="text-sm font-semibold">{entry.designation}</p>
-                          <p className="text-xs text-muted-foreground font-mono">{entry.tagId}</p>
+                {suggestion && suggestion.suggested ? (
+                   <div className="space-y-4 animate-in zoom-in-95 duration-300">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-green-500/10 blur-xl rounded-full" />
+                        <div className="relative bg-background border-2 border-green-500 rounded-xl p-4 text-center">
+                            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Emplacement Suggéré</p>
+                            <div className="flex items-center justify-center gap-2 mb-2">
+                                <MapPin className="w-5 h-5 text-green-600" />
+                                <span className="text-3xl font-black text-green-700 dark:text-green-400 font-mono">
+                                  {suggestion.suggested.zone}-{suggestion.suggested.id}
+                                </span>
+                            </div>
+                            <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300 border-none">
+                              Zone Optimale
+                            </Badge>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm font-mono font-semibold text-primary">
-                          {entry.zone} - {entry.slot}
-                        </p>
-                        <p className="text-xs text-muted-foreground">{entry.time}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-center text-muted-foreground py-8">
-                  Aucun stockage récent
-                </p>
-              )}
-            </CardContent>
-          </Card>
+                      
+                      <Button 
+                        size="lg" 
+                        className="w-full bg-green-600 hover:bg-green-700 text-white font-bold h-12 text-base shadow-lg shadow-green-600/20"
+                        onClick={handleConfirmStorage}
+                      >
+                        <CheckCircle className="w-5 h-5 mr-2" />
+                        Confirmer le Stockage
+                      </Button>
+                   </div>
+                ) : (
+                  <div className="bg-yellow-50 dark:bg-yellow-900/10 p-4 rounded-lg border border-yellow-200 dark:border-yellow-900/50 text-center">
+                    <p className="text-sm text-yellow-700 dark:text-yellow-500 font-medium">Recherche d'emplacement...</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+           ) : (
+             <div className="h-full border-2 border-dashed rounded-xl flex items-center justify-center text-muted-foreground p-8 text-center bg-muted/10">
+               <div>
+                 <Search className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                 <p className="font-medium">Aucun article sélectionné</p>
+                 <p className="text-sm opacity-70">Sélectionnez un article dans la liste ou scannez un tag</p>
+               </div>
+             </div>
+           )}
         </div>
+
+        {/* Right Column: Visual Grid */}
+        <div className="xl:col-span-2 space-y-4">
+           
+           <Card className="pt-2 h-full flex flex-col gap-2">
+              <CardHeader className="pb-2">
+                 <div className="flex items-center justify-between">
+                    <CardTitle className="text-base">Cartographie Stockage</CardTitle>
+                    <div className="flex bg-muted p-1 rounded-lg">
+                       {['STK-1', 'STK-2', 'STK-3'].map(zone => (
+                         <button
+                           key={zone}
+                           onClick={() => setSelectedZone(zone)}
+                           className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                             selectedZone === zone 
+                               ? 'bg-background shadow-sm text-foreground' 
+                               : 'text-muted-foreground hover:text-foreground'
+                           }`}
+                         >
+                           {zone}
+                         </button>
+                       ))}
+                    </div>
+                 </div>
+              </CardHeader>
+              <CardContent className="flex-1 min-h-[400px]">
+                 <StorageGrid 
+                    zone={selectedZone}
+                    emplacements={emplacementsByZone[selectedZone]}
+                    highlightSlot={suggestion?.suggested?.zone === selectedZone ? suggestion.suggested.id : null}
+                    alternativeSlots={suggestion?.alternatives?.filter(a => a.zone === selectedZone) || []}
+                    mode="stockage"
+                    onSlotClick={handleSlotClick}
+                 />
+              </CardContent>
+           </Card>
+
+           {/* Recent History */}
+           {recentStorageHistory.length > 0 && (
+             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+               {recentStorageHistory.map((item, i) => (
+                 <div key={i} className="bg-card border rounded-lg p-3 text-xs shadow-sm">
+                    <div className="flex items-center gap-2 mb-1 text-green-600">
+                      <CheckCircle className="w-3 h-3" />
+                      <span className="font-bold">Stocké</span>
+                    </div>
+                    <div className="font-medium truncate">{item.designation}</div>
+                    <div className="text-muted-foreground mt-1 flex justify-between">
+                       <span>{item.zone}-{item.slot}</span>
+                       <span>{item.time}</span>
+                    </div>
+                 </div>
+               ))}
+             </div>
+           )}
+
+        </div>
+
       </div>
     </div>
   );
