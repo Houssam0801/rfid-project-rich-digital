@@ -1,16 +1,9 @@
 import { useState, useMemo, useEffect } from 'react';
-import { PackageSearch, CheckCircle, AlertCircle, MapPin, Box, Clock, TrendingUp, ArrowRight } from 'lucide-react';
+import { PackageSearch, CheckCircle, AlertCircle, MapPin, Box, Clock, TrendingUp, ArrowRight, Truck, ClipboardList, Package } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import StorageGrid from '../components/operations/StorageGrid';
 import { getPickableCommandes, getCommandeProgress, getNextArticleToPick, getCommandeById } from '../data/mockCommandes';
 import { emplacementsByZone } from '../data/mockEmplacements';
@@ -20,8 +13,10 @@ export default function Picking() {
   const [pickedItems, setPickedItems] = useState([]);
   const [currentZone, setCurrentZone] = useState('STK-1');
   const [pickingHistory, setPickingHistory] = useState([]);
+  const [completedOrders, setCompletedOrders] = useState([]);
 
-  const pickableCommandes = getPickableCommandes();
+  // Get orders ready for picking (industrial flux: Stock -> Picking)
+  const pickableCommandes = useMemo(() => getPickableCommandes(), [completedOrders]);
 
   const selectedCommande = useMemo(() => {
     return getCommandeById(selectedCommandeId);
@@ -37,9 +32,9 @@ export default function Picking() {
   // Auto-switch zone when article to pick is in a different zone
   useEffect(() => {
     if (articleToPick && articleToPick.zone) {
-      setCurrentZone(articleToPick.zone);
+      setCurrentZone(pickableCommandes.length > 0 && selectedCommande ? articleToPick.zone : 'STK-1');
     }
-  }, [articleToPick]);
+  }, [articleToPick, selectedCommande]);
 
   const handleConfirmPicking = () => {
     if (!articleToPick || !articleToPick.slot) {
@@ -60,328 +55,265 @@ export default function Picking() {
     setPickedItems([...pickedItems, articleToPick.article.id]);
 
     // Update the article line picked count (simulate backend update)
-    articleToPick.articleLine.picked += 1;
+    if (articleToPick.articleLine) {
+        if (articleToPick.piece) {
+            articleToPick.piece.picked = true;
+            // Also increment total picked count for the order if desired, or relying on piece logic
+            // For now, let's increment the order total to show progress
+            selectedCommande.pickedArticles += 1;
+        } else {
+            articleToPick.articleLine.picked += 1;
+            selectedCommande.pickedArticles += 1;
+        }
+    }
 
     // Check if commande is complete
     const nextArticle = getNextArticleToPick(selectedCommande.id);
     if (!nextArticle) {
-      setTimeout(() => {
-        alert(`✅ Commande ${selectedCommande.id} terminée!\nTous les articles ont été pickés avec succès.`);
-      }, 100);
+       // Order complete
+       setCompletedOrders([...completedOrders, selectedCommande.id]);
     }
   };
 
-  const handleCommandeChange = (commandeId) => {
-    setSelectedCommandeId(commandeId);
-    setPickedItems([]);
+  const handleCommandeSelect = (commande) => {
+    setSelectedCommandeId(commande.id);
+    setPickedItems([]); // Reset local session picks (in real app, fetch from backend)
     setPickingHistory([]);
-    setCurrentZone('STK-1');
   };
 
-  const getTotalItemsToPick = () => {
-    if (!selectedCommande) return 0;
-    return selectedCommande.articles.reduce((sum, art) => sum + art.quantity, 0);
-  };
-
-  const getPickedItemsCount = () => {
-    if (!selectedCommande) return 0;
-    return selectedCommande.articles.reduce((sum, art) => sum + art.picked, 0);
-  };
+  const isOrderComplete = selectedCommande && selectedCommande.pickedArticles === selectedCommande.totalArticles;
 
   return (
-    <div className="space-y-4 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header with Stats */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-card-foreground flex items-center gap-3">
-            <PackageSearch className="w-8 h-8 text-primary" />
-            Picking - Préparation Commandes
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Localisez et collectez les articles pour chaque commande
-          </p>
-        </div>
-        
+      <div>
+        <h1 className="text-3xl font-bold text-card-foreground flex items-center gap-3">
+            <ClipboardList className="w-8 h-8 text-primary" />
+            Picking & Préparation
+        </h1>
+        <p className="text-muted-foreground mt-1">
+            Préparez les commandes client en collectant les articles en stock
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Left Panel - Commande Info */}
-        <div className="lg:col-span-1 space-y-4">
-          {/* Sélecteur de commande */}
-          <Card className="py-2 gap-3">
-            <CardHeader className="">
-              <CardTitle className="text-base flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" />
-                Sélectionner une Commande
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+        
+        {/* Left Panel - Commandes List */}
+        <div className="xl:col-span-1 space-y-4">
+          <Card className="flex flex-col h-full pt-0 gap-1">
+            <CardHeader className="py-3 bg-muted/30">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Truck className="w-4 h-4" />
+                Commandes à Préparer ({pickableCommandes.filter(c => !completedOrders.includes(c.id)).length})
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <Select value={selectedCommandeId} onValueChange={handleCommandeChange}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Choisir une commande..."/>
-                </SelectTrigger>
-                <SelectContent>
-                  {pickableCommandes.length === 0 ? (
-                    <SelectItem value="none" disabled>Aucune commande disponible</SelectItem>
-                  ) : (
-                    pickableCommandes.map(commande => (
-                      <SelectItem key={commande.id} value={commande.id}>
-                        {commande.id} - {commande.client.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card>
-
-          {selectedCommande && (
-            <>
-              {/* Commande en cours */}
-              <Card className="border-primary/30 pt-0 gap-2">
-                <CardHeader className="py-2 bg-primary/5 rounded-t-xl">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Box className="w-4 h-4" />
-                    Commande en Cours
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 pt-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <p className="text-xs text-muted-foreground">N° Commande</p>
-                      <p className="font-mono font-semibold text-sm text-primary">{selectedCommande.id}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Priorité</p>
-                      <Badge variant={selectedCommande.priority === 'high' ? 'destructive' : 'default'} className="text-xs">
-                        {selectedCommande.priority === 'high' ? 'Haute' : selectedCommande.priority === 'low' ? 'Basse' : 'Normale'}
-                      </Badge>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Client</p>
-                    <p className="font-semibold text-sm">{selectedCommande.client.name}</p>
-                  </div>
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <p className="text-xs text-muted-foreground">Progression</p>
-                      <p className="text-xs font-semibold text-primary">{progress}%</p>
-                    </div>
-                    <Progress value={progress} className="h-2" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Article à picker */}
-              {articleToPick ? (
-                <Card className="border-2 border-red-500/50 shadow-lg pt-0 gap-2">
-                  <CardHeader className="py-2 bg-red-500/10 rounded-t-xl">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <PackageSearch className="w-5 h-5 text-red-600" />
-                      <span className="text-red-700 dark:text-red-400">Article à Picker Maintenant</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4 pt-4">
-                    <div className="text-center pb-3 border-b">
-
-                      <p className="font-bold text-lg text-card-foreground">{articleToPick.article.designation}</p>
-                      <Badge variant="outline" className="mt-1">{articleToPick.article.category}</Badge>
-                    </div>
-
-                    <div className="space-y-3 bg-red-50 dark:bg-red-950/30 p-4 rounded-lg border-2 border-red-500/30">
-                      <div className="text-center pb-2 border-b border-red-500/20">
-                        <p className="text-xs text-muted-foreground mb-1">📍 LOCALISATION</p>
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-center gap-2">
-                            <span className="text-xs font-medium text-muted-foreground">Zone:</span>
-                            <Badge variant="destructive" className="font-mono font-bold text-sm">
-                              {articleToPick.zone || 'N/A'}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center justify-center gap-2">
-                            <span className="text-xs font-medium text-muted-foreground">Allée:</span>
-                            <span className="font-mono font-bold text-lg text-red-600">
-                              {articleToPick.slot?.row || 'N/A'}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-center gap-2">
-                            <span className="text-xs font-medium text-muted-foreground">Niveau:</span>
-                            <span className="font-mono font-bold text-lg text-red-600">
-                              {articleToPick.slot?.col || 'N/A'}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-center gap-2">
-                            <span className="text-xs font-medium text-muted-foreground">Emplacement:</span>
-                            <Badge variant="destructive" className="font-mono font-bold text-base">
-                              {articleToPick.slot?.id || 'N/A'}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="space-y-1.5">
-                        <div className="flex justify-between">
-                          <span className="text-xs text-muted-foreground">Tag RFID:</span>
-                          <span className="font-mono text-xs font-semibold">{articleToPick.article.tagId}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-xs text-muted-foreground">Taille:</span>
-                          <span className="text-xs font-semibold">{articleToPick.article.size}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-xs text-muted-foreground">Restants:</span>
-                          <Badge variant="secondary" className="text-xs">{articleToPick.remaining} article(s)</Badge>
-                        </div>
-                      </div>
-                    </div>
-
-                    <Button
-                      onClick={handleConfirmPicking}
-                      className="w-full bg-green-600 hover:bg-green-700"
-                      size="lg"
-                    >
-                      <CheckCircle className="w-5 h-5 mr-2" />
-                      Confirmer Picking
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card className="border-green-500/50">
-                  <CardContent className="py-8 text-center">
-                    <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-3" />
-                    <p className="font-bold text-lg text-green-700 dark:text-green-400">Commande Terminée!</p>
-                    <p className="text-sm text-muted-foreground mt-1">Tous les articles ont été pickés avec succès</p>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Liste articles */}
-              <Card className="py-2 gap-2">
-                <CardHeader className="">
-                  <CardTitle className="text-sm">Liste des Articles</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {selectedCommande.articles.map((article, index) => {
-                      const isPicked = article.picked === article.quantity;
-                      const isInProgress = article.picked > 0 && article.picked < article.quantity;
-                      const isCurrent = articleToPick && articleToPick.articleLine === article;
-
-                      return (
-                        <div
-                          key={index}
-                          className={`flex items-center justify-between p-2 rounded text-sm border ${
-                            isCurrent ? 'bg-red-50 dark:bg-red-900/20 border-red-500 shadow-sm' :
-                            isPicked ? 'bg-green-50 dark:bg-green-900/20 border-green-500/30' :
-                            isInProgress ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500/30' :
-                            'bg-accent border-transparent'
-                          }`}
-                        >
-                          <div className="flex items-center space-x-2 flex-1">
-                            {isCurrent ? (
-                              <ArrowRight className="w-4 h-4 text-red-500 animate-pulse" />
-                            ) : isPicked ? (
-                              <CheckCircle className="w-4 h-4 text-green-500" />
-                            ) : isInProgress ? (
-                              <Clock className="w-4 h-4 text-yellow-500" />
-                            ) : (
-                              <AlertCircle className="w-4 h-4 text-gray-400" />
-                            )}
-                            <span className="text-xs truncate">{article.designation}</span>
-                          </div>
-                          <Badge variant="outline" className="text-xs ml-2">
-                            {article.picked}/{article.quantity}
-                          </Badge>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            </>
-          )}
-        </div>
-
-        {/* Right Panel - Storage Grid */}
-        <div className="lg:col-span-2 space-y-4">
-          <Card className="gap-2 pt-3">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <MapPin className="w-5 h-5" />
-                  Plan de la Zone de Stockage
-                </CardTitle>
-                {articleToPick && (
-                  <div className="flex space-x-2">
-                    {['STK-1', 'STK-2', 'STK-3'].map(zone => (
-                      <Button
-                        key={zone}
-                        variant={currentZone === zone ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setCurrentZone(zone)}
-                        className={currentZone === zone && articleToPick.zone === zone ? 'ring-2 ring-red-400' : ''}
-                      >
-                        {zone}
-                        {articleToPick.zone === zone && <span className="ml-1">🔴</span>}
-                      </Button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              {selectedCommande ? (
-                <StorageGrid
-                  zone={currentZone}
-                  emplacements={emplacementsByZone[currentZone]}
-                  highlightSlot={articleToPick && articleToPick.zone === currentZone ? articleToPick.slot?.id : null}
-                  pickedSlots={[]}
-                  mode="picking"
-                />
-              ) : (
-                <div className="flex items-center justify-center h-96 bg-accent/30 rounded-lg border-2 border-dashed border-border">
-                  <div className="text-center">
-                    <PackageSearch className="w-20 h-20 mx-auto mb-4 text-muted-foreground/30" />
-                    <p className="text-lg font-semibold text-muted-foreground">Sélectionnez une commande</p>
-                    <p className="text-sm text-muted-foreground/70">pour commencer le picking</p>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Historique récent */}
-          {pickingHistory.length > 0 && (
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  Historique de Picking (Session actuelle)
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div className="flex-1 px-4 py-2 overflow-y-auto">
                 <div className="space-y-2">
-                  {pickingHistory.map((entry, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-500/30">
-                      <div className="flex items-center space-x-3">
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                        <div>
-                          <p className="text-sm font-semibold">{entry.designation}</p>
-                          <p className="text-xs text-muted-foreground font-mono">{entry.tagId}</p>
+                    {pickableCommandes.map(commande => {
+                        const isComplete = completedOrders.includes(commande.id) || commande.pickedArticles === commande.totalArticles;
+                        if (isComplete && commande.id !== selectedCommandeId) return null; // Hide completed unless selected
+
+                        return (
+                            <div 
+                                key={commande.id}
+                                onClick={() => handleCommandeSelect(commande)}
+                                className={`p-3 rounded-lg border cursor-pointer transition-all hover:border-primary group ${
+                                    selectedCommandeId === commande.id 
+                                    ? 'bg-primary/5 border-primary ring-1 ring-primary/20' 
+                                    : 'bg-card border-border hover:shadow-md'
+                                }`}
+                            >
+                                <div className="flex justify-between items-start mb-1">
+                                    <span className="font-semibold text-sm">{commande.client.name}</span>
+                                    {selectedCommandeId === commande.id && <ArrowRight className="w-4 h-4 text-primary" />}
+                                </div>
+                                <div className="flex justify-between items-center text-xs text-muted-foreground mb-2">
+                                    <span className="font-mono bg-muted px-1 rounded">{commande.id}</span>
+                                    <Badge variant={commande.priority === 'high' ? 'destructive' : 'outline'} className="text-[10px] h-5">
+                                        {commande.priority === 'high' ? 'Urgent' : 'Normal'}
+                                    </Badge>
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="flex justify-between text-[10px]">
+                                        <span>Progression</span>
+                                        <span className={isComplete ? "text-green-600 font-bold" : ""}>
+                                            {commande.pickedArticles}/{commande.totalArticles}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between text-[10px] items-center mb-1">
+                                        <span className="text-muted-foreground">Dispo. Stock</span>
+                                        <Badge variant="outline" className="h-4 text-[9px] bg-green-50 text-green-700 border-green-200">100%</Badge>
+                                    </div>
+                                    <Progress value={getCommandeProgress(commande)} className="h-1.5" />
+                                </div>
+                            </div>
+                        );
+                    })}
+                    {pickableCommandes.length === 0 && (
+                        <div className="text-center py-8 text-muted-foreground text-sm">
+                            Toutes les commandes sont traitées.
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-mono font-semibold text-primary">
-                          {entry.zone} - {entry.slot}
-                        </p>
-                        <p className="text-xs text-muted-foreground">{entry.time}</p>
-                      </div>
-                    </div>
-                  ))}
+                    )}
                 </div>
-              </CardContent>
-            </Card>
-          )}
+            </div>
+          </Card>
         </div>
+
+        {/* Middle Panel - Current Task */}
+        <div className="xl:col-span-1 space-y-4">
+            {selectedCommande ? (
+                isOrderComplete ? (
+                    <Card className="border-green-500/50 h-full flex flex-col items-center justify-center text-center p-8 bg-green-50/50 dark:bg-green-900/10">
+                        <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-4">
+                            <CheckCircle className="w-10 h-10 text-green-600" />
+                        </div>
+                        <h2 className="text-xl font-bold text-green-700 dark:text-green-400 mb-2">Commande Prête !</h2>
+                        <p className="text-muted-foreground mb-6">Tous les articles ont été collectés pour {selectedCommande.client.name}.</p>
+                        <Button variant="outline" onClick={() => setSelectedCommandeId('')}>
+                            Retour à la liste
+                        </Button>
+                    </Card>
+                ) : (
+                <Card className="border-primary/50 shadow-lg h-full flex flex-col pt-0 gap-0">
+                    <CardHeader className="bg-primary/5 py-3 rounded-t-xl">
+                        <CardTitle className="flex items-center gap-2 text-base">
+                            <PackageSearch className="w-5 h-5 text-primary" />
+                            Article à Picker ({selectedCommande.pickedArticles + 1}/{selectedCommande.totalArticles})
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6 pt-6 flex-1">
+                        {articleToPick ? (
+                            <>
+                                <div className="text-center space-y-2">
+                                    <div className="w-16 h-16 bg-muted rounded-2xl mx-auto flex items-center justify-center mb-2 shadow-inner">
+                                        <Box className="w-8 h-8 text-indigo-500" />
+                                    </div>
+                                    <h3 className="font-bold text-lg leading-tight px-2">{articleToPick.article.designation}</h3>
+                                    <div className="flex gap-2 justify-center flex-wrap">
+                                        <Badge variant="secondary">{articleToPick.article.category}</Badge>
+                                        <Badge variant="outline" className="font-mono">{articleToPick.article.tagId}</Badge>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4 animate-in zoom-in-95 duration-300">
+                                    <div className="relative">
+                                        <div className="absolute inset-0 bg-indigo-500/10 blur-xl rounded-full" />
+                                        <div className="relative bg-background border-2 border-indigo-500/30 rounded-xl p-4 text-center">
+                                            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Localisation Cible</p>
+                                            <div className="grid grid-cols-3 gap-2 text-center">
+                                                <div className="bg-muted/50 p-2 rounded">
+                                                    <div className="text-[10px] text-muted-foreground">Zone</div>
+                                                    <div className="font-bold text-indigo-700 dark:text-indigo-400">{articleToPick.zone}</div>
+                                                </div>
+                                                <div className="bg-muted/50 p-2 rounded">
+                                                    <div className="text-[10px] text-muted-foreground">Allée</div>
+                                                    <div className="font-bold text-indigo-700 dark:text-indigo-400">{articleToPick.slot?.row || '-'}</div>
+                                                </div>
+                                                <div className="bg-muted/50 p-2 rounded">
+                                                    <div className="text-[10px] text-muted-foreground">Niveau</div>
+                                                    <div className="font-bold text-indigo-700 dark:text-indigo-400">{articleToPick.slot?.col || '-'}</div>
+                                                </div>
+                                            </div>
+                                            <div className="mt-3 pt-2 border-t flex justify-center items-center gap-2">
+                                                <MapPin className="w-4 h-4 text-indigo-600" />
+                                                <span className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
+                                                    {articleToPick.slot?.id}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <Button 
+                                        size="lg" 
+                                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-12 text-base shadow-lg shadow-indigo-600/20"
+                                        onClick={handleConfirmPicking}
+                                    >
+                                        <CheckCircle className="w-5 h-5 mr-2" />
+                                        Confirmer le Picking
+                                    </Button>
+                                    <p className="text-xs text-center text-muted-foreground">
+                                        Scannez le tag ou confirmez manuellement
+                                    </p>
+                                </div>
+                            </>
+                        ) : (
+                           <div className="text-center py-10">Chargement...</div> 
+                        )}
+                    </CardContent>
+                </Card>
+                )
+            ) : (
+                <div className="h-full border-2 border-dashed rounded-xl flex items-center justify-center text-muted-foreground p-8 text-center bg-muted/10">
+                    <div>
+                        <ClipboardList className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                        <p className="font-medium">Aucune commande sélectionnée</p>
+                        <p className="text-sm opacity-70">Sélectionnez une commande dans la liste pour commencer le picking</p>
+                    </div>
+                </div>
+            )}
+        </div>
+
+        {/* Right Panel - Grid */}
+        <div className="xl:col-span-2 space-y-4">
+             <Card className="pt-2 h-full flex flex-col gap-2">
+                <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                    <CardTitle className="text-base">Plan de Navigation</CardTitle>
+                    <div className="flex bg-muted p-1 rounded-lg">
+                        {['STK-1', 'STK-2', 'STK-3'].map(zone => (
+                            <button
+                            key={zone}
+                            onClick={() => setCurrentZone(zone)}
+                            className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                                currentZone === zone 
+                                ? 'bg-background shadow-sm text-foreground' 
+                                : 'text-muted-foreground hover:text-foreground'
+                            }`}
+                            >
+                            {zone}
+                            </button>
+                        ))}
+                    </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="flex-1 min-h-[400px]">
+                     {selectedCommande ? (
+                        <StorageGrid
+                            zone={currentZone}
+                            emplacements={emplacementsByZone[currentZone]}
+                            highlightSlot={articleToPick && articleToPick.zone === currentZone ? articleToPick.slot?.id : null}
+                            pickedSlots={[]} 
+                            mode="picking"
+                        />
+                    ) : (
+                        <div className="flex items-center justify-center h-full bg-accent/20 rounded-lg">
+                            <p className="text-muted-foreground text-sm">Sélectionnez une commande pour voir le plan</p>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* Picking History (Bottom or within same column) */}
+            {pickingHistory.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {pickingHistory.map((entry, index) => (
+                        <div key={index} className="flex items-center justify-between p-2 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-500/30">
+                            <div className="flex items-center space-x-3">
+                                <CheckCircle className="w-4 h-4 text-green-500" />
+                                <div>
+                                    <p className="text-xs font-semibold truncate max-w-[150px]">{entry.designation}</p>
+                                    <p className="text-[10px] text-muted-foreground font-mono">{entry.tagId}</p>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-xs font-mono font-semibold text-primary">{entry.zone}-{entry.slot}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+
       </div>
     </div>
   );

@@ -204,7 +204,7 @@ export const mockCommandes = [
         inProduction: 0,
         inStockage: 2,    // 100% en stockage
         articleIds: articlesEnStock.slice(8, 10).map(a => a.id),
-        tagIds: ["TAG-2024-10030", "TAG-2024-10031"],
+        tagIds: articlesEnStock.slice(8, 10).map(a => a.tagId), // "TAG-2024-10030", "TAG-2024-10031"
       },
       {
         designation: "Coussin Marocain Brodé",
@@ -214,7 +214,7 @@ export const mockCommandes = [
         inProduction: 0,
         inStockage: 6,    // 100% en stockage
         articleIds: articlesEnStock.slice(10, 16).map(a => a.id),
-        tagIds: ["TAG-2024-10032", "TAG-2024-10033", "TAG-2024-10034", "TAG-2024-10035", "TAG-2024-10036", "TAG-2024-10037"],
+        tagIds: articlesEnStock.slice(10, 16).map(a => a.tagId), // "TAG-2024-10032"...
       }
     ],
     totalArticles: 8,
@@ -242,21 +242,58 @@ export const mockCommandes = [
         inStockage: 1,    // 100% en stockage
         isMultiPiece: true,
         articleIds: [articlesEnStock[16]?.id].filter(Boolean),
-        tagIds: ["TAG-2024-00040"], // TAG ID de la banquette principale
+        tagIds: [articlesEnStock[16]?.tagId].filter(Boolean), // TAG ID de la banquette principale
         pieces: [
-          { name: "Pièce centrale", picked: true, inStockage: true, tagId: "TAG-2024-00040" },
-          { name: "Angle gauche", picked: true, inStockage: true, tagId: "TAG-2024-00041" },
-          { name: "Angle droit", picked: true, inStockage: true, tagId: "TAG-2024-00042" },
-          { name: "Dossier 1", picked: true, inStockage: true, tagId: "TAG-2024-00043" },
-          { name: "Dossier 2", picked: true, inStockage: true, tagId: "TAG-2024-00044" },
-          { name: "Dossier 3", picked: true, inStockage: true, tagId: "TAG-2024-00045" },
+          { name: "Pièce centrale", picked: false, inStockage: true, tagId: articlesEnStock[17]?.tagId },
+          { name: "Angle gauche", picked: false, inStockage: true, tagId: articlesEnStock[18]?.tagId },
+          { name: "Angle droit", picked: false, inStockage: true, tagId: articlesEnStock[19]?.tagId },
+          { name: "Dossier 1", picked: false, inStockage: true, tagId: articlesEnStock[20]?.tagId },
+          { name: "Dossier 2", picked: false, inStockage: true, tagId: articlesEnStock[21]?.tagId },
+          { name: "Dossier 3", picked: false, inStockage: true, tagId: articlesEnStock[22]?.tagId },
         ]
       }
     ],
-    totalArticles: 7,  // CHANGÉ: 1 banquette + 6 pièces = 7 total
-    pickedArticles: 7,  // CHANGÉ: 0 pickés
+    totalArticles: 6,  // CHANGÉ: 1 banquette + 6 pièces = 7 total
+    pickedArticles: 0,  // CHANGÉ: 0 pickés
     stockageProgress: 100, // 100% en stockage
     createdAt: generateTimestamp(2, 8),
+    updatedAt: generateTimestamp(0, 1),
+  },
+
+  {
+    id: "CMD-2024-0175",
+    client: getClient(3), // Aicha Bennis
+    dateCommande: generateTimestamp(1, 2),
+    dateLivraisonSouhaitee: generateDeliveryDate(3),
+    priority: "high",
+    status: "picking",
+    type: "mixte",
+    articles: [
+      {
+        designation: "Matelas Prestige 160x200",
+        category: "Matelas",
+        quantity: 2,
+        picked: 0,
+        inProduction: 0,
+        inStockage: 2,
+        articleIds: articlesEnStock.slice(25, 27).map(a => a.id),
+        tagIds: articlesEnStock.slice(25, 27).map(a => a.tagId),
+      },
+      {
+        designation: "Sommier Luxe 160x200",
+        category: "Sommier",
+        quantity: 2,
+        picked: 0,
+        inProduction: 0,
+        inStockage: 2,
+        articleIds: articlesEnStock.slice(27, 29).map(a => a.id),
+        tagIds: articlesEnStock.slice(27, 29).map(a => a.tagId),
+      }
+    ],
+    totalArticles: 4,
+    pickedArticles: 0,
+    stockageProgress: 100,
+    createdAt: generateTimestamp(1, 2),
     updatedAt: generateTimestamp(0, 1),
   },
 
@@ -698,12 +735,34 @@ export const canStartPicking = (commande) => {
 };
 
 // Pour le picking - obtenir le prochain article à picker
+// Pour le picking - obtenir le prochain article à picker
 export const getNextArticleToPick = (commandeId) => {
   const commande = getCommandeById(commandeId);
   if (!commande || commande.status !== 'picking') return null;
 
   for (const articleLine of commande.articles) {
-    if (articleLine.picked < articleLine.quantity) {
+    
+    // CAS 1: Article Multi-pièces (Banquette)
+    if (articleLine.isMultiPiece && articleLine.pieces) {
+       const unpickedPiece = articleLine.pieces.find(p => !p.picked);
+       if (unpickedPiece) {
+            const article = mockArticles.find(a => a.tagId === unpickedPiece.tagId);
+            if (article) {
+                const slotInfo = findArticleSlot(article.id);
+                return {
+                    article: { ...article, designation: `${articleLine.designation} - ${unpickedPiece.name}` },
+                    articleLine,
+                    piece: unpickedPiece,
+                    remaining: articleLine.pieces.filter(p => !p.picked).length,
+                    slot: slotInfo?.slot || null,
+                    zone: slotInfo?.zone || null,
+                };
+            }
+       }
+    }
+    
+    // CAS 2: Article Standard
+    else if (articleLine.picked < articleLine.quantity) {
       const pickedCount = articleLine.picked;
 
       // Get tag ID for the next unpicked article
@@ -725,7 +784,7 @@ export const getNextArticleToPick = (commandeId) => {
     }
   }
 
-  return null; // Tous les articles sont pikés
+  return null; // Tous les articles sont pickés
 };
 
 // Filtrer les commandes
