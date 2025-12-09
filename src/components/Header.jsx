@@ -1,16 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Car, MapPin, Radio, BarChart3, Menu, Moon, Sun, X } from 'lucide-react';
+import { LayoutDashboard, Package, MapPin, Radio, BarChart3, Menu, Moon, Sun, X, ClipboardList, ShieldCheck, PackageSearch, Warehouse, ChevronDown } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const navItems = [
   { id: 'dashboard', label: 'Tableau de Bord', icon: LayoutDashboard, path: '/tableau-bord' },
-  { id: 'vehicles', label: 'Véhicules', icon: Car, path: '/vehicles' },
+  { id: 'articles', label: 'Articles', icon: Package, path: '/articles' },
   { id: 'zones', label: 'Zones', icon: MapPin, path: '/zones' },
+  { id: 'commandes', label: 'Commandes', icon: ClipboardList, path: '/commandes' },
+  {
+    id: 'operations',
+    label: 'Opérations',
+    icon: PackageSearch,
+    dropdown: true,
+    items: [
+      { id: 'picking', label: 'Picking', icon: PackageSearch, path: '/operations/picking' },
+      { id: 'stockage', label: 'Stockage', icon: Warehouse, path: '/operations/stockage' },
+    ]
+  },
   { id: 'rfid', label: 'RFID & Tags', icon: Radio, path: '/rfid' },
+  { id: 'sav', label: 'SAV & Authenticité', icon: ShieldCheck, path: '/sav' },
   { id: 'reports', label: 'Rapports', icon: BarChart3, path: '/reports' },
-  // { id: 'about', label: 'À Propos', icon: Info, path: '/about' },
 ];
 
 export default function Header() {
@@ -49,17 +66,21 @@ export default function Header() {
     setIsSheetOpen(false); // Close sheet on navigation
   };
 
-  const isActive = (path) => {
+  const isActive = (path, item = null) => {
     if (path === '/') {
       return location.pathname === '/';
+    }
+    // For dropdown items, check if any sub-item is active
+    if (item && item.dropdown && item.items) {
+      return item.items.some(subItem => location.pathname.startsWith(subItem.path));
     }
     return location.pathname.startsWith(path);
   };
 
   const NavLink = ({ item, isMobile = false }) => {
     const Icon = item.icon;
-    const active = isActive(item.path);
-    
+    const active = isActive(item.path, item);
+
     const buttonClass = isMobile
       ? `flex items-center justify-start space-x-3 p-3 w-full rounded-lg transition-all duration-200 ${
           active
@@ -78,15 +99,90 @@ export default function Header() {
         onClick={() => handleNavigate(item.path)}
         className={buttonClass}
       >
-        <Icon className="w-5! h-5!" />
+        <Icon className="w-5 h-5" />
         <span className="font-medium">{item.label}</span>
-      </Button> 
+      </Button>
+    );
+  };
+
+  const NavDropdown = ({ item, isMobile = false }) => {
+    const Icon = item.icon;
+    const active = isActive(null, item);
+
+    if (isMobile) {
+      // For mobile, render as expandable list
+      return (
+        <div className="space-y-1">
+          <div className={`flex items-center justify-start space-x-3 p-3 w-full rounded-lg ${
+            active ? 'bg-white/10 text-white' : 'text-white/70'
+          }`}>
+            <Icon className="w-5 h-5" />
+            <span className="font-medium">{item.label}</span>
+          </div>
+          <div className="pl-8 space-y-1">
+            {item.items.map((subItem) => {
+              const SubIcon = subItem.icon;
+              const subActive = isActive(subItem.path);
+              return (
+                <Button
+                  key={subItem.id}
+                  variant="ghost"
+                  onClick={() => handleNavigate(subItem.path)}
+                  className={`flex items-center justify-start space-x-2 p-2 w-full rounded-lg text-sm transition-all duration-200 ${
+                    subActive
+                      ? 'bg-white/10 text-white'
+                      : 'text-white/60 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  <SubIcon className="w-4 h-4" />
+                  <span>{subItem.label}</span>
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    // Desktop dropdown
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+              active
+                ? 'bg-white/10 text-white shadow-lg'
+                : 'text-white/70 hover:bg-white/10 hover:text-white'
+            }`}
+          >
+            <Icon className="w-5 h-5" />
+            <span className="font-medium">{item.label}</span>
+            <ChevronDown className="w-4 h-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-48">
+          {item.items.map((subItem) => {
+            const SubIcon = subItem.icon;
+            return (
+              <DropdownMenuItem
+                key={subItem.id}
+                onClick={() => handleNavigate(subItem.path)}
+                className="flex items-center space-x-2 cursor-pointer"
+              >
+                <SubIcon className="w-4 h-4" />
+                <span>{subItem.label}</span>
+              </DropdownMenuItem>
+            );
+          })}
+        </DropdownMenuContent>
+      </DropdownMenu>
     );
   };
 
   return (
     <header className="border-b shadow-sm sticky top-0 z-40" style={{ backgroundColor: '#234367', borderColor: 'rgba(255, 255, 255, 0.1)' }}>
-      <div className="max-w-[90%] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[98%] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo Section */}
           <div className="flex items-center">
@@ -96,7 +192,11 @@ export default function Header() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
             {navItems.map((item) => (
-              <NavLink key={item.id} item={item} />
+              item.dropdown ? (
+                <NavDropdown key={item.id} item={item} />
+              ) : (
+                <NavLink key={item.id} item={item} />
+              )
             ))}
           </div>
 
@@ -139,7 +239,11 @@ export default function Header() {
                     </div>
                     <div className="flex-1 py-4 px-1 space-y-2">
                       {navItems.map((item) => (
-                        <NavLink key={item.id} item={item} isMobile={true} />
+                        item.dropdown ? (
+                          <NavDropdown key={item.id} item={item} isMobile={true} />
+                        ) : (
+                          <NavLink key={item.id} item={item} isMobile={true} />
+                        )
                       ))}
                     </div>
                   </div>

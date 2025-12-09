@@ -29,12 +29,15 @@ export default function Login() {
               <img 
                 src="/images/logo_RFID2.png" 
                 alt="RFID SmartTrace Plus" 
-                className="h-16 w-50 rounded-xl"
+                className="h-15 w-50 rounded-xl "
               />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground">
-              Connexion à votre compte
+              SmartPulse Richbond
             </h2>
+            <p className="text-sm text-gray-600 dark:text-muted-foreground">
+              Connexion à votre compte
+            </p>
           </div>
 
           {/* Login Form */}
@@ -50,7 +53,7 @@ export default function Login() {
               <Input
                 id="email"
                 type="email"
-                placeholder="nom@entreprise.com"
+                placeholder="operateur@richbond.ma"
                 className="h-11 bg-white dark:bg-input border-gray-300 dark:border-border text-gray-900 dark:text-foreground placeholder:text-gray-400 dark:placeholder:text-muted-foreground"
               />
             </div>

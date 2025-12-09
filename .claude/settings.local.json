@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(xargs cat:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npx shadcn@latest add:*)"
     ],
     "deny": [],
     "ask": []

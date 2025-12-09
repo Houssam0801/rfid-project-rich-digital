@@ -1,26 +1,76 @@
+import { useState } from 'react';
 import { MapPin, AlertCircle, CheckCircle, TrendingUp } from 'lucide-react';
-import { mockZones } from '../data/mockData';
+import { getZoneStatsByBrand } from '../data/mockData';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function Zones() {
+  const [selectedBrand, setSelectedBrand] = useState('Global');
+  const zoneStats = getZoneStatsByBrand(selectedBrand);
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-card-foreground">Gestion des Zones</h1>
-        <p className="text-muted-foreground mt-1">Vue d'ensemble des zones du site logistique</p>
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Header with Brand Filter */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-card-foreground">Gestion des Zones</h1>
+          <p className="text-muted-foreground mt-1">Vue d'ensemble des zones du site logistique</p>
+        </div>
+        <div className="w-64">
+          <Select value={selectedBrand} onValueChange={setSelectedBrand}>
+            <SelectTrigger className="bg-white dark:bg-white dark:text-gray-900 w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Global">Global</SelectItem>
+              <SelectItem value="Richbond">Richbond</SelectItem>
+              <SelectItem value="Mesidor">Mesidor</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Summary Stats at Top */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <SummaryCard
+          label="Capacité Totale"
+          value={zoneStats.reduce((sum, z) => sum + z.capacite, 0)}
+          color="blue"
+        />
+        <SummaryCard
+          label="Articles Sur Site"
+          value={zoneStats.reduce((sum, z) => sum + z.total, 0)}
+          color="purple"
+        />
+        <SummaryCard
+          label="Places Disponibles"
+          value={zoneStats.reduce((sum, z) => sum + z.placesDisponibles, 0)}
+          color="green"
+        />
+        <SummaryCard
+          label="Zones Actives"
+          value={zoneStats.filter((z) => z.total > 0).length}
+          color="orange"
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockZones.map((zone) => {
-          const occupancyRate = Math.round((zone.vehiculesPresents / zone.capacite) * 100);
+        {zoneStats.map((zone) => {
           let statusColor = 'green';
           let statusIcon = CheckCircle;
           let statusText = 'Normal';
 
-          if (occupancyRate >= 90) {
+          if (zone.status === 'critical') {
             statusColor = 'red';
             statusIcon = AlertCircle;
             statusText = 'Critique';
-          } else if (occupancyRate >= 75) {
+          } else if (zone.status === 'warning') {
             statusColor = 'orange';
             statusIcon = TrendingUp;
             statusText = 'Attention';
@@ -40,6 +90,7 @@ export default function Zones() {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-card-foreground">{zone.nom}</h3>
+                    <p className="text-xs text-primary font-semibold">{zone.code}</p>
                     <p className="text-sm text-muted-foreground">{zone.description}</p>
                   </div>
                 </div>
@@ -49,7 +100,7 @@ export default function Zones() {
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground text-sm">Occupation</span>
                   <span className="text-card-foreground font-bold text-lg">
-                    {zone.vehiculesPresents.toLocaleString("fr-FR")} / {zone.capacite.toLocaleString("fr-FR")}
+                    {zone.total.toLocaleString("fr-FR")} / {zone.capacite.toLocaleString("fr-FR")}
                   </span>
                 </div>
 
@@ -57,13 +108,13 @@ export default function Zones() {
                   <div className="flex justify-between mb-2">
                     <span className="text-muted-foreground text-sm">Taux d'occupation</span>
                     <span className={`text-sm font-semibold ${getColorClass(statusColor)}`}>
-                      {occupancyRate.toLocaleString("fr-FR")}%
+                      {zone.tauxOccupation}%
                     </span>
                   </div>
-                  <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
+                  <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
                     <div
                       className={`h-3 rounded-full transition-all duration-500 ${getProgressColor(statusColor)}`}
-                      style={{ width: `${occupancyRate}%` }}
+                      style={{ width: `${Math.min(zone.tauxOccupation, 100)}%` }}
                     />
                   </div>
                 </div>
@@ -75,15 +126,31 @@ export default function Zones() {
                   </span>
                 </div>
 
-                <div className="pt-4 border-t border-border">
+                <div className="pt-4 border-t border-border space-y-3">
+                  {/* Article breakdown */}
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div className="bg-blue-50 dark:bg-blue-950/30 p-2 rounded-lg">
+                      <p className="text-lg font-bold text-blue-600 dark:text-blue-400">{zone.banquettes}</p>
+                      <p className="text-[10px] text-muted-foreground">Banquettes</p>
+                    </div>
+                    <div className="bg-purple-50 dark:bg-purple-950/30 p-2 rounded-lg">
+                      <p className="text-lg font-bold text-purple-600 dark:text-purple-400">{zone.matelas}</p>
+                      <p className="text-[10px] text-muted-foreground">Matelas</p>
+                    </div>
+                    <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded-lg">
+                      <p className="text-lg font-bold text-gray-600 dark:text-gray-400">{zone.autres}</p>
+                      <p className="text-[10px] text-muted-foreground">Autres</p>
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-2 gap-4 text-center">
                     <div>
-                      <p className="text-2xl font-bold text-card-foreground">{(zone.capacite - zone.vehiculesPresents).toLocaleString("fr-FR")}</p>
+                      <p className="text-2xl font-bold text-card-foreground">{zone.placesDisponibles.toLocaleString("fr-FR")}</p>
                       <p className="text-xs text-muted-foreground">Places Disponibles</p>
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-primary">{zone.vehiculesPresents.toLocaleString("fr-FR")}</p>
-                      <p className="text-xs text-muted-foreground">Véhicules Présents</p>
+                      <p className="text-2xl font-bold text-primary">{zone.total.toLocaleString("fr-FR")}</p>
+                      <p className="text-xs text-muted-foreground">Articles Présents</p>
                     </div>
                   </div>
                 </div>
@@ -91,32 +158,6 @@ export default function Zones() {
             </div>
           );
         })}
-      </div>
-
-      <div className="bg-card border border-border rounded-xl p-6">
-        <h2 className="text-xl font-bold text-card-foreground mb-6">Vue d'ensemble du Site</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <SummaryCard
-            label="Capacité Totale"
-            value={mockZones.reduce((sum, z) => sum + z.capacite, 0)}
-            color="blue"
-          />
-          <SummaryCard
-            label="Véhicules Sur Site"
-            value={mockZones.reduce((sum, z) => sum + z.vehiculesPresents, 0)}
-            color="purple"
-          />
-          <SummaryCard
-            label="Places Disponibles"
-            value={mockZones.reduce((sum, z) => sum + (z.capacite - z.vehiculesPresents), 0)}
-            color="green"
-          />
-          <SummaryCard
-            label="Zones Actives"
-            value={mockZones.filter((z) => z.vehiculesPresents > 0).length}
-            color="orange"
-          />
-        </div>
       </div>
 
       <div className="bg-card border border-border rounded-xl p-6">
@@ -185,9 +226,17 @@ function SummaryCard({ label, value, color }) {
   };
 
   return (
-    <div className="bg-accent border border-border rounded-lg p-4">
-      <p className="text-muted-foreground text-sm mb-2">{label}</p>
-      <p className={`text-3xl font-bold ${colorClasses[color]}`}>{value.toLocaleString("fr-FR")}</p>
-    </div>
+    <Card className="p-2 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 gap-2">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {label}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className={`text-2xl font-bold ${colorClasses[color]}`}>
+          {value.toLocaleString("fr-FR")}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

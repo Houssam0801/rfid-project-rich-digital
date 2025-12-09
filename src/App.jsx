@@ -7,10 +7,16 @@ import Landing from "./pages/Landing";
 import Login from "./pages/auth/Login";
 
 import Dashboard from "./pages/Dashboard";
-import Vehicles from "./pages/Vehicles";
+import Articles from "./pages/Articles";
 import Zones from "./pages/Zones";
 import Rfid from "./pages/Rfid";
 import Reports from "./pages/Reports";
+
+// Part 2 - Operational pages
+import Commandes from "./pages/Commandes";
+import Picking from "./pages/Picking";
+import Stockage from "./pages/Stockage";
+import SAV from "./pages/SAV";
 
 export default function App() {
   return (
@@ -30,11 +36,14 @@ export default function App() {
         {/* Application routes */}
         <Route path="/" element={<Layout />}>
           <Route path="tableau-bord" element={<Dashboard />} />
-          <Route path="vehicles" element={<Vehicles />} />
+          <Route path="articles" element={<Articles />} />
           <Route path="zones" element={<Zones />} />
+          <Route path="commandes" element={<Commandes />} />
+          <Route path="operations/picking" element={<Picking />} />
+          <Route path="operations/stockage" element={<Stockage />} />
           <Route path="rfid" element={<Rfid />} />
+          <Route path="sav" element={<SAV />} />
           <Route path="reports" element={<Reports />} />
-          {/*<Route path="about" element={<About />} /> */}
         </Route>
       </Routes>
     </BrowserRouter>

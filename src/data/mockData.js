@@ -1,135 +1,131 @@
-export const marques = [
-  {
-    value: "volkswagen",
-    label: "Volkswagen",
-    image: "/images/marques/volkswagen.png",
-  },
-  {
-    value: "audi",
-    label: "Audi",
-    image: "/images/marques/audi.png",
-  },
-  {
-    value: "seat",
-    label: "SEAT",
-    image: "/images/marques/seat.png",
-  },
-  {
-    value: "skoda",
-    label: "Škoda",
-    image: "/images/marques/skoda.png",
-  },
-  {
-    value: "cupra",
-    label: "CUPRA",
-    image: "/images/marques/cupra.png",
-  },
-  {
-    value: "bentley",
-    label: "Bentley",
-    image: "/images/marques/bentley.png",
-  },
-  {
-    value: "porsche",
-    label: "Porsche",
-    image: "/images/marques/porsche.png",
-  },
+// ========================================
+// RICHBOND - MOCK DATA
+// Traçabilité RFID pour Matelas & Mobilier
+// ========================================
+
+// ============ CATÉGORIES DE PRODUITS ============
+export const categories = [
+  { id: 1, label: "Matelas", code: "MAT", multiPieces: false },
+  { id: 2, label: "Banquette", code: "BNQ", multiPieces: true },
+  { id: 3, label: "Sommier", code: "SOM", multiPieces: false },
+  { id: 4, label: "Tête de lit", code: "TDL", multiPieces: false },
+  { id: 5, label: "Coussin décoratif", code: "COU", multiPieces: false },
+  { id: 6, label: "Pouf", code: "POU", multiPieces: false },
+  { id: 7, label: "Sur-matelas", code: "SUR", multiPieces: false },
 ];
 
-export const modeles = {
-  Volkswagen: [
-    "Golf",
-    "Polo",
-    "Tiguan",
-    "T-Roc",
-    "Touareg",
-    "Passat",
-    "Arteon",
-    "ID.3",
-    "ID.4",
+// ============ PRODUITS PAR CATÉGORIE ============
+export const produitsParCategorie = {
+  "Matelas": [
+    "Matelas Confort Plus 90x190",
+    "Matelas Confort Plus 140x190",
+    "Matelas Confort Plus 160x200",
+    "Matelas Confort Plus 180x200",
+    "Matelas Royal 90x190",
+    "Matelas Royal 140x190",
+    "Matelas Royal 160x200",
+    "Matelas Royal 180x200",
+    "Matelas Prestige 90x190",
+    "Matelas Prestige 140x190",
+    "Matelas Prestige 160x200",
+    "Matelas Prestige 180x200",
+    "Matelas Luxe 160x200",
+    "Matelas Luxe 180x200",
   ],
-  Audi: ["A3", "A4", "A6", "A8", "Q3", "Q5", "Q7", "Q8", "e-tron", "RS6"],
-  SEAT: ["Ibiza", "Arona", "Leon", "Ateca", "Tarraco"],
-  Škoda: [
-    "Fabia",
-    "Scala",
-    "Octavia",
-    "Superb",
-    "Kamiq",
-    "Karoq",
-    "Kodiaq",
-    "Enyaq iV",
+  "Banquette": [
+    "Banquette Salon Marocain Classique",
+    "Banquette Salon Moderne",
+    "Banquette Salon Royal",
+    "Banquette Angle Confort",
+    "Banquette Traditionnelle",
   ],
-  CUPRA: ["Formentor", "Born", "Leon", "Ateca", "Tavascan"],
-  Bentley: ["Continental GT", "Flying Spur", "Bentayga"],
-  Porsche: [
-    "911",
-    "Cayenne",
-    "Macan",
-    "Panamera",
-    "Taycan",
-    "718 Cayman",
-    "718 Boxster",
+  "Sommier": [
+    "Sommier Classic 90x190",
+    "Sommier Classic 140x190",
+    "Sommier Classic 160x200",
+    "Sommier Classic 180x200",
+    "Sommier Luxe 160x200",
+    "Sommier Luxe 180x200",
+  ],
+  "Tête de lit": [
+    "Tête de lit Capitonnée Luxe",
+    "Tête de lit Moderne Simple",
+    "Tête de lit Classique",
+    "Tête de lit Design Contemporain",
+  ],
+  "Coussin décoratif": [
+    "Coussin Marocain Traditionnel",
+    "Coussin Moderne Uni",
+    "Coussin Brodé Main",
+    "Coussin Berbère",
+  ],
+  "Pouf": [
+    "Pouf Marocain Carré",
+    "Pouf Rond Traditionnel",
+    "Pouf Cylindrique Moderne",
+  ],
+  "Sur-matelas": [
+    "Sur-matelas Confort 140x190",
+    "Sur-matelas Confort 160x200",
+    "Sur-matelas Confort 180x200",
+    "Sur-matelas Mémoire Forme 160x200",
+    "Sur-matelas Mémoire Forme 180x200",
   ],
 };
 
-export const couleurs = [
-  "Blanc Nacré",
-  "Noir Métallisé",
-  "Gris Anthracite",
-  "Bleu Marine",
-  "Rouge Bordeaux",
-  "Argent Métallisé",
-  "Vert British Racing",
-  "Or Rose",
-  "Bronze",
-  "Bleu Électrique",
+// ============ TAILLES ============
+export const tailles = [
+  "90x190",
+  "140x190",
+  "160x200",
+  "180x200",
+  "200x200",
+  "Standard",
+  "Sur-mesure",
 ];
 
+// ============ ZONES (6 zones Richbond) ============
 export const zones = [
-  "Port - Arrivée",
-  "Zone de réception",
-  "Zone de stockage",
-  "Zone de préparation",
-  "Zone de chargement de batterie",
-  "Atelier",
-  "Lavage",
-  "Zone d’expédition",
-  "Showroom",
+  { id: "PROD", nom: "Zone de Production", code: "PROD" },
+  { id: "STK-1", nom: "Zone de Stockage 1", code: "STK-1" },
+  { id: "STK-2", nom: "Zone de Stockage 2", code: "STK-2" },
+  { id: "STK-3", nom: "Zone de Stockage 3", code: "STK-3" },
+  { id: "PREP", nom: "Zone de Préparation", code: "PREP" },
+  { id: "EXP", nom: "Zone d'Expédition", code: "EXP" },
 ];
 
+export const zonesNames = zones.map(z => z.nom);
+
+// ============ STATUTS ARTICLES ============
 export const statuts = [
-  "En Transit",
-  "En Stockage",
-  "En Préparation",
-  "Prêt à Livrer",
-  "Livré",
-  "En Exposition",
+  "En production",
+  "En stock",
+  "En préparation",
+  "Expédié",
 ];
 
-const generateVIN = (index) => {
-  const prefixes = {
-    Volkswagen: "WVW",
-    Audi: "WAU",
-    SEAT: "VSS",
-    Škoda: "TMB",
-    CUPRA: "VSS",
-    Bentley: "SCB",
-    Porsche: "WP0",
-  };
+// ============ PIÈCES DE BANQUETTE ============
+export const piecesBanquette = [
+  "Pièce centrale (El Wosta)",
+  "Angle gauche (Lkounia Lisra)",
+  "Angle droit (Lkounia Limna)",
+  "Dossier central",
+  "Dossier latéral gauche",
+  "Dossier latéral droit",
+  "Traversin (Mkada)",
+];
 
-  const chars = "ABCDEFGHJKLMNPRSTUVWXYZ0123456789";
-  let vin = "";
+// ============ HELPER FUNCTIONS ============
+const generateTagId = (index) => {
+  return `TAG-2024-${String(index + 1).padStart(5, "0")}`;
+};
 
-  // Get brand-specific prefix
-  const brand = marques[index % marques.length].label;
-  vin = prefixes[brand] || "VF3";
+const generateArticleId = (index) => {
+  return `ART-2024-${String(index + 1).padStart(5, "0")}`;
+};
 
-  // Add random characters
-  for (let i = 0; i < 14; i++) {
-    vin += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return vin;
+const generateLotId = (index) => {
+  return `OF-2024-${String(1400 + index).padStart(4, "0")}`;
 };
 
 const generateTimestamp = (daysAgo, hoursAgo = 0) => {
@@ -139,257 +135,570 @@ const generateTimestamp = (daysAgo, hoursAgo = 0) => {
   return date.toISOString();
 };
 
-const generateVehicles = (count, status) => {
+// ============ GÉNÉRER LES ARTICLES ============
+const generateArticles = (count, status) => {
   return Array.from({ length: count }, (_, i) => {
-    const marqueObj = marques[Math.floor(Math.random() * marques.length)];
-    const marque = marqueObj.label;
-    const modele =
-      modeles[marque][Math.floor(Math.random() * modeles[marque].length)];
-    const couleur = couleurs[Math.floor(Math.random() * couleurs.length)];
-    const zone = zones[Math.floor(Math.random() * zones.length)];
-    const daysAgo = Math.floor(Math.random() * 7);
-    const annee = Math.random() > 0.4 ? 2025 : 2024;
+    const category = categories[Math.floor(Math.random() * categories.length)];
+    const categoryName = category.label;
+    const produits = produitsParCategorie[categoryName];
+    const designation = produits[Math.floor(Math.random() * produits.length)];
+
+    // Déterminer la taille
+    let size = "Standard";
+    if (categoryName === "Matelas" || categoryName === "Sommier" || categoryName === "Sur-matelas") {
+      size = tailles[Math.floor(Math.random() * 4)]; // 90x190, 140x190, 160x200, 180x200
+    } else if (categoryName === "Tête de lit") {
+      size = tailles[Math.floor(Math.random() * 4)];
+    } else if (categoryName === "Banquette") {
+      size = Math.random() > 0.5 ? "Standard" : "Sur-mesure";
+    }
+
+    // Déterminer la zone selon le statut
+    let zone = "STK-1";
+    if (status === "En production") zone = "PROD";
+    else if (status === "En stock") {
+      // Distribuer entre les 3 zones de stockage
+      if (categoryName === "Matelas" || categoryName === "Sommier" || categoryName === "Sur-matelas") {
+        zone = "STK-1";
+      } else if (categoryName === "Banquette" || categoryName === "Tête de lit") {
+        zone = "STK-2";
+      } else {
+        zone = "STK-3";
+      }
+    }
+    else if (status === "En préparation") zone = "PREP";
+    else if (status === "Expédié") zone = "EXP";
+
+    const daysAgo = Math.floor(Math.random() * 30);
+    const lotIndex = Math.floor(i / 50); // Group articles into lots of ~50
+
+    // Assign brand (70% Richbond, 30% Mesidor)
+    const brand = Math.random() < 0.7 ? "Richbond" : "Mesidor";
 
     return {
-      id: `vehicle-${status}-${i + 1}`,
-      vin: generateVIN(i),
-      marque,
-      modele,
-      couleur,
-      zone,
-      statut: status,
-      derniereMAJ: generateTimestamp(daysAgo, Math.floor(Math.random() * 24)),
-      annee,
+      id: generateArticleId(i),
+      tagId: generateTagId(i),
+      category: categoryName,
+      designation: designation,
+      size: size,
+      lot: generateLotId(lotIndex),
+      currentZone: zone,
+      status: status,
+      brand: brand,
+      createdAt: generateTimestamp(daysAgo, Math.floor(Math.random() * 24)),
+      updatedAt: generateTimestamp(Math.floor(Math.random() * 7), Math.floor(Math.random() * 24)),
+      isMultiPiece: category.multiPieces,
+      parentId: null,
+      pieces: [],
     };
   });
 };
 
-const vehiclesEnStockage = generateVehicles(2500, "En Stockage");
-const vehiclesEnPreparation = generateVehicles(21, "En Préparation");
-const vehiclesPretsALivrer = generateVehicles(38, "Prêt à Livrer");
-const vehiclesLivres = generateVehicles(280, "Livré");
+// Générer les articles par statut
+const articlesEnProduction = generateArticles(150, "En production");
+const articlesEnStock = generateArticles(3890, "En stock");
+const articlesEnPreparation = generateArticles(85, "En préparation");
+const articlesExpedies = generateArticles(127, "Expédié");
 
-let allVehicles = [
-  ...vehiclesEnStockage,
-  ...vehiclesEnPreparation,
-  ...vehiclesPretsALivrer,
-  ...vehiclesLivres,
-].map((vehicle, i) => ({ ...vehicle, id: `vehicle-${i}`, vin: generateVIN(i) }));
+export const mockArticles = [
+  ...articlesEnProduction,
+  ...articlesEnStock,
+  ...articlesEnPreparation,
+  ...articlesExpedies,
+];
 
-// Zone distribution
-const zoneCounts = {
-  'Port - Arrivée': 214,
-  'Zone de réception': 20,
-  'Zone de stockage': 2500,
-  'Atelier': 18,
-  'Lavage': 8,
-  'Zone de préparation': 25,
-  'Zone de chargement de batterie': 8,
-  'Zone d’expédition': 16,
-  'Showroom': 30,
-};
-
-let vehicleIndex = 0;
-const zonesForDistribution = Object.keys(zoneCounts);
-for (const zone of zonesForDistribution) {
-  const count = zoneCounts[zone];
-  for (let i = 0; i < count; i++) {
-    if (allVehicles[vehicleIndex]) {
-      allVehicles[vehicleIndex].zone = zone;
-      vehicleIndex++;
-    }
-  }
-}
-
-export const mockVehicles = allVehicles;
-
+// ============ ZONES DÉTAILLÉES ============
 export const mockZones = [
   {
-    id: "zone-1",
-    nom: "Port - Arrivée",
+    id: "PROD",
+    nom: "Zone de Production",
+    code: "PROD",
+    capacite: 200,
+    articlesPresents: mockArticles.filter((a) => a.currentZone === "PROD").length,
+    description: "Poste de couture - fin de fabrication, pose des tags RFID",
+  },
+  {
+    id: "STK-1",
+    nom: "Zone de Stockage 1",
+    code: "STK-1",
+    capacite: 500,
+    articlesPresents: mockArticles.filter((a) => a.currentZone === "STK-1").length,
+    description: "Stockage principal - Matelas",
+  },
+  {
+    id: "STK-2",
+    nom: "Zone de Stockage 2",
+    code: "STK-2",
+    capacite: 400,
+    articlesPresents: mockArticles.filter((a) => a.currentZone === "STK-2").length,
+    description: "Stockage principal - Banquettes & Pièces",
+  },
+  {
+    id: "STK-3",
+    nom: "Zone de Stockage 3",
+    code: "STK-3",
     capacite: 300,
-    vehiculesPresents: mockVehicles.filter((v) => v.zone === "Port - Arrivée")
-      .length,
-    description: "Zone de réception des véhicules arrivant au port.",
+    articlesPresents: mockArticles.filter((a) => a.currentZone === "STK-3").length,
+    description: "Stockage secondaire - Accessoires & Divers",
   },
   {
-    id: "zone-2",
-    nom: "Zone de réception",
-    capacite: 200,
-    vehiculesPresents: mockVehicles.filter(
-      (v) => v.zone === "Zone de réception"
-    ).length,
-    description:
-      "Zone pour l'inspection initiale et l'enregistrement des véhicules.",
-  },
-  {
-    id: "zone-3",
-    nom: "Zone de stockage",
-    capacite: 7000,
-    vehiculesPresents: mockVehicles.filter((v) => v.zone === "Zone de stockage")
-      .length,
-    description: "Zone de stockage principale pour les véhicules.",
-  },
-  {
-    id: "zone-4",
-    nom: "Zone de préparation",
-    capacite: 250,
-    vehiculesPresents: mockVehicles.filter(
-      (v) => v.zone === "Zone de préparation"
-    ).length,
-    description: "Zone pour la préparation des véhicules avant la livraison.",
-  },
-  {
-    id: "zone-5",
-    nom: "Zone de chargement de batterie",
-    capacite: 150,
-    vehiculesPresents: mockVehicles.filter(
-      (v) => v.zone === "Zone de chargement de batterie"
-    ).length,
-    description:
-      "Zone dédiée au chargement des batteries des véhicules électriques.",
-  },
-  {
-    id: "zone-6",
-    nom: "Atelier",
+    id: "PREP",
+    nom: "Zone de Préparation",
+    code: "PREP",
     capacite: 100,
-    vehiculesPresents: mockVehicles.filter((v) => v.zone === "Atelier").length,
-    description: "Atelier pour les réparations et la maintenance.",
+    articlesPresents: mockArticles.filter((a) => a.currentZone === "PREP").length,
+    description: "Préparation des commandes - Picking",
   },
   {
-    id: "zone-7",
-    nom: "Lavage",
+    id: "EXP",
+    nom: "Zone d'Expédition",
+    code: "EXP",
     capacite: 80,
-    vehiculesPresents: mockVehicles.filter((v) => v.zone === "Lavage").length,
-    description: "Zone de lavage des véhicules.",
-  },
-  {
-    id: "zone-8",
-    nom: "Zone d’expédition",
-    capacite: 200,
-    vehiculesPresents: mockVehicles.filter(
-      (v) => v.zone === "Zone d’expédition"
-    ).length,
-    description: "Zone pour les véhicules prêts à être expédiés.",
-  },
-  {
-    id: "zone-9",
-    nom: "Showroom",
-    capacite: 50,
-    vehiculesPresents: mockVehicles.filter((v) => v.zone === "Showroom").length,
-    description: "Showroom pour l'exposition des véhicules.",
+    articlesPresents: mockArticles.filter((a) => a.currentZone === "EXP").length,
+    description: "Quai de chargement - Livraison",
   },
 ];
 
-export const mockRFIDTags = mockVehicles.map((vehicle, i) => ({
+// ============ TAGS RFID ============
+export const mockRFIDTags = mockArticles.map((article, i) => ({
   id: `tag-${i + 1}`,
-  tagId: `RFID-LUX${String(i + 1).padStart(4, "0")}`,
-  vin: vehicle.vin,
-  dateAssociation: generateTimestamp(Math.floor(Math.random() * 30)),
+  tagId: article.tagId,
+  articleId: article.id,
+  designation: article.designation,
+  lot: article.lot,
+  dateAssociation: article.createdAt,
+  status: "Actif",
 }));
 
-export const mockRFIDReadings = mockVehicles.flatMap((vehicle, i) => {
-  const tag = mockRFIDTags[i];
-  const readings = Math.floor(Math.random() * 5) + 3;
+// ============ LECTURES RFID ============
+export const mockRFIDReadings = mockArticles.flatMap((article, i) => {
+  const readings = Math.floor(Math.random() * 5) + 2;
 
   return Array.from({ length: readings }, (_, j) => ({
     id: `reading-${i}-${j}`,
-    tagId: tag.tagId,
-    vin: vehicle.vin,
-    lecteur: `Lecteur_VIP_${Math.floor(Math.random() * 8) + 1}`,
-    zone: zones[Math.floor(Math.random() * zones.length)],
+    tagId: article.tagId,
+    articleId: article.id,
+    designation: article.designation,
+    lecteur: `READER-${article.currentZone}-0${(j % 2) + 1}`,
+    zone: article.currentZone,
     timestamp: generateTimestamp(
-      Math.floor(Math.random() * 7),
+      Math.floor(Math.random() * 15),
       Math.floor(Math.random() * 24)
     ),
   }));
 });
 
-export const mockVehicleHistory = mockVehicles.reduce((acc, vehicle) => {
-  const events = Array.from(
-    { length: Math.floor(Math.random() * 5) + 3 },
-    (_, i) => ({
-      timestamp: generateTimestamp(6 - i, Math.floor(Math.random() * 24)),
-      zone: zones[Math.min(i + 1, zones.length - 1)],
-      statut: statuts[Math.min(i, statuts.length - 1)],
-      lecteur: `Lecteur_VIP_${Math.floor(Math.random() * 8) + 1}`,
-    })
-  ).sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-  );
+// ============ HELPER: Calculate duration between timestamps ============
+const calculateDuration = (start, end) => {
+  const diffMs = new Date(end) - new Date(start);
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 
-  acc[vehicle.vin] = {
-    vin: vehicle.vin,
-    events,
+  if (diffDays > 0) {
+    return diffHours > 0 ? `${diffDays}j ${diffHours}h` : `${diffDays}j`;
+  }
+  return `${diffHours}h`;
+};
+
+// ============ HISTORIQUE DES ARTICLES (STRICT FLOW) ============
+// New structure: track zone entry/exit with timestamps
+export const mockArticleHistory = mockArticles.reduce((acc, article) => {
+  const mouvements = [];
+  let entreeTimestamp = new Date(article.createdAt);
+
+  // Step 1: Zone de production - Always starts here (tag RFID assigned)
+  const prodDuration = 1 + Math.floor(Math.random() * 3); // 1-3 days
+  const prodSortie = new Date(entreeTimestamp.getTime() + prodDuration * 24 * 60 * 60 * 1000);
+
+  mouvements.push({
+    zone: "Zone de production",
+    statut: "En production",
+    lecteur: "READER-PROD-01",
+    entree: entreeTimestamp.toISOString(),
+    sortie: article.status === "En production" ? null : prodSortie.toISOString(),
+    duree: article.status === "En production"
+      ? calculateDuration(entreeTimestamp.toISOString(), new Date().toISOString())
+      : calculateDuration(entreeTimestamp.toISOString(), prodSortie.toISOString()),
+  });
+
+  // Continue only if article left production
+  if (article.status !== "En production") {
+    entreeTimestamp = prodSortie;
+
+    // Step 2: Zone de stockage - Required for all articles
+    let storageZone = article.currentZone.startsWith("STK") ? article.currentZone : "STK-1";
+    const storageDuration = 2 + Math.floor(Math.random() * 8); // 2-10 days
+    const storageSortie = new Date(entreeTimestamp.getTime() + storageDuration * 24 * 60 * 60 * 1000);
+
+    mouvements.push({
+      zone: `Zone de stockage ${storageZone.replace('STK-', '')}`,
+      statut: "En stock",
+      lecteur: `READER-${storageZone}-01`,
+      entree: entreeTimestamp.toISOString(),
+      sortie: article.status === "En stock" ? null : storageSortie.toISOString(),
+      duree: article.status === "En stock"
+        ? calculateDuration(entreeTimestamp.toISOString(), new Date().toISOString())
+        : calculateDuration(entreeTimestamp.toISOString(), storageSortie.toISOString()),
+    });
+
+    if (article.status !== "En stock") {
+      entreeTimestamp = storageSortie;
+
+      // Optional: Transfer between storage zones (15% chance)
+      if (Math.random() < 0.15 && article.status !== "En préparation") {
+        const nextStorageZone = storageZone === "STK-1" ? "STK-2" : "STK-3";
+        const transferDuration = 1 + Math.floor(Math.random() * 3); // 1-3 days
+        const transferSortie = new Date(entreeTimestamp.getTime() + transferDuration * 24 * 60 * 60 * 1000);
+
+        mouvements.push({
+          zone: `Zone de stockage ${nextStorageZone.replace('STK-', '')}`,
+          statut: "En stock",
+          lecteur: `READER-${nextStorageZone}-01`,
+          entree: entreeTimestamp.toISOString(),
+          sortie: transferSortie.toISOString(),
+          duree: calculateDuration(entreeTimestamp.toISOString(), transferSortie.toISOString()),
+        });
+
+        entreeTimestamp = transferSortie;
+        storageZone = nextStorageZone;
+      }
+
+      // Step 3: Zone de préparation - Only if article is being prepared or expedited
+      if (article.status === "En préparation" || article.status === "Expédié") {
+        const prepDuration = 4 + Math.floor(Math.random() * 12); // 4-16 hours
+        const prepSortie = new Date(entreeTimestamp.getTime() + prepDuration * 60 * 60 * 1000);
+
+        mouvements.push({
+          zone: "Zone de préparation",
+          statut: "En préparation",
+          lecteur: "READER-PREP-01",
+          entree: entreeTimestamp.toISOString(),
+          sortie: article.status === "En préparation" ? null : prepSortie.toISOString(),
+          duree: article.status === "En préparation"
+            ? calculateDuration(entreeTimestamp.toISOString(), new Date().toISOString())
+            : calculateDuration(entreeTimestamp.toISOString(), prepSortie.toISOString()),
+        });
+
+        if (article.status === "Expédié") {
+          entreeTimestamp = prepSortie;
+
+          // Step 4: Zone d'expédition
+          const expDuration = 2 + Math.floor(Math.random() * 6); // 2-8 hours
+          const expSortie = new Date(entreeTimestamp.getTime() + expDuration * 60 * 60 * 1000);
+
+          mouvements.push({
+            zone: "Zone d'expédition",
+            statut: "Prêt à expédier",
+            lecteur: "READER-EXP-01",
+            entree: entreeTimestamp.toISOString(),
+            sortie: expSortie.toISOString(),
+            duree: calculateDuration(entreeTimestamp.toISOString(), expSortie.toISOString()),
+          });
+
+          entreeTimestamp = expSortie;
+
+          // Step 5: En transit / Livraison
+          const deliveryDuration = 6 + Math.floor(Math.random() * 48); // 6-54 hours
+          const deliverySortie = new Date(entreeTimestamp.getTime() + deliveryDuration * 60 * 60 * 1000);
+
+          mouvements.push({
+            zone: "En transit",
+            statut: "En livraison",
+            lecteur: "SYSTEM-MOBILE",
+            entree: entreeTimestamp.toISOString(),
+            sortie: deliverySortie.toISOString(),
+            duree: calculateDuration(entreeTimestamp.toISOString(), deliverySortie.toISOString()),
+          });
+        }
+      }
+    }
+  }
+
+  // Calculate total sejour (from first entry to last exit or now)
+  const firstMouvement = mouvements[0];
+  const lastMouvement = mouvements[mouvements.length - 1];
+  const sejourEnd = lastMouvement.sortie || new Date().toISOString();
+  const totalSejour = calculateDuration(firstMouvement.entree, sejourEnd);
+
+  acc[article.id] = {
+    articleId: article.id,
+    tagId: article.tagId,
+    mouvements: mouvements.reverse(), // Most recent first
+    totalMouvements: mouvements.length,
+    totalSejour,
+    deliveryDate: lastMouvement.zone === "En transit" ? lastMouvement.sortie : null,
   };
   return acc;
 }, {});
 
+// ============ BANQUETTE PIECES ============
+// For each banquette, generate child articles (pieces)
+export const banquettePieces = mockArticles
+  .filter(a => a.category === "Banquette")
+  .reduce((acc, banquette, index) => {
+    const numPieces = 3 + Math.floor(Math.random() * 4); // 3-6 pieces per banquette
+    const pieces = [];
+
+    for (let i = 0; i < numPieces; i++) {
+      const pieceCategories = ["Matelas", "Coussin décoratif", "Pouf"];
+      const pieceCategory = pieceCategories[i % pieceCategories.length];
+      const pieceProduits = produitsParCategorie[pieceCategory];
+
+      pieces.push({
+        id: `${banquette.id}-P${i + 1}`,
+        tagId: `${banquette.tagId}-P${i + 1}`,
+        parentId: banquette.id,
+        category: pieceCategory,
+        designation: pieceProduits[Math.floor(Math.random() * pieceProduits.length)],
+        size: "Standard",
+        status: banquette.status,
+        brand: banquette.brand,
+      });
+    }
+
+    acc[banquette.id] = pieces;
+    return acc;
+  }, {});
+
+// ============ ALERTES ============
 export const mockAlerts = [
   {
     id: "alert-1",
     type: "warning",
-    message: `Porsche ${mockVehicles[0].vin} nécessite contrôle qualité supplémentaire`,
+    message: "Stock faible Zone STK-1 - Matelas 160x200",
     timestamp: generateTimestamp(0, 2),
   },
   {
     id: "alert-2",
-    type: "info",
-    message: "Showroom approche de la capacité maximale (90%)",
-    timestamp: generateTimestamp(0, 5),
+    type: "success",
+    message: "Commande #CMD-2024-156 prête à expédier",
+    timestamp: generateTimestamp(0, 1),
   },
   {
     id: "alert-3",
     type: "warning",
-    message: `Bentley ${mockVehicles[3].vin} retardée en douane`,
-    timestamp: generateTimestamp(0, 8),
+    message: `Article ${mockArticles[42]?.tagId || 'TAG-2024-00043'} en zone depuis 15 jours`,
+    timestamp: generateTimestamp(0, 5),
   },
   {
     id: "alert-4",
-    type: "success",
-    message: "Livraison Volkswagen Golf effectuée avec succès",
-    timestamp: generateTimestamp(0, 1),
+    type: "info",
+    message: "Nouveau lot OF-2024-1547 entré en production",
+    timestamp: generateTimestamp(0, 3),
   },
 ];
 
+// ============ KPIs ============
 export const getKPIs = () => {
-  const total = 2839;
-  const enStockage = 2500;
-  const enPreparation = 21;
-  const pretsALivrer = 38;
-  const livres = 280;
-  const enExposition = mockVehicles.filter(
-    (v) => v.statut === "En Exposition"
-  ).length;
+  const total = mockArticles.length;
+  const enProduction = mockArticles.filter((a) => a.status === "En production").length;
+  const enStock = mockArticles.filter((a) => a.status === "En stock").length;
+  const enPreparation = mockArticles.filter((a) => a.status === "En préparation").length;
+  const expedies = mockArticles.filter((a) => a.status === "Expédié").length;
 
   return {
     total,
-    enStockage,
+    enProduction,
+    enStock,
     enPreparation,
-    pretsALivrer,
-    livres,
-    enExposition,
+    pretsAExpedier: enPreparation, // Articles en préparation sont prêts à expédier
+    expedies,
   };
 };
 
-// Additional luxury-specific data
-export const getLuxuryStats = () => {
-  const byBrand = marques.map((marque) => ({
-    marque: marque.label,
-    count: mockVehicles.filter((v) => v.marque === marque.label).length,
-    value:
-      mockVehicles.filter((v) => v.marque === marque.label).length *
-      (150000 + Math.random() * 500000), // Estimated value
-  }));
+// ============ CLIENTS POUR COMMANDES (Part 2) ============
+export const mockClients = [
+  { id: 1, name: "Mohammed Benjelloun", city: "Casablanca", phone: "0661-234567", address: "123 Bd Mohammed V, Casablanca" },
+  { id: 2, name: "Fatima Zahra El Alaoui", city: "Rabat", phone: "0662-345678", address: "45 Avenue Hassan II, Rabat" },
+  { id: 3, name: "Ahmed Bennani", city: "Marrakech", phone: "0663-456789", address: "78 Rue de la Liberté, Marrakech" },
+  { id: 4, name: "Khadija Ouazzani", city: "Fès", phone: "0664-567890", address: "34 Avenue des FAR, Fès" },
+  { id: 5, name: "Youssef El Mansouri", city: "Tanger", phone: "0665-678901", address: "56 Rue de la Résistance, Tanger" },
+  { id: 6, name: "Meryem Chraibi", city: "Oujda", phone: "0666-789012", address: "89 Boulevard Zerktouni, Oujda" },
+  { id: 7, name: "Hassan Tazi", city: "Agadir", phone: "0667-890123", address: "23 Avenue du Prince Moulay Abdallah, Agadir" },
+  { id: 8, name: "Salma Berrada", city: "Kenitra", phone: "0668-901234", address: "67 Boulevard Mohammed V, Kenitra" },
+  { id: 9, name: "Karim Idrissi", city: "Tétouan", phone: "0669-012345", address: "90 Avenue Hassan II, Tétouan" },
+  { id: 10, name: "Nadia Fassi Fihri", city: "Meknès", phone: "0670-123456", address: "12 Boulevard Mohamed VI, Meknès" },
+  { id: 11, name: "Omar Senhaji", city: "Al Hoceima", phone: "0671-234567", address: "34 Rue Moulay Ismail, Al Hoceima" },
+  { id: 12, name: "Laila Sqalli", city: "Beni Mellal", phone: "0672-345678", address: "56 Avenue Mohammed V, Beni Mellal" },
+  { id: 13, name: "Amine Belhaj", city: "Safi", phone: "0673-456789", address: "78 Boulevard Hassan II, Safi" },
+  { id: 14, name: "Zineb El Khattabi", city: "El Jadida", phone: "0674-567890", address: "90 Rue de la Plage, El Jadida" },
+  { id: 15, name: "Rachid Amrani", city: "Settat", phone: "0675-678901", address: "12 Avenue Royale, Settat" },
+];
 
-  const byYear = {
-    2024: mockVehicles.filter((v) => v.annee === 2024).length,
-    2025: mockVehicles.filter((v) => v.annee === 2025).length,
+// ============ STATISTIQUES PAR CATÉGORIE ============
+export const getStatsByCategory = () => {
+  return categories.map(cat => ({
+    category: cat.label,
+    count: mockArticles.filter(a => a.category === cat.label).length,
+    percentage: Math.round((mockArticles.filter(a => a.category === cat.label).length / mockArticles.length) * 100),
+  }));
+};
+
+// ============ DASHBOARD KPIs BY BRAND ============
+export const getDashboardKPIsByBrand = (brand = "Global") => {
+  const articles = brand === "Global"
+    ? mockArticles
+    : mockArticles.filter(a => a.brand === brand);
+
+  const getBanquettesAndMatelas = (filterFn) => {
+    const filtered = articles.filter(filterFn);
+    return {
+      banquettes: filtered.filter(a => a.category === "Banquette").length,
+      matelas: filtered.filter(a => a.category === "Matelas").length,
+    };
   };
 
   return {
-    byBrand,
-    byYear,
-    totalValue: byBrand.reduce((sum, brand) => sum + brand.value, 0),
+    total: getBanquettesAndMatelas(() => true),
+    enStock: getBanquettesAndMatelas(a => a.status === "En stock"),
+    enPreparation: getBanquettesAndMatelas(a => a.status === "En préparation"),
+    pretsAExpedier: getBanquettesAndMatelas(a => a.status === "En préparation"),
+    expedies: getBanquettesAndMatelas(a => a.status === "Expédié"),
   };
+};
+
+// ============ DELIVERY INDICATORS BY BRAND ============
+export const getDeliveryKPIsByBrand = (brand = "Global") => {
+  const articles = brand === "Global"
+    ? mockArticles
+    : mockArticles.filter(a => a.brand === brand);
+
+  const expedies = articles.filter(a => a.status === "Expédié");
+  const banquettesLivrees = expedies.filter(a => a.category === "Banquette").length;
+  const matelasLivres = expedies.filter(a => a.category === "Matelas").length;
+
+  // Simulated delivery metrics
+  const brandMultiplier = brand === "Richbond" ? 1 : brand === "Mesidor" ? 1.15 : 1.05;
+
+  return {
+    livres: {
+      banquettes: banquettesLivrees,
+      matelas: matelasLivres,
+    },
+    delaiMoyen: (4.2 * brandMultiplier).toFixed(1), // days
+    otd: brand === "Richbond" ? 89.5 : brand === "Mesidor" ? 85.2 : 87.5, // percentage
+    retardMoyen: (2.8 * brandMultiplier).toFixed(1), // days
+    enRetard: {
+      banquettes: Math.floor(banquettesLivrees * 0.08),
+      matelas: Math.floor(matelasLivres * 0.06),
+    },
+  };
+};
+
+// ============ DASHBOARD ALERTS BY BRAND ============
+export const getDashboardAlertsByBrand = (brand = "Global") => {
+  const alerts = [
+    {
+      id: "alert-mto-1",
+      type: "make-to-order",
+      severity: "warning",
+      icon: "Clock",
+      message: "OF-2024-1523 : délai de production dépassé de 3 jours",
+      brand: "Richbond",
+      timestamp: generateTimestamp(0, 2),
+    },
+    {
+      id: "alert-capacity-1",
+      type: "capacity",
+      severity: "danger",
+      icon: "AlertTriangle",
+      message: "Zone STK-2 : capacité à 98% - saturation proche",
+      brand: "Global",
+      timestamp: generateTimestamp(0, 4),
+    },
+    {
+      id: "alert-return-1",
+      type: "unidentified-return",
+      severity: "warning",
+      icon: "PackageX",
+      message: "Retour sans tag RFID détecté - zone PREP",
+      brand: "Mesidor",
+      timestamp: generateTimestamp(0, 6),
+    },
+    {
+      id: "alert-delivery-1",
+      type: "delivery-deadline",
+      severity: "urgent",
+      icon: "TruckIcon",
+      message: "CMD-2024-0156 : livraison prévue dans 24h - 3 articles manquants",
+      brand: "Richbond",
+      timestamp: generateTimestamp(0, 1),
+    },
+    {
+      id: "alert-mto-2",
+      type: "make-to-order",
+      severity: "warning",
+      icon: "Clock",
+      message: "OF-2024-1567 : risque de retard - vérification requise",
+      brand: "Mesidor",
+      timestamp: generateTimestamp(0, 8),
+    },
+    {
+      id: "alert-delivery-2",
+      type: "delivery-deadline",
+      severity: "urgent",
+      icon: "TruckIcon",
+      message: "CMD-2024-0178 : livraison prévue demain - picking en cours",
+      brand: "Richbond",
+      timestamp: generateTimestamp(0, 3),
+    },
+    {
+      id: "alert-capacity-2",
+      type: "capacity",
+      severity: "warning",
+      icon: "AlertTriangle",
+      message: "Zone STK-1 : occupation à 92% - réorganisation conseillée",
+      brand: "Global",
+      timestamp: generateTimestamp(0, 12),
+    },
+  ];
+
+  if (brand === "Global") {
+    return alerts;
+  }
+  return alerts.filter(a => a.brand === brand || a.brand === "Global");
+};
+
+// ============ ZONE STATISTICS BY BRAND ============
+export const getZoneStatsByBrand = (brand = "Global") => {
+  const articles = brand === "Global"
+    ? mockArticles
+    : mockArticles.filter(a => a.brand === brand);
+
+  // Define specific occupation rates for each zone (3 normal, 1 attention, 2 critique)
+  const zoneOccupationRates = {
+    "PROD": 65,    // Normal
+    "STK-1": 105,  // Critique (105%)
+    "STK-2": 93,   // Critique (93%)
+    "STK-3": 45,   // Normal
+    "PREP": 82,    // Attention (warning)
+    "EXP": 58,     // Normal
+  };
+
+  return mockZones.map(zone => {
+    const targetOccupation = zoneOccupationRates[zone.code] || 50;
+
+    // Calculate capacity based on desired occupation rate
+    const zoneArticles = articles.filter(a => a.currentZone === zone.code);
+    const total = zoneArticles.length;
+    const adjustedCapacity = Math.floor((total * 100) / targetOccupation);
+
+    const banquettes = zoneArticles.filter(a => a.category === "Banquette").length;
+    const matelas = zoneArticles.filter(a => a.category === "Matelas").length;
+    const placesDisponibles = Math.max(0, adjustedCapacity - total);
+
+    return {
+      id: zone.id,
+      code: zone.code,
+      nom: zone.nom,
+      banquettes,
+      matelas,
+      autres: total - banquettes - matelas,
+      total,
+      capacite: adjustedCapacity,
+      placesDisponibles,
+      tauxOccupation: targetOccupation,
+      status: targetOccupation >= 90 ? "critical" : targetOccupation >= 75 ? "warning" : "normal",
+    };
+  });
 };

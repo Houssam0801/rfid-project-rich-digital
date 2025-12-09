@@ -102,9 +102,9 @@ export default function Landing() {
                   transition={{ duration: 0.6, delay: 0.4 }}
                   className="text-2xl md:text-4xl lg:text-[42px] font-bold text-[var(--landing-text)] dark:text-foreground leading-tight text-center"
                 >
-                  Traçabilité des{" "}
+                  SmartPulse{" "}
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--landing-primary)] to-blue-500">
-                    Véhicules Neufs
+                    Richbond
                   </span>
                 </motion.h1>
 
@@ -114,8 +114,7 @@ export default function Landing() {
                   transition={{ duration: 0.6, delay: 0.6 }}
                   className="text-base md:text-lg text-[var(--landing-text)]/70 dark:text-muted-foreground max-w-2xl text-center"
                 >
-                  Suivez <strong>vos véhicules</strong> en temps réel, fidélisez
-                  vos clients et garantissez une expérience sans faille.
+                  Le passeport digital de <strong>chaque produit fabriqué</strong>. Traçabilité complète pour matelas, banquettes et mobilier de la couture à la livraison.
                 </motion.p>
 
                 {/* Features Grid */}
@@ -127,19 +126,19 @@ export default function Landing() {
                 >
                   {[
                     {
-                      icon: Truck,
-                      title: "Traçabilité complète",
-                      text: "Suivez vos véhicules dans chaque zone du site.",
+                      icon: Radio,
+                      title: "Identité digitale unique",
+                      text: "Chaque matelas et chaque pièce de banquette obtient une identité digitale unique.",
                     },
                     {
-                      icon: BarChart3,
-                      title: "Analyse & performance",
-                      text: "Visualisez vos taux, délais et niveaux d’activité.",
+                      icon: TrendingUp,
+                      title: "Traçabilité complète",
+                      text: "Suivez chaque mouvement de la couture à la livraison.",
                     },
                     {
                       icon: ShieldCheck,
-                      title: "Fiabilité & sécurité",
-                      text: "Données exactes et protégées en temps réel.",
+                      title: "Authenticité garantie",
+                      text: "Prouvez l'origine de chaque produit en cas de retour ou réparation.",
                     },
                   ].map((feature, i) => {
                     const IconComponent = feature.icon;

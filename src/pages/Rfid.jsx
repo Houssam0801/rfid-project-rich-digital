@@ -34,10 +34,10 @@ export default function Rfid() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={Tag} label="Tags en Total" value={stats.totalTags} color="blue" />
+        <StatCard icon={Tag} label="Total Tags" value={stats.totalTags} color="blue" />
         <StatCard icon={Tag} label="Tags Actifs" value={stats.activeTags} color="blue" />
-        <StatCard icon={Activity} label="Lectures Totales" value={stats.totalReadings} color="purple" />
-        <StatCard icon={Clock} label="Lectures Aujourd'hui" value={stats.readingsToday} color="green" />
+        <StatCard icon={Activity} label="Total Lectures (aujourd'hui)" value={stats.readingsToday} color="purple" />
+        <StatCard icon={Clock} label="Lecteurs Actifs" value="8" color="green" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -59,8 +59,8 @@ export default function Rfid() {
                         <Radio className="w-4 h-4 text-primary" />
                       </div>
                       <div>
-                        <p className="text-card-foreground font-medium">Tag {reading.tagId}</p>
-                        <p className="text-sm text-muted-foreground font-mono">{reading.vin}</p>
+                        <p className="text-card-foreground font-medium">{reading.tagId}</p>
+                        <p className="text-sm text-muted-foreground">{reading.designation}</p>
                       </div>
                     </div>
                     <span className="text-xs text-muted-foreground">
@@ -98,10 +98,11 @@ export default function Rfid() {
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-primary font-medium text-sm">{tag.tagId}</span>
                     <span className="bg-green-500/10 text-green-500 text-xs px-2 py-1 rounded border border-green-500/30">
-                      Actif
+                      {tag.status}
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground font-mono mb-1">{tag.vin}</p>
+                  <p className="text-xs text-muted-foreground mb-1">{tag.designation}</p>
+                  <p className="text-xs text-muted-foreground font-mono mb-1">Lot: {tag.lot}</p>
                   <p className="text-xs text-muted-foreground">
                     Associé le {new Date(tag.dateAssociation).toLocaleDateString('fr-FR')}
                   </p>
@@ -121,29 +122,29 @@ export default function Rfid() {
             <TechDetail
               label="Fréquence"
               value="UHF 865-868 MHz"
-              description="Lecture longue portée jusqu'à 10 mètres"
+              description="Lecture longue portée jusqu'à 5 mètres"
             />
             <TechDetail
               label="Protocole"
-              value="EPC Gen2 (ISO 18000-6C)"
+              value="EPC Gen2"
               description="Standard international pour l'identification RFID"
             />
             <TechDetail
               label="Type de Tag"
               value="Tags Passifs"
-              description="Sans batterie, alimentés par le lecteur RFID"
+              description="Cousus dans le produit, sans batterie"
             />
           </div>
           <div className="space-y-4">
             <TechDetail
-              label="Lecteurs Installés"
-              value="10 Points de Lecture"
+              label="Points de Lecture"
+              value="8 (1 par zone + entrées/sorties)"
               description="Couvrant toutes les zones stratégiques"
             />
             <TechDetail
-              label="Durée de Vie"
-              value="> 10 ans"
-              description="Tags durables résistants aux conditions extérieures"
+              label="Portée"
+              value="3-5m"
+              description="Lecture sans contact, rapide et fiable"
             />
           </div>
         </CardContent>

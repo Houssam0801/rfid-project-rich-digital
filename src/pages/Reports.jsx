@@ -1,42 +1,32 @@
 import { TrendingUp, Clock, Target, Award, BarChart3, AlertTriangle, ClockAlert } from 'lucide-react';
-import { mockVehicles, marques } from '../data/mockData';
+import { mockArticles, getStatsByCategory } from '../data/mockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function Reports() {
   const avgTimePerZone = [
-    { zone: 'Port - Arrivée', hours: 3.1 },
-    { zone: 'Zone de réception', hours: 1.5 },
-    { zone: 'Zone de stockage', hours: 72.5 },
-    { zone: 'Lavage', hours: 1.2 },
-    { zone: 'Atelier', hours: 8.4 },
-    { zone: 'Zone de préparation', hours: 4.8 },
-    { zone: 'Zone de chargement de batterie', hours: 2.1 },
-    { zone: 'Zone d’expédition', hours: 3.5 },
-    { zone: 'Showroom', hours: 12.2 },
+    { zone: 'Zone de Production', hours: 4 },
+    { zone: 'Zone de Stockage 1', hours: 36 },
+    { zone: 'Zone de Stockage 2', hours: 42 },
+    { zone: 'Zone de Stockage 3', hours: 28 },
+    { zone: 'Zone de Préparation', hours: 2.5 },
+    { zone: 'Zone d\'Expédition', hours: 1.25 },
   ];
 
   const maxHours = Math.max(...avgTimePerZone.map((z) => z.hours));
 
-  const vehiclesByMarque = mockVehicles.reduce((acc, v) => {
-    acc[v.marque] = (acc[v.marque] || 0) + 1;
-    return acc;
-  }, {});
+  const categoryStats = getStatsByCategory();
 
-  const totalVehicles = mockVehicles.length;
-  const marqueData = Object.entries(vehiclesByMarque).map(([marque, count]) => {
-    const marqueInfo = marques.find(m => m.label === marque);
-    return {
-      marque,
-      count,
-      percentage: Math.round((count / totalVehicles) * 100),
-      image: marqueInfo ? marqueInfo.image : '',
-    };
-  }).sort((a, b) => b.count - a.count);
+  const totalArticles = mockArticles.length;
+  const categoryData = categoryStats.map(cat => ({
+    category: cat.category,
+    count: cat.count,
+    percentage: cat.percentage,
+  })).sort((a, b) => b.count - a.count);
 
   const deliveryStats = {
-    onTime: 92,
-    delayed: 6,
-    early: 2,
+    onTime: 94,
+    delayed: 5,
+    early: 1,
   };
 
   return (
@@ -49,10 +39,10 @@ export default function Reports() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard icon={Clock} label="Délai moyen de livraison" value="54h 20" trend="-8%" trendPositive={false} color="blue" />
-        <MetricCard icon={AlertTriangle} label="Véhicules non conformes" value="8" trend="+2" trendPositive={false} color="red" />
-        <MetricCard icon={TrendingUp} label="Véhicules livrés à temps (OTD)" value="92%" trend="+3%" trendPositive={true} color="green" />
-        <MetricCard icon={ClockAlert} label="Retard moyen à la livraison" value="6h 50" trend="+15min" trendPositive={false} color="orange" />
+        <MetricCard icon={Clock} label="Temps moyen Production → Expédition" value="48h 30min" trend="-2h" trendPositive={true} color="blue" />
+        <MetricCard icon={AlertTriangle} label="Taux d'erreurs picking" value="2.3%" trend="-0.5%" trendPositive={true} color="orange" />
+        <MetricCard icon={TrendingUp} label="Taux de livraison à temps" value="94%" trend="+2%" trendPositive={true} color="green" />
+        <MetricCard icon={ClockAlert} label="Articles slow-moving" value="45" trend="-3" trendPositive={true} color="red" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -87,19 +77,16 @@ export default function Reports() {
         <Card className="shadow-sm hover:shadow-md transition-shadow duration-300">
           <CardHeader className="flex flex-row items-center space-x-2">
             <BarChart3 className="w-5 h-5 text-primary" />
-            <CardTitle className="text-xl">Répartition par Marque</CardTitle>
+            <CardTitle className="text-xl">Distribution par Catégorie</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {marqueData.map((item) => (
-                <div key={item.marque} className="bg-accent rounded-lg p-2 border border-border">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center space-x-1">
-                      {item.image && <img src={item.image} alt={item.marque} className="w-12 h-10 object-contain" />}
-                      <span className="text-card-foreground font-medium">{item.marque}</span>
-                    </div>
+              {categoryData.map((item) => (
+                <div key={item.category} className="bg-accent rounded-lg p-3 border border-border">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-card-foreground font-medium">{item.category}</span>
                     <div className="flex items-center space-x-3">
-                      <span className="text-muted-foreground text-sm">{item.count.toLocaleString("fr-FR")} véhicules</span>
+                      <span className="text-muted-foreground text-sm">{item.count.toLocaleString("fr-FR")} articles</span>
                       <span className="text-primary font-bold">{item.percentage.toLocaleString("fr-FR")}%</span>
                     </div>
                   </div>
@@ -133,12 +120,12 @@ export default function Reports() {
           <CardTitle className="text-xl">Indicateurs de Performance Clés (KPI)</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <KPIDetail title="Taux d'Utilisation des Zones" value="67%" target="75%" description="Optimisation de l'espace disponible" />
-          <KPIDetail title="Précision de Localisation" value="99.8%" target="99%" description="Exactitude du système RFID" />
-          <KPIDetail title="Temps de Recherche Véhicule" value="< 2 min" target="< 5 min" description="Gain de temps opérationnel" />
-          <KPIDetail title="Réduction des Erreurs" value="95%" target="90%" description="Moins d'erreurs de manutention" />
-          <KPIDetail title="ROI Système RFID" value="287%" target="200%" description="Retour sur investissement" />
-          <KPIDetail title="Disponibilité Système" value="99.9%" target="99.5%" description="Fiabilité opérationnelle" />
+          <KPIDetail title="Précision Localisation" value="99.5%" target="99%" description="Exactitude du système RFID" />
+          <KPIDetail title="Temps Recherche Article" value="< 1 min" target="< 2 min" description="Gain de temps opérationnel" />
+          <KPIDetail title="Réduction Erreurs" value="92%" target="90%" description="Moins d'erreurs de picking" />
+          <KPIDetail title="Disponibilité Système" value="99.8%" target="99.5%" description="Fiabilité opérationnelle" />
+          <KPIDetail title="Taux Rotation Stock" value="4.2x" target="4x" description="Efficacité de gestion" />
+          <KPIDetail title="ROI" value="245%" target="200%" description="Retour sur investissement" />
         </CardContent>
       </Card>
 
