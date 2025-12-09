@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Warehouse, Search, CheckCircle, MapPin, Tag, Package, ArrowRight, Truck } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -59,10 +60,15 @@ export default function Stockage() {
     };
 
     setRecentStorageHistory([newEntry, ...recentStorageHistory.slice(0, 4)]);
-    
+
     // Simulation Update (In a real app, this would update the backend)
     currentArticle.status = 'En stock';
     currentArticle.currentZone = suggestion.suggested.zone;
+
+    // Show success toast
+    toast.success('Article stocké avec succès!', {
+      description: `${currentArticle.designation} → ${suggestion.suggested.zone}-${suggestion.suggested.id}`,
+    });
 
     // Reset
     setCurrentArticle(null);
@@ -101,7 +107,7 @@ export default function Stockage() {
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
         
         {/* Left Column: Inbound List & Search */}
-        <div className="xl:col-span-1 space-y-4">
+        <div className="xl:col-span-1 space-y-3">
             
           {/* Manual Search */}
           <Card  className="pt-0 gap-0">
@@ -125,14 +131,14 @@ export default function Stockage() {
           </Card>
 
           {/* Inbound List */}
-          <Card className="pt-0 flex flex-col max-h-[600px] gap-1">
+          <Card className="pt-0 flex flex-col max-h-[450px] gap-1">
             <CardHeader className="py-3 bg-muted/30">
               <CardTitle className="text-sm flex items-center gap-2">
                 <Truck className="w-4 h-4" />
                 Articles en Attente ({inboundArticles.filter(a => a.status === 'En production').length})
               </CardTitle>
             </CardHeader>
-            <div className="flex-1 px-4 py-2 h-[350px] overflow-y-auto">
+            <div className="flex-1 px-4  h-[350px] overflow-y-auto">
               <div className="space-y-2">
                 {inboundArticles.filter(a => a.status === 'En production').map((article) => (
                   <div 
@@ -274,12 +280,13 @@ export default function Stockage() {
                     alternativeSlots={suggestion?.alternatives?.filter(a => a.zone === selectedZone) || []}
                     mode="stockage"
                     onSlotClick={handleSlotClick}
+                    hideOccupied={true}
                  />
               </CardContent>
            </Card>
 
            {/* Recent History */}
-           {recentStorageHistory.length > 0 && (
+           {/* {recentStorageHistory.length > 0 && (
              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                {recentStorageHistory.map((item, i) => (
                  <div key={i} className="bg-card border rounded-lg p-3 text-xs shadow-sm">
@@ -295,7 +302,7 @@ export default function Stockage() {
                  </div>
                ))}
              </div>
-           )}
+           )} */}
 
         </div>
 

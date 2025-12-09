@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "sonner";
 import Layout from "./pages/Layouts/Layout";
 import PublicLayout from "./pages/Layouts/PublicLayout";
 
@@ -26,6 +27,7 @@ export default function App() {
         v7_relativeSplatPath: true,
       }}
     >
+      <Toaster position="top-right" duration={3000} richColors closeButton />
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<PublicLayout />}>

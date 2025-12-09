@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { PackageSearch, CheckCircle, AlertCircle, MapPin, Box, Clock, TrendingUp, ArrowRight, Truck, ClipboardList, Package } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -53,6 +54,11 @@ export default function Picking() {
 
     setPickingHistory([historyEntry, ...pickingHistory.slice(0, 4)]);
     setPickedItems([...pickedItems, articleToPick.article.id]);
+
+    // Show success toast
+    toast.success('Article picker avec succès!', {
+      description: `${articleToPick.article.designation} - ${articleToPick.slot?.id}`,
+    });
 
     // Update the article line picked count (simulate backend update)
     if (articleToPick.articleLine) {
@@ -294,7 +300,7 @@ export default function Picking() {
             </Card>
 
             {/* Picking History (Bottom or within same column) */}
-            {pickingHistory.length > 0 && (
+            {/* {pickingHistory.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {pickingHistory.map((entry, index) => (
                         <div key={index} className="flex items-center justify-between p-2 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-500/30">
@@ -311,7 +317,7 @@ export default function Picking() {
                         </div>
                     ))}
                 </div>
-            )}
+            )} */}
         </div>
 
       </div>

@@ -12,12 +12,33 @@ const COLS = [1, 2, 3, 4, 5, 6];
 // Fonction helper pour générer ID emplacement
 const generateSlotId = (row, col) => `${row}${col}`;
 
-// Fonction pour créer une grille vide
+// Fonction pour créer une grille vide avec tailles variables
 const createEmptyGrid = (zoneId) => {
   const slots = [];
-
+  
   ROWS.forEach(row => {
-    COLS.forEach(col => {
+    let colIndex = 0;
+    while (colIndex < COLS.length) {
+      const col = COLS[colIndex];
+      
+      // Determine size randomly
+      const rand = Math.random();
+      let size = 'Medium';
+      let capacity = 3;
+      let colSpan = 1;
+
+      // Small: 1 col, 1 capacity (30% chance)
+      if (rand < 0.3) {
+        size = 'Small';
+        capacity = 1;
+      }
+      // Large: 2 cols, 5 capacity (20% chance) -> only if space remains
+      else if (rand > 0.8 && colIndex < COLS.length - 1) {
+        size = 'Large';
+        capacity = 5;
+        colSpan = 2;
+      }
+      
       slots.push({
         id: generateSlotId(row, col),
         row,
@@ -27,15 +48,20 @@ const createEmptyGrid = (zoneId) => {
         articleId: null,
         tagId: null,
         category: null,
+        size,           // Small, Medium, Large
+        capacity,
+        colSpan         // 1 or 2
       });
-    });
+
+      colIndex += colSpan;
+    }
   });
 
   return {
     zoneId,
     rows: ROWS,
-    cols: COLS,
-    totalSlots: ROWS.length * COLS.length,
+    cols: COLS, // Note: headers might misalign slightly with uneven rows, handled in grid rendering
+    totalSlots: slots.reduce((acc, s) => acc + s.capacity, 0), // Total capacity
     slots,
   };
 };
