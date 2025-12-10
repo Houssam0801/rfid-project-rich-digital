@@ -12,6 +12,7 @@ export default function StorageGrid({
   alternativeSlots = [],
   mode = "picking",
   targetSlots = [], // List of all slots to pick
+  orderedTargetSlots = [], // NEW: List of ordered slots for sequence display [ 'id1', 'id2' ]
   activeTargetSlot = null, // The specific slot currently focused/clicked
   onSlotClick = null,
   hideOccupied = false, // New prop for Stockage mode
@@ -90,7 +91,7 @@ export default function StorageGrid({
         // GENERAL TARGET: Visible Border, Subtle BG, No Pulse
         return cn(base, "bg-red-50 border-red-400 border-2 text-red-700 z-10");
       case "picked":
-        return cn(base, "bg-green-500 text-white border-green-600 shadow-md font-medium z-10");
+        return cn(base, "bg-green-400 text-white border-green-600 shadow-md font-medium z-10");
       case "suggested":
         return cn(base, "bg-emerald-100 dark:bg-emerald-900/40 border-emerald-500 ring-2 ring-emerald-500/50 ring-offset-2 animate-pulse text-emerald-700 font-bold z-10 scale-105 shadow-xl");
       case "alternative":
@@ -100,15 +101,28 @@ export default function StorageGrid({
     }
   };
 
-  const getSlotIcon = (status, size) => {
+  const getSlotIcon = (status, size, slotId) => {
+    // 1. Picked Checkmark overrides everything
+    if (status === "picked") return "✅";
+    
+    // 2. Active Arrow/Pin (Current Focus)
+    if (status === "active-target") return "📍";
+    
+    // 3. Picking Sequence Number (Passive targets)
+    if (mode === 'picking' && orderedTargetSlots.length > 0) {
+        const index = orderedTargetSlots.indexOf(slotId);
+        if (index !== -1) {
+            // Show number for sequence order
+            return <span className="text-xs font-bold font-mono">{index + 1}</span>;
+        }
+    }
+    
+    // Fallbacks
     switch (status) {
-      case "active-target": return "📍";
-      case "picked": return "✅";
-      case "passive-target": return ""; // No icon for passive to reduce noise
       case "suggested": return "⭐";
       case "alternative": return "⚡";
       case "occupied": return mode === 'stockage' && hideOccupied ? "" : "📦";
-      case "empty": return ""; // No icon for empty
+      case "empty": return ""; 
       default: return "";
     }
   };
@@ -201,7 +215,7 @@ export default function StorageGrid({
              return rowSlots.map(slot => {
                  const status = getSlotStatus(slot);
                  const styleClass = getSlotStyle(status, slot.size);
-                 const icon = getSlotIcon(status, slot.size);
+                 const icon = getSlotIcon(status, slot.size, slot.id); // Pass slot.id for ordering logic
                  
                  const colSpanClass = slot.colSpan === 2 ? "col-span-2" : "col-span-1";
                  

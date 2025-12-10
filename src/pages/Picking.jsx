@@ -199,6 +199,54 @@ export default function Picking() {
 
   const isOrderComplete = selectedCommande && selectedCommande.pickedArticles === selectedCommande.totalArticles;
 
+  // --- PATH OPTIMIZATION & SORTING ---
+  const sortedPickingItems = useMemo(() => {
+    if (!selectedCommande) return [];
+
+    let allItems = [];
+    selectedCommande.articles.forEach(article => {
+        if(article.isMultiPiece && article.pieces) {
+            article.pieces.forEach(p => {
+                allItems.push({...p, designation: p.name, parentName: article.designation, isPiece: true, articleId: article.id });
+            });
+        } else if (article.tagIds && article.tagIds.length > 0) {
+            article.tagIds.forEach((tagId, i) => {
+                 allItems.push({
+                     ...article,
+                     designation: `${article.designation} (${i+1}/${article.quantity})`,
+                     tagId: tagId,
+                     isPiece: false
+                 });
+            });
+        } else {
+             allItems.push({...article, designation: article.designation, isPiece: false });
+        }
+    });
+
+    // Valid Slot lookup Helper
+    const getSlot = (tagId) => itemSlotMap[tagId] || '';
+    const getZone = (tagId) => itemZoneMap[tagId] || 'STK-1';
+
+    // Snake Path Sorting
+    return allItems.sort((a, b) => {
+        const zoneA = getZone(a.tagId);
+        const zoneB = getZone(b.tagId);
+        
+        // 1. Zone Priority (STK-1 < STK-2 < STK-3)
+        if (zoneA !== zoneB) return zoneA.localeCompare(zoneB);
+        
+        // 2. Intra-Zone: Slot ID Natural Sort (A1 -> A2 ... B1)
+        // This naturally follows alley/rack order if naming convention is standard
+        return getSlot(a.tagId).localeCompare(getSlot(b.tagId), undefined, { numeric: true, sensitivity: 'base' });
+    });
+  }, [selectedCommande, itemSlotMap, itemZoneMap]);
+
+  // Derived list of ALL target slots in correct order for the Grid Visualization
+  const globalOrderedSlotIds = useMemo(() => {
+      return sortedPickingItems.map(item => itemSlotMap[item.tagId]).filter(Boolean);
+  }, [sortedPickingItems, itemSlotMap]);
+  // -----------------------------------
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header with Stats */}
@@ -297,36 +345,10 @@ export default function Picking() {
                             Liste de Picking ({selectedCommande.pickedArticles}/{selectedCommande.totalArticles})
                         </CardTitle>
                     </CardHeader>
-                    {/* SCROLLABLE LIST CONTAINER (Max height 400px as requested) */}
+                    {/* SCROLLABLE LIST CONTAINER (Max height 450px as requested) */}
                     <div className="flex-1 overflow-y-auto p-2 space-y-2 max-h-[450px]">
-                        {/* Access all picking items from the mock data helpers which we'll assume extracts flat list */}
-                        {/* We need to extract all items from the order here. For now, we reuse the structure but flatten it in render */}
-                        {(() => {
-                           // Quick helper to flatten order items for display
-                           // In a real app this would be a clean selector
-                           let allItems = [];
-                           selectedCommande.articles.forEach(article => {
-                               if(article.isMultiPiece && article.pieces) {
-                                   article.pieces.forEach(p => {
-                                       allItems.push({...p, designation: p.name, parentName: article.designation, isPiece: true, articleId: article.id });
-                                   });
-                               } else if (article.tagIds && article.tagIds.length > 0) {
-                                   // Split multi-quantity articles into individual picking tasks
-                                   article.tagIds.forEach((tagId, i) => {
-                                        allItems.push({
-                                            ...article,
-                                            designation: `${article.designation} (${i+1}/${article.quantity})`,
-                                            tagId: tagId,
-                                            isPiece: false
-                                        });
-                                   });
-                               } else {
-                                   // Fallback for single legacy items
-                                    allItems.push({...article, designation: article.designation, isPiece: false });
-                               }
-                           });
-
-                           return allItems.map((item, idx) => {
+                        {/* Render List */}
+                        {sortedPickingItems.map((item, idx) => {
                                const slotId = itemSlotMap[item.tagId] || "???";
                                const zoneId = itemZoneMap[item.tagId] || "STK-1";
                                const isPicked = pickedItems.includes(item.tagId);
@@ -334,7 +356,7 @@ export default function Picking() {
                                
                                return (
                                 <div 
-                                    key={idx} 
+                                    key={item.tagId} // Use tagId as key for stability
                                     onClick={() => {
                                         setActiveItemId(item.tagId);
                                         if (zoneId !== currentZone) {
@@ -342,15 +364,20 @@ export default function Picking() {
                                             toast.info(`Navigation vers ${zoneId}`);
                                         }
                                     }}
-                                    className={`p-3 rounded-lg border flex flex-col gap-2 transition-all cursor-pointer ${
+                                    className={`p-3 rounded-lg border flex flex-col gap-2 transition-all cursor-pointer relative ${
                                         isPicked 
                                             ? "bg-green-50 border-green-200 opacity-60" 
                                             : isActive 
-                                                ? "bg-primary/5 border-primary ring-1 ring-primary/20 shadow-md scale-[1.02]" 
+                                                ? "bg-primary/5 border-primary ring-1 ring-primary/20 shadow-md scale-[1.02] z-10" 
                                                 : "bg-card hover:border-primary/50"
                                     }`}
                                 >
-                                    <div className="flex justify-between items-start">
+                                    {/* SEQUENCE BADGE */}
+                                    <div className="absolute -top-2 -left-2 bg-primary text-primary-foreground text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold shadow-sm border border-white">
+                                        {idx + 1}
+                                    </div>
+
+                                    <div className="flex justify-between items-start pl-2">
                                         <div>
                                             <p className="font-medium text-sm leading-tight">{item.designation}</p>
                                             <p className="text-xs text-muted-foreground">{item.tagId}</p>
@@ -358,7 +385,7 @@ export default function Picking() {
                                         {item.ml && <Badge variant="secondary" className="h-5">{item.ml} ml</Badge>}
                                     </div>
                                     
-                                    <div className="flex items-center justify-between mt-1">
+                                    <div className="flex items-center justify-between mt-1 pl-2">
                                          <div className={`flex items-center gap-1 text-xs font-mono px-1.5 py-0.5 rounded ${isActive ? "bg-primary/10 text-primary font-bold" : "bg-muted"}`}>
                                             <MapPin className="w-3 h-3" />
                                             <span>{zoneId} - {slotId}</span> 
@@ -379,8 +406,7 @@ export default function Picking() {
                                     </div>
                                 </div>
                                );
-                           });
-                        })()}
+                        })}
                     </div>
                 </Card>
                 )
@@ -400,7 +426,7 @@ export default function Picking() {
              <Card className="pt-2 h-full flex flex-col gap-2">
                 <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
-                    <CardTitle className="text-base">Plan de Navigation</CardTitle>
+                    <CardTitle className="text-base">Plan de Navigation Assisité (Chemin Optimal)</CardTitle>
                     <div className="flex bg-muted p-1 rounded-lg">
                         {['STK-1', 'STK-2', 'STK-3'].map(zone => (
                             <button
@@ -427,6 +453,8 @@ export default function Picking() {
                             targetSlots={Object.keys(itemSlotMap)
                                 .filter(tag => itemZoneMap[tag] === currentZone)
                                 .map(tag => itemSlotMap[tag])}
+                            // Pass GLOBAL ORDERED LIST of Slot IDs
+                            orderedTargetSlots={globalOrderedSlotIds}
                             activeTargetSlot={itemZoneMap[activeItemId] === currentZone ? itemSlotMap[activeItemId] : null}
                             mode="picking"
                         />
