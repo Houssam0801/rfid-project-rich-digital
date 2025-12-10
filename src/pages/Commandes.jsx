@@ -444,16 +444,24 @@ function CommandeDetailModal({ commande, isOpen, onClose }) {
             )}
           </div>
 
-          {/* Progress */}
+          {/* Stock Availability */}
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <p className="text-sm font-medium text-card-foreground">Progression</p>
+              <p className="text-sm font-medium text-card-foreground">Disponibilité Stock</p>
               <p className="text-sm text-muted-foreground">
-                {commande.pickedArticles}/{commande.totalArticles} articles
+                {commande.status === 'production'
+                  ? `${Math.round(commande.totalArticles * commande.stockageProgress / 100)}/${commande.totalArticles}`
+                  : `${commande.totalArticles}/${commande.totalArticles}`} articles disponibles
               </p>
             </div>
-            <Progress value={progress} className="h-3" />
-            <p className="text-xs text-muted-foreground text-center">{progress}% complété</p>
+            <Progress
+              value={commande.status === 'production' ? commande.stockageProgress : 100}
+              className="h-3"
+              indicatorClassName={commande.status === 'production' ? "bg-orange-500" : "bg-green-500"}
+            />
+            <p className="text-xs text-muted-foreground text-center">
+              {commande.status === 'production' ? `${commande.stockageProgress}%` : '100%'} disponible
+            </p>
           </div>
 
           {/* Articles */}
@@ -474,16 +482,27 @@ function CommandeDetailModal({ commande, isOpen, onClose }) {
                     <div className="text-right">
                       <p className="text-sm text-muted-foreground">Quantité: {article.quantity}</p>
                       <div className="flex items-center space-x-2 mt-1">
-                        {article.picked === article.quantity ? (
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                        ) : article.picked > 0 ? (
-                          <Clock className="w-4 h-4 text-yellow-500" />
-                        ) : (
-                          <AlertCircle className="w-4 h-4 text-red-500" />
-                        )}
-                        <span className="text-sm font-medium">
-                          {article.picked}/{article.quantity}
-                        </span>
+                        {(() => {
+                          // Calculate available articles based on order status
+                          const availableCount = commande.status === 'production'
+                            ? (article.inStockage || 0)
+                            : article.quantity;
+
+                          return (
+                            <>
+                              {availableCount === article.quantity ? (
+                                <CheckCircle className="w-4 h-4 text-green-500" />
+                              ) : availableCount > 0 ? (
+                                <Clock className="w-4 h-4 text-yellow-500" />
+                              ) : (
+                                <AlertCircle className="w-4 h-4 text-red-500" />
+                              )}
+                              <span className="text-sm font-medium">
+                                {availableCount}/{article.quantity}
+                              </span>
+                            </>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>
@@ -494,8 +513,11 @@ function CommandeDetailModal({ commande, isOpen, onClose }) {
                       <p className="text-xs font-semibold text-muted-foreground">Tags RFID:</p>
                       {Array.from({ length: article.quantity }).map((_, itemIndex) => {
                         const tagId = article.tagIds[itemIndex];
-                        const isPicked = itemIndex < article.picked;
-                        const isInStockage = itemIndex < article.inStockage;
+                        // Check availability based on order status
+                        const isAvailable = commande.status === 'production'
+                          ? itemIndex < (article.inStockage || 0)
+                          : true; // All available if not in production
+
                         return (
                           <div key={itemIndex} className="flex items-center justify-between text-xs">
                             <div className="flex items-center gap-2">
@@ -510,10 +532,8 @@ function CommandeDetailModal({ commande, isOpen, onClose }) {
                                 </span>
                               )}
                             </div>
-                            {isPicked ? (
+                            {isAvailable ? (
                               <CheckCircle className="w-3 h-3 text-green-500" />
-                            ) : isInStockage ? (
-                              <Clock className="w-3 h-3 text-yellow-500" />
                             ) : (
                               <AlertCircle className="w-3 h-3 text-red-500" />
                             )}
@@ -540,45 +560,52 @@ function CommandeDetailModal({ commande, isOpen, onClose }) {
                         {article.totalML && <span className="text-[10px] font-mono text-muted-foreground">Total: {article.totalML}ml</span>}
                       </div>
 
-                      {article.pieces.map((piece, pIndex) => (
-                        <div key={pIndex} className="flex items-center gap-3 text-xs">
-                          {/* Name - fixed width */}
-                          <div className="min-w-[150px] text-muted-foreground">
-                            └─ {piece.name}
-                          </div>
+                      {article.pieces.map((piece, pIndex) => {
+                        // Check piece availability based on order status
+                        const isPieceAvailable = commande.status === 'production'
+                          ? (piece.inStockage || false)
+                          : true; // All available if not in production
 
-                          {/* Meters - fixed width */}
-                          <div className="min-w-[60px]">
-                            {piece.ml ? (
-                              <span className="text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded">
-                                {piece.ml}m
-                              </span>
-                            ) : (
-                              <span className="text-[10px] text-muted-foreground">-</span>
-                            )}
-                          </div>
+                        return (
+                          <div key={pIndex} className="flex items-center gap-3 text-xs">
+                            {/* Name - fixed width */}
+                            <div className="min-w-[150px] text-muted-foreground">
+                              └─ {piece.name}
+                            </div>
 
-                          {/* Tag - fixed width */}
-                          <div className="min-w-[140px]">
-                            {piece.tagId ? (
-                              <span className="font-mono text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded">
-                                {piece.tagId}
-                              </span>
-                            ) : (
-                              <span className="text-[10px] text-muted-foreground italic">-</span>
-                            )}
-                          </div>
+                            {/* Meters - fixed width */}
+                            <div className="min-w-[60px]">
+                              {piece.ml ? (
+                                <span className="text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded">
+                                  {piece.ml}m
+                                </span>
+                              ) : (
+                                <span className="text-[10px] text-muted-foreground">-</span>
+                              )}
+                            </div>
 
-                          {/* Status - at the end */}
-                          <div className="ml-auto">
-                            {piece.picked ? (
-                              <CheckCircle className="w-3 h-3 text-green-500" />
-                            ) : (
-                              <AlertCircle className="w-3 h-3 text-red-500" />
-                            )}
+                            {/* Tag - fixed width */}
+                            <div className="min-w-[140px]">
+                              {piece.tagId ? (
+                                <span className="font-mono text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                                  {piece.tagId}
+                                </span>
+                              ) : (
+                                <span className="text-[10px] text-muted-foreground italic">-</span>
+                              )}
+                            </div>
+
+                            {/* Status - at the end */}
+                            <div className="ml-auto">
+                              {isPieceAvailable ? (
+                                <CheckCircle className="w-3 h-3 text-green-500" />
+                              ) : (
+                                <AlertCircle className="w-3 h-3 text-red-500" />
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
