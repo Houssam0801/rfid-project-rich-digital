@@ -34,10 +34,10 @@ export default function Rfid() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={Tag} label="Total Tags" value={stats.totalTags} color="blue" />
-        <StatCard icon={Tag} label="Tags Actifs" value={stats.activeTags} color="blue" />
-        <StatCard icon={Activity} label="Total Lectures (aujourd'hui)" value={stats.readingsToday} color="purple" />
-        <StatCard icon={Clock} label="Lecteurs Actifs" value="8" color="green" />
+        <SingleValueKPICard icon={Tag} title="Total Tags" value={stats.totalTags} color="blue" />
+        <SingleValueKPICard icon={Tag} title="Tags Actifs" value={stats.activeTags} color="blue" />
+        <SingleValueKPICard icon={Activity} title="Total Lectures (aujourd'hui)" value={stats.readingsToday} color="purple" />
+        <SingleValueKPICard icon={Clock} title="Lecteurs Actifs" value="8" color="green" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -153,26 +153,26 @@ export default function Rfid() {
   );
 }
 
-function StatCard({ icon: Icon, label, value, color }) {
+function SingleValueKPICard({ title, icon: Icon, value, color }) {
   const colorClasses = {
     blue: 'text-primary',
     purple: 'text-purple-500',
-    green: 'text-green-500',
     orange: 'text-orange-500',
+    green: 'text-green-500',
+    teal: 'text-teal-500',
+    red: 'text-red-500',
   };
 
   return (
-    <Card className="shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 gap-2 p-4">
-      <CardHeader className="flex flex-row items-center justify-center space-x-1 space-y-0">
-        <Icon className={`w-5 h-5 ${colorClasses[color]}`} />
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          {label}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-3xl font-bold text-card-foreground text-center">
+    <Card className="p-0 shadow-sm hover:shadow-md transition-all duration-300 border-white h-full">
+      <CardContent className="p-2 flex flex-col items-center justify-center text-center h-full">
+        <div className="flex items-center space-x-2 mb-2">
+          <Icon className={`w-4 h-4 ${colorClasses[color]}`} />
+          <p className="text-xs font-medium text-muted-foreground">{title}</p>
+        </div>
+        <div className={`text-xl font-bold `}>
           {typeof value === 'number' ? value.toLocaleString("fr-FR") : value}
-        </p>
+        </div>
       </CardContent>
     </Card>
   );

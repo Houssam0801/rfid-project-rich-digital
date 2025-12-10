@@ -50,6 +50,7 @@ export default function Dashboard() {
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header with Brand Selector */}
       <div className="flex items-center justify-between">
+        <div></div>
         <div>
           <h1 className="text-3xl font-bold text-card-foreground">
             Tableau de Bord
@@ -58,7 +59,7 @@ export default function Dashboard() {
             Vue d'ensemble en temps réel
           </p>
         </div>
-        <div className="w-64">
+        <div className="w-30">
           <Select value={selectedBrand} onValueChange={setSelectedBrand}>
             <SelectTrigger className="bg-white dark:bg-white dark:text-gray-900 w-full">
               <SelectValue />
@@ -81,11 +82,11 @@ export default function Dashboard() {
               {/* Section 1: Répartition & Stock */}
               <div className="space-y-2">
                 <h2 className="text-lg font-semibold text-card-foreground">
-                  Répartition & Stock
+                  État du Stock
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
                   <KPICard
-                    title="Total Articles"
+                    title="Total Produits"
                     icon={Package}
                     banquettes={kpis.total.banquettes}
                     matelas={kpis.total.matelas}
@@ -135,22 +136,25 @@ export default function Dashboard() {
                     matelas={deliveryKPIs.livres.matelas}
                     color="green"
                   />
-                  <SingleValueKPICard
-                    title="Délai moyen"
+                  <KPICard
+                    title="Délai moyen (j)"
                     icon={Clock}
-                    value={`${deliveryKPIs.delaiMoyen}j`}
+                    banquettes={deliveryKPIs.delaiMoyen.banquettes}
+                    matelas={deliveryKPIs.delaiMoyen.matelas}
                     color="blue"
                   />
-                  <SingleValueKPICard
-                    title="OTD"
+                  <KPICard
+                    title="OTD (%)"
                     icon={Target}
-                    value={`${deliveryKPIs.otd}%`}
+                    banquettes={deliveryKPIs.otd.banquettes}
+                    matelas={deliveryKPIs.otd.matelas}
                     color="green"
                   />
-                  <SingleValueKPICard
-                    title="Retard moyen"
+                  <KPICard
+                    title="Retard moyen (j)"
                     icon={AlertCircle}
-                    value={`${deliveryKPIs.retardMoyen}j`}
+                    banquettes={deliveryKPIs.retardMoyen.banquettes}
+                    matelas={deliveryKPIs.retardMoyen.matelas}
                     color="orange"
                   />
                   <KPICard
@@ -168,9 +172,9 @@ export default function Dashboard() {
 
         {/* Right Section: Alertes Récentes (1/3 width) */}
         <div className="lg:col-span-1">
-          <Card className="py-2 px-0 bg-gradient-to-br from-orange-500 to-amber-600 text-white border-none shadow-lg h-full gap-1">
+          <Card className="py-2 px-0 bg-white  border-none shadow-lg h-full gap-1">
             <CardHeader>
-              <CardTitle className="text-lg font-medium">
+              <CardTitle className="text-lg font-medium text-red-800 text-center">
                 <span>Alertes Récentes</span>
               </CardTitle>
             </CardHeader>
@@ -335,8 +339,8 @@ function KPICard({ title, icon: Icon, banquettes, matelas, color }) {
           </span>
         </div>
         <div className="flex items-center space-x-3 text-xs text-muted-foreground">
-          <span>banquettes</span>
-          <span>matelas</span>
+          <span>Banquettes</span>
+          <span>Matelas</span>
         </div>
       </CardContent>
     </Card>

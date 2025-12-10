@@ -511,7 +511,7 @@ export default function SAV() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <TrendingUp className="w-5 h-5" />
-                <span>Cycle de Vie Complet</span>
+                <span>Cycle de Vie</span>
               </CardTitle>
             </CardHeader>
             <CardContent>

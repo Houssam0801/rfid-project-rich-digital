@@ -86,39 +86,39 @@ export default function Commandes() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-        <StatCard
+        <SingleValueKPICard
           icon={ClipboardList}
-          label="Total Commandes"
+          title="Total Commandes"
           value={mockCommandes.length}
           color="blue"
         />
-        <StatCard
+        <SingleValueKPICard
           icon={Factory}
-          label="En Production"
+          title="En Production"
           value={stats.production}
           color="orange"
         />
-        <StatCard
+        <SingleValueKPICard
           icon={Box}
-          label="En Stockage"
+          title="En Stockage"
           value={stats.stockage}
           color="cyan"
         />
-        <StatCard
+        <SingleValueKPICard
           icon={PackageSearch}
-          label="En Picking"
+          title="En Picking"
           value={stats.picking}
           color="yellow"
         />
-        <StatCard
+        <SingleValueKPICard
           icon={Clock}
-          label="En Préparation"
+          title="En Préparation"
           value={stats.preparing}
           color="purple"
         />
-        <StatCard
+        <SingleValueKPICard
           icon={Truck}
-          label="Prêtes"
+          title="Prêtes"
           value={stats.ready}
           color="green"
         />
@@ -237,6 +237,7 @@ export default function Commandes() {
                 <TableHead className="w-[16%]">Client</TableHead>
                 <TableHead className="w-[12%]">Date Cmd</TableHead>
                 <TableHead className="w-[12%]">Livraison</TableHead>
+                <TableHead className="w-[10%] text-center">Délai restant</TableHead>
                 <TableHead className="w-[8%] text-center">Articles</TableHead>
                 <TableHead className="w-[10%]">Priorité</TableHead>
                 <TableHead className="w-[12%]">Progression</TableHead>
@@ -256,9 +257,35 @@ export default function Commandes() {
                       <TableCell className="text-sm text-muted-foreground">
                         {new Date(commande.dateCommande).toLocaleDateString('fr-FR')}
                       </TableCell>
-                      <TableCell className={`text-sm font-medium ${isLate ? 'text-red-500' : 'text-card-foreground'}`}>
+                      <TableCell className="text-sm font-medium text-card-foreground">
                         {new Date(commande.dateLivraisonSouhaitee).toLocaleDateString('fr-FR')}
-                        {isLate && <span className="ml-1 text-xs">(retard)</span>}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {(() => {
+                          const today = new Date();
+                          today.setHours(0, 0, 0, 0);
+                          const deliveryDate = new Date(commande.dateLivraisonSouhaitee);
+                          deliveryDate.setHours(0, 0, 0, 0);
+                          const diffTime = deliveryDate - today;
+                          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                          let colorClass = '';
+                          if (diffDays < 2) {
+                            colorClass = 'text-red-600 font-bold';
+                          } else if (diffDays >= 2 && diffDays <= 4) {
+                            colorClass = 'text-orange-600 font-bold';
+                          } else {
+                            colorClass = 'text-green-600 font-bold';
+                          }
+
+                          const displayText = diffDays < 0
+                            ? `${Math.abs(diffDays)}j retard`
+                            : diffDays === 0
+                            ? "Aujourd'hui"
+                            : `${diffDays}j`;
+
+                          return <span className={colorClass}>{displayText}</span>;
+                        })()}
                       </TableCell>
                       <TableCell className="text-center">{commande.totalArticles}</TableCell>
                       <TableCell>
@@ -268,8 +295,16 @@ export default function Commandes() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
-                          <Progress value={progress} className="w-16" />
-                          <span className="text-sm text-muted-foreground">{progress}%</span>
+                          {/* PROGRESSION = DISPONIBILITÉ STOCK */}
+                          {/* If picking/preparing, it means stock is 100% ready */}
+                          <Progress 
+                            value={commande.status === 'production' ? commande.stockageProgress : 100} 
+                            className="w-16" 
+                            indicatorClassName={commande.status === 'production' ? "bg-orange-500" : "bg-green-500"}
+                          />
+                          <span className="text-sm text-muted-foreground">
+                              {commande.status === 'production' ? `${commande.stockageProgress}%` : "100%"}
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -292,7 +327,7 @@ export default function Commandes() {
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={9} className="h-24 text-center">
+                  <TableCell colSpan={10} className="h-24 text-center">
                     <p className="text-muted-foreground">Aucune commande trouvée</p>
                   </TableCell>
                 </TableRow>
@@ -312,26 +347,28 @@ export default function Commandes() {
   );
 }
 
-function StatCard({ icon: Icon, label, value, color }) {
+function SingleValueKPICard({ title, icon: Icon, value, color }) {
   const colorClasses = {
     blue: 'text-primary',
-    orange: 'text-orange-500',
-    yellow: 'text-yellow-500',
-    green: 'text-green-500',
     purple: 'text-purple-500',
+    orange: 'text-orange-500',
+    green: 'text-green-500',
+    teal: 'text-teal-500',
+    red: 'text-red-500',
+    yellow: 'text-yellow-500',
     cyan: 'text-cyan-500',
   };
 
   return (
-    <Card className="py-2 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 gap-2">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          {label}
-        </CardTitle>
-        <Icon className={`w-5 h-5 ${colorClasses[color]}`} />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold text-card-foreground text-center">{value}</div>
+    <Card className="p-0 shadow-sm hover:shadow-md transition-all duration-300 border-white h-full">
+      <CardContent className="p-2 flex flex-col items-center justify-center text-center h-full">
+        <div className="flex items-center space-x-2 mb-2">
+          <Icon className={`w-4 h-4 ${colorClasses[color]}`} />
+          <p className="text-xs font-medium text-muted-foreground">{title}</p>
+        </div>
+        <div className={`text-xl font-bold `}>
+          {typeof value === 'number' ? value.toLocaleString("fr-FR") : value}
+        </div>
       </CardContent>
     </Card>
   );

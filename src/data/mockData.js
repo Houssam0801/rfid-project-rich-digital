@@ -175,12 +175,20 @@ const generateArticles = (count, status) => {
     // Assign brand (70% Richbond, 30% Mesidor)
     const brand = Math.random() < 0.7 ? "Richbond" : "Mesidor";
 
+    // Add ML (Linear Meters) for Banquettes - typically 1.2m to 3.0m
+    let ml = null;
+    if (categoryName === "Banquette") {
+        const lengths = [1.2, 1.5, 1.8, 2.0, 2.5, 3.0];
+        ml = lengths[Math.floor(Math.random() * lengths.length)];
+    }
+
     return {
       id: generateArticleId(i),
       tagId: generateTagId(i),
       category: categoryName,
       designation: designation,
       size: size,
+      ml: ml, // Added: Linear Meters
       lot: generateLotId(lotIndex),
       currentZone: zone,
       status: status,
@@ -431,29 +439,40 @@ export const mockArticleHistory = mockArticles.reduce((acc, article) => {
   return acc;
 }, {});
 
-// ============ BANQUETTE PIECES ============
-// For each banquette, generate child articles (pieces)
+// ============ BANQUETTE PIECES (SALON COMPOSITION) ============
+// For each banquette, generate child articles (pieces) forming a Salon
 export const banquettePieces = mockArticles
   .filter(a => a.category === "Banquette")
   .reduce((acc, banquette, index) => {
-    const numPieces = 3 + Math.floor(Math.random() * 4); // 3-6 pieces per banquette
+    // Salon Composition: e.g., 2 Banquettes (Base) + 1 Angle (Coin)
+    // Random 2-4 pieces
+    const numPieces = 2 + Math.floor(Math.random() * 3); 
     const pieces = [];
 
-    for (let i = 0; i < numPieces; i++) {
-      const pieceCategories = ["Matelas", "Coussin décoratif", "Pouf"];
-      const pieceCategory = pieceCategories[i % pieceCategories.length];
-      const pieceProduits = produitsParCategorie[pieceCategory];
+    // Length options for Banquettes and Coins
+    const banquetteLengths = [2.0, 2.5, 3.0, 3.5];
+    const coinLengths = [1.0, 1.2]; // Coins are typically smaller
 
-      pieces.push({
-        id: `${banquette.id}-P${i + 1}`,
-        tagId: `${banquette.tagId}-P${i + 1}`,
-        parentId: banquette.id,
-        category: pieceCategory,
-        designation: pieceProduits[Math.floor(Math.random() * pieceProduits.length)],
-        size: "Standard",
-        status: banquette.status,
-        brand: banquette.brand,
-      });
+    for (let i = 0; i < numPieces; i++) {
+        // First pieces are Banquettes, last one might be a coin/angle if random
+        const isCoin = i === numPieces - 1 && Math.random() > 0.3; 
+        const category = isCoin ? "Coin" : "Banquette";
+        
+        const length = isCoin 
+            ? coinLengths[Math.floor(Math.random() * coinLengths.length)] 
+            : banquetteLengths[Math.floor(Math.random() * banquetteLengths.length)];
+
+        pieces.push({
+            id: `${banquette.id}-P${i + 1}`,
+            tagId: `${banquette.tagId}-P${i + 1}`,
+            parentId: banquette.id,
+            category: category,
+            designation: `${category} ${length}m - ${banquette.brand}`,
+            size: "Standard",
+            ml: length,
+            status: banquette.status,
+            brand: banquette.brand,
+        });
     }
 
     acc[banquette.id] = pieces;
@@ -570,14 +589,33 @@ export const getDeliveryKPIsByBrand = (brand = "Global") => {
   // Simulated delivery metrics
   const brandMultiplier = brand === "Richbond" ? 1 : brand === "Mesidor" ? 1.15 : 1.05;
 
+  // Different metrics for banquettes vs matelas (banquettes typically have longer delivery times)
+  const delaiMoyenBanquettes = (4.8 * brandMultiplier).toFixed(1);
+  const delaiMoyenMatelas = (3.6 * brandMultiplier).toFixed(1);
+
+  const otdBanquettes = brand === "Richbond" ? 86.5 : brand === "Mesidor" ? 82.0 : 84.5;
+  const otdMatelas = brand === "Richbond" ? 92.5 : brand === "Mesidor" ? 88.5 : 90.5;
+
+  const retardMoyenBanquettes = (3.2 * brandMultiplier).toFixed(1);
+  const retardMoyenMatelas = (2.4 * brandMultiplier).toFixed(1);
+
   return {
     livres: {
       banquettes: banquettesLivrees,
       matelas: matelasLivres,
     },
-    delaiMoyen: (4.2 * brandMultiplier).toFixed(1), // days
-    otd: brand === "Richbond" ? 89.5 : brand === "Mesidor" ? 85.2 : 87.5, // percentage
-    retardMoyen: (2.8 * brandMultiplier).toFixed(1), // days
+    delaiMoyen: {
+      banquettes: delaiMoyenBanquettes,
+      matelas: delaiMoyenMatelas,
+    },
+    otd: {
+      banquettes: otdBanquettes,
+      matelas: otdMatelas,
+    },
+    retardMoyen: {
+      banquettes: retardMoyenBanquettes,
+      matelas: retardMoyenMatelas,
+    },
     enRetard: {
       banquettes: Math.floor(banquettesLivrees * 0.08),
       matelas: Math.floor(matelasLivres * 0.06),
@@ -593,7 +631,7 @@ export const getDashboardAlertsByBrand = (brand = "Global") => {
       type: "make-to-order",
       severity: "warning",
       icon: "Clock",
-      message: "OF-2024-1523 : délai de production dépassé de 3 jours",
+      message: "OF-2024-1523 : retard de production de 3 jours",
       brand: "Richbond",
       timestamp: generateTimestamp(0, 2),
     },
@@ -602,25 +640,16 @@ export const getDashboardAlertsByBrand = (brand = "Global") => {
       type: "capacity",
       severity: "danger",
       icon: "AlertTriangle",
-      message: "Zone STK-2 : capacité à 98% - saturation proche",
+      message: "STK-2 : capacité à 98% (saturation)",
       brand: "Global",
       timestamp: generateTimestamp(0, 4),
-    },
-    {
-      id: "alert-return-1",
-      type: "unidentified-return",
-      severity: "warning",
-      icon: "PackageX",
-      message: "Retour sans tag RFID détecté - zone PREP",
-      brand: "Mesidor",
-      timestamp: generateTimestamp(0, 6),
     },
     {
       id: "alert-delivery-1",
       type: "delivery-deadline",
       severity: "urgent",
       icon: "TruckIcon",
-      message: "CMD-2024-0156 : livraison prévue dans 24h - 3 articles manquants",
+      message: "CMD-2024-0156 : livraison < 24h, 3 articles manquants",
       brand: "Richbond",
       timestamp: generateTimestamp(0, 1),
     },
@@ -629,7 +658,7 @@ export const getDashboardAlertsByBrand = (brand = "Global") => {
       type: "make-to-order",
       severity: "warning",
       icon: "Clock",
-      message: "OF-2024-1567 : risque de retard - vérification requise",
+      message: "OF-2024-1567 : risque de retard",
       brand: "Mesidor",
       timestamp: generateTimestamp(0, 8),
     },
@@ -638,7 +667,7 @@ export const getDashboardAlertsByBrand = (brand = "Global") => {
       type: "delivery-deadline",
       severity: "urgent",
       icon: "TruckIcon",
-      message: "CMD-2024-0178 : livraison prévue demain - picking en cours",
+      message: "CMD-2024-0178 : livraison demain, picking en cours",
       brand: "Richbond",
       timestamp: generateTimestamp(0, 3),
     },
@@ -647,7 +676,7 @@ export const getDashboardAlertsByBrand = (brand = "Global") => {
       type: "capacity",
       severity: "warning",
       icon: "AlertTriangle",
-      message: "Zone STK-1 : occupation à 92% - réorganisation conseillée",
+      message: "STK-1 : occupation à 92% (réorganisation conseillée)",
       brand: "Global",
       timestamp: generateTimestamp(0, 12),
     },

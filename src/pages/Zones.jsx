@@ -54,27 +54,27 @@ export default function Zones() {
 
       {/* Summary Stats at Top */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <SummaryCard
-          label="Capacité Totale"
+        <SingleValueKPICard
+          title="Capacité Totale"
           value={zoneStats.reduce((sum, z) => sum + z.capacite, 0)}
           color="blue"
           icon={Ruler}
         />
-        <DetailedKPICard
-          title="Articles Sur Site"
+        <KPICard
+          title="Produits Sur Site"
           icon={Archive}
           banquettes={totalBanquettes}
           matelas={totalMatelas}
           color="purple"
         />
-        <SummaryCard
-          label="Places Disponibles"
+        <SingleValueKPICard
+          title="Places Disponibles"
           value={zoneStats.reduce((sum, z) => sum + z.placesDisponibles, 0)}
           color="green"
           icon={CheckCircle}
         />
-        <SummaryCard
-          label="Zones Actives"
+        <SingleValueKPICard
+          title="Zones Actives"
           value={zoneStats.filter((z) => z.total > 0).length}
           color="orange"
           icon={MapPin}
@@ -239,70 +239,63 @@ function getStatusBgColor(color) {
   return classes[color] || "bg-green-500/10 border border-green-500/30";
 }
 
-function SummaryCard({ label, value, color, icon: Icon }) {
+// ============ KPI CARD WITH BANQUETTES/MATELAS SPLIT ============
+function KPICard({ title, icon: Icon, banquettes, matelas, color }) {
   const colorClasses = {
     blue: "text-primary",
     purple: "text-purple-500",
-    green: "text-green-500",
     orange: "text-orange-500",
+    green: "text-green-500",
+    teal: "text-teal-500",
+    red: "text-red-500",
   };
 
   return (
-    <Card className="px-3 py-2 shadow-sm hover:shadow-md transition-all duration-300 cursor-default h-full flex flex-col justify-center">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
-            {label}
-          </p>
-          <div className={`text-2xl font-bold ${colorClasses[color]}`}>
-            {value.toLocaleString("fr-FR")}
-          </div>
+    <Card className="p-0 shadow-sm hover:shadow-md transition-all duration-300 border-white h-full">
+      <CardContent className="p-2 flex flex-col items-center justify-center text-center h-full">
+        <div className="flex items-center space-x-2 mb-2">
+          <Icon className={`w-4 h-4 ${colorClasses[color]}`} />
+          <p className="text-xs font-medium text-muted-foreground">{title}</p>
         </div>
-        {Icon && (
-          <Icon className={`w-8 h-8 opacity-20 ${colorClasses[color]}`} />
-        )}
-      </div>
+        <div className="flex items-center space-x-3 mb-1">
+          <span className="text-xl font-bold text-card-foreground">
+            {banquettes}{" "}
+            <span className="text-xs text-muted-foreground">Banquettes</span>
+          </span>
+          <span className="text-muted-foreground">|</span>
+          <span className="text-xl font-bold text-card-foreground">
+            {matelas}
+            <span className="text-xs text-muted-foreground">Matelas</span>
+          </span>
+        </div>
+        <div className="flex items-center space-x-3 text-xs text-muted-foreground"></div>
+      </CardContent>
     </Card>
   );
 }
 
-function DetailedKPICard({ title, icon: Icon, banquettes, matelas, color }) {
+// ============ SINGLE VALUE KPI CARD ============
+function SingleValueKPICard({ title, icon: Icon, value, color }) {
   const colorClasses = {
+    blue: "text-primary",
     purple: "text-purple-500",
+    orange: "text-orange-500",
+    green: "text-green-500",
+    teal: "text-teal-500",
+    red: "text-red-500",
   };
 
   return (
-    <Card className="px-3 py-2 shadow-sm hover:shadow-md transition-all duration-300 cursor-default h-full gap-1">
-      <div className="flex items-center justify-between gap-1">
-        <div>
-          <div className="flex justify-between items-start">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              {title}
-            </p>
-          </div>
-          <div className="flex items-baseline space-x-2">
-            <div className="flex flex-col">
-              <span className="text-xl font-bold text-card-foreground">
-                {banquettes}
-              </span>
-              <span className="text-[9px] text-muted-foreground">
-                Banquettes
-              </span>
-            </div>
-            <span className="text-muted-foreground/30 text-xl">|</span>
-            <div className="flex flex-col">
-              <span className="text-xl font-bold text-card-foreground">
-                {matelas}
-              </span>
-              <span className="text-[9px] text-muted-foreground">Matelas</span>
-            </div>
-          </div>
- </div>
-          {Icon && (
-            <Icon className={`w-8 h-8 opacity-20 ${colorClasses[color]}`} />
-          )}
-       
-      </div>
+    <Card className="p-0 shadow-sm hover:shadow-md transition-all duration-300 border-white h-full">
+      <CardContent className="p-2 flex flex-col items-center justify-center text-center h-full">
+        <div className="flex items-center space-x-2 mb-2">
+          <Icon className={`w-4 h-4 ${colorClasses[color]}`} />
+          <p className="text-xs font-medium text-muted-foreground">{title}</p>
+        </div>
+        <div className={`text-xl font-bold `}>
+          {typeof value === "number" ? value.toLocaleString("fr-FR") : value}
+        </div>
+      </CardContent>
     </Card>
   );
 }

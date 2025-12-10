@@ -40,7 +40,21 @@ export default function Landing() {
   return (
     <div className="bg-[var(--landing-background)] dark:bg-background">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-[var(--landing-background)] dark:bg-background h-[calc(100vh-4.6rem)] flex items-center">
+      <section className="relative overflow-hidden bg-[var(--landing-background)] dark:bg-background h-[calc(100vh-4.6rem)] py-8 flex flex-col">
+        {/* Richbond Logo at Top Center */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="flex justify-center"
+        >
+          <img
+            src="/images/marques/Richbondlogov2.png"
+            alt="Richbond Logo"
+            className="h-16  w-auto object-contain"
+          />
+        </motion.div>
+
         <div className="absolute inset-0 opacity-30 dark:opacity-20">
           <motion.div
             initial={{ scale: 0, opacity: 0 }}
@@ -56,7 +70,7 @@ export default function Landing() {
           ></motion.div>
         </div>
 
-        <div className="relative w-full max-w-[80%] mx-auto px-4 sm:px-6 py-8">
+        <div className="relative flex-1 flex items-center w-full max-w-[80%] mx-auto px-4 sm:px-6 py-0">
           <div className="grid md:grid-cols-2 gap-5 items-center">
             {/* Mobile Logo - Shown only on mobile at top */}
             <motion.div
@@ -100,11 +114,14 @@ export default function Landing() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.4 }}
-                  className="text-2xl md:text-4xl lg:text-[42px] font-bold text-[var(--landing-text)] dark:text-foreground leading-tight text-center"
+                  className="text-2xl md:text-4xl  font-bold text-[var(--landing-text)] dark:text-foreground leading-tight text-center"
                 >
                   SmartPulse{" "}
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--landing-primary)] to-blue-500">
-                    Richbond
+                    Proof of Concept{" "}
+                  </span>
+                  <span className="text-base text-transparent bg-clip-text bg-gradient-to-r from-[var(--landing-primary)] to-blue-500">
+                    (POC)
                   </span>
                 </motion.h1>
 
@@ -114,7 +131,10 @@ export default function Landing() {
                   transition={{ duration: 0.6, delay: 0.6 }}
                   className="text-base md:text-lg text-[var(--landing-text)]/70 dark:text-muted-foreground max-w-2xl text-center"
                 >
-                  Le passeport digital de <strong>chaque produit fabriqué</strong>. Traçabilité complète pour matelas, banquettes et mobilier de la couture à la livraison.
+                  Le passeport digital de{" "}
+                  <strong>chaque produit fabriqué</strong>. Traçabilité complète
+                  pour matelas, banquettes et mobilier de la couture à la
+                  livraison.
                 </motion.p>
 
                 {/* Features Grid */}
@@ -183,7 +203,7 @@ export default function Landing() {
               transition={{ duration: 0.8, delay: 0.5 }}
               className="relative hidden md:flex items-center justify-center"
             >
-              <div className="relative w-full max-w-lg">
+              <div className="relative w-full max-w-[450px]">
                 <motion.div
                   animate={{
                     scale: [1, 1.1, 1],

@@ -28,7 +28,7 @@ export default function Stockage() {
     if (article) {
       selectArticleForStorage(article);
     } else {
-      alert('Tag non trouvé ou article déjà stocké');
+      alert('Tag non trouvé ou produit déjà stocké');
       setCurrentArticle(null);
       setSuggestion(null);
     }
@@ -100,7 +100,7 @@ export default function Stockage() {
           Stockage & Rangement
         </h1>
         <p className="text-muted-foreground mt-1">
-          Gérez l'entrée en stock des articles depuis la production
+          Gérez l'entrée en stock des produits depuis la production
         </p>
       </div>
 
@@ -112,7 +112,7 @@ export default function Stockage() {
           {/* Manual Search */}
           <Card  className="pt-0 gap-0">
             <CardHeader className="py-2">
-              <CardTitle className="text-base">Scanner un Article</CardTitle>
+              <CardTitle className="text-base">Scanner un Produit</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex gap-2">
@@ -135,7 +135,7 @@ export default function Stockage() {
             <CardHeader className="py-3 bg-muted/30">
               <CardTitle className="text-sm flex items-center gap-2">
                 <Truck className="w-4 h-4" />
-                Articles en Attente ({inboundArticles.filter(a => a.status === 'En production').length})
+                Produits en Attente ({inboundArticles.filter(a => a.status === 'En production').length})
               </CardTitle>
             </CardHeader>
             <div className="flex-1 px-4  h-[350px] overflow-y-auto">
@@ -162,7 +162,7 @@ export default function Stockage() {
                 ))}
                 {inboundArticles.filter(a => a.status === 'En production').length === 0 && (
                   <div className="text-center py-8 text-muted-foreground text-sm">
-                    Aucun article en attente
+                    Aucun produit en attente
                   </div>
                 )}
               </div>
@@ -177,7 +177,7 @@ export default function Stockage() {
               <CardHeader className="bg-primary/5 py-2 rounded-t-xl">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Package className="w-5 h-5 text-primary" />
-                  Article Sélectionné
+                  Produit Sélectionné
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6 pt-6 flex-1">
@@ -241,8 +241,8 @@ export default function Stockage() {
              <div className="h-full border-2 border-dashed rounded-xl flex items-center justify-center text-muted-foreground p-8 text-center bg-muted/10">
                <div>
                  <Search className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                 <p className="font-medium">Aucun article sélectionné</p>
-                 <p className="text-sm opacity-70">Sélectionnez un article dans la liste ou scannez un tag</p>
+                 <p className="font-medium">Aucun produit sélectionné</p>
+                 <p className="text-sm opacity-70">Sélectionnez un produit dans la liste ou scannez un tag</p>
                </div>
              </div>
            )}

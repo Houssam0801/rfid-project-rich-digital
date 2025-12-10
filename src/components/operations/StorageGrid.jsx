@@ -11,6 +11,8 @@ export default function StorageGrid({
   pickedSlots = [],
   alternativeSlots = [],
   mode = "picking",
+  targetSlots = [], // List of all slots to pick
+  activeTargetSlot = null, // The specific slot currently focused/clicked
   onSlotClick = null,
   hideOccupied = false, // New prop for Stockage mode
 }) {
@@ -28,10 +30,26 @@ export default function StorageGrid({
   const { rows, cols, slots } = emplacements;
 
   const getSlotStatus = (slot) => {
-    // Priorité : to-pick > picked > suggested > alternative > occupied > empty
-    if (highlightSlot && slot.id === highlightSlot) {
-      return mode === "picking" ? "to-pick" : "suggested";
+    // Picking Mode Logic:
+    if (mode === "picking") {
+        const isPicked = pickedSlots.includes(slot.id);
+        const isActiveTarget = slot.id === activeTargetSlot; // Currently selected item
+        const isTarget = targetSlots.includes(slot.id); // Any target for this order
+
+        if (isPicked) return "picked"; // PICKED (Green Check)
+        if (isActiveTarget && !isPicked) return "active-target"; // FOCUS (Red Pin + Pulse)
+        if (isTarget && !isPicked) return "passive-target"; // GENERAL TARGET (Red Border, No Pulse)
+        
+        // Everything else in picking mode:
+        if (slot.status === "occupied") return "dimmed-occupied";
+        return "dimmed-empty";
     }
+
+    // Normal Mode Logic:
+    if (highlightSlot && slot.id === highlightSlot) {
+      return "suggested";
+    }
+    // ... rest of normal logic
     if (pickedSlots.includes(slot.id)) {
       return "picked";
     }
@@ -39,7 +57,6 @@ export default function StorageGrid({
       return "alternative";
     }
     if (slot.status === "occupied") {
-        // If hiding occupied slots (Stockage mode), return 'hidden-occupied' unless it's the target
         if (hideOccupied) return "hidden-occupied";
         return "occupied";
     }
@@ -55,15 +72,25 @@ export default function StorageGrid({
     switch (status) {
       case "empty":
         return cn(base, "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-300 hover:border-slate-400");
+      case "dimmed-empty":
+        // Non-target empty slot: White/Neutral, visible border but faint
+        return cn(base, "bg-white dark:bg-slate-950 border-slate-100 dark:border-slate-800 text-slate-200 pointer-events-none");
       case "hidden-occupied":
         // Dimmed out style for occupied slots in Stockage mode
         return cn(base, "bg-slate-100/30 dark:bg-slate-800/20 border-transparent text-transparent pointer-events-none opacity-30 shadow-none");
+      case "dimmed-occupied":
+        // Non-target occupied slot: Light Gray/Neutral to show "it's there" but not "active"
+        return cn(base, "bg-slate-100 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700 text-slate-300 pointer-events-none");
       case "occupied":
         return cn(base, "bg-blue-100/50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40");
-      case "to-pick":
-        return cn(base, "bg-red-100 dark:bg-red-900/40 border-red-500 ring-2 ring-red-500/50 ring-offset-2 animate-pulse text-red-700 font-bold z-10 scale-105");
+      case "active-target":
+        // FOCUSED SLOT: Pulse, Red, Pin
+        return cn(base, "bg-red-500 text-white border-red-600 ring-4 ring-red-500/30 shadow-2xl font-bold z-20 scale-110 animate-pulse");
+      case "passive-target":
+        // GENERAL TARGET: Visible Border, Subtle BG, No Pulse
+        return cn(base, "bg-red-50 border-red-400 border-2 text-red-700 z-10");
       case "picked":
-        return cn(base, "bg-green-100 dark:bg-green-900/40 border-green-500 text-green-700 dark:text-green-400 font-medium");
+        return cn(base, "bg-green-500 text-white border-green-600 shadow-md font-medium z-10");
       case "suggested":
         return cn(base, "bg-emerald-100 dark:bg-emerald-900/40 border-emerald-500 ring-2 ring-emerald-500/50 ring-offset-2 animate-pulse text-emerald-700 font-bold z-10 scale-105 shadow-xl");
       case "alternative":
@@ -75,8 +102,9 @@ export default function StorageGrid({
 
   const getSlotIcon = (status, size) => {
     switch (status) {
-      case "to-pick": return "📍";
+      case "active-target": return "📍";
       case "picked": return "✅";
+      case "passive-target": return ""; // No icon for passive to reduce noise
       case "suggested": return "⭐";
       case "alternative": return "⚡";
       case "occupied": return mode === 'stockage' && hideOccupied ? "" : "📦";
@@ -134,9 +162,9 @@ export default function StorageGrid({
            {/* Mini legend - Adaptive based on mode */}
            {mode === 'picking' ? (
                <>
-                <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-slate-200"></span> Vide</div>
+                {/* <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-slate-200"></span> Vide</div>
                 <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-400"></span> Occupé</div>
-                <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Cible</div>
+                <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Cible</div> */}
                </>
            ) : (
                 <>
@@ -213,10 +241,10 @@ export default function StorageGrid({
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2 ">
           {mode === "picking" ? (
             <>
-              <LegendItem color="bg-red-100 border-red-500 text-red-700" label="À picker" icon="📍" ring />
+               <LegendItem color="bg-red-100 border-red-500 text-red-700" label="À picker" icon="📍" ring />
               <LegendItem color="bg-green-100 border-green-500 text-green-700" label="Pické" icon="✅" />
-              <LegendItem color="bg-blue-100 border-blue-400 text-blue-700" label="Occupé" icon="📦" />
-              <LegendItem color="bg-slate-50 border-slate-200 text-slate-400" label="Vide" icon="" />
+              {/*<LegendItem color="bg-blue-100 border-blue-400 text-blue-700" label="Occupé" icon="📦" />
+              <LegendItem color="bg-slate-50 border-slate-200 text-slate-400" label="Vide" icon="" /> */}
             </>
           ) : (
             <>
@@ -235,7 +263,7 @@ export default function StorageGrid({
 function LegendItem({ color, label, icon, ring, dashed }) {
   return (
     <div className={cn(
-      "flex items-center rounded-md border text-xs p-2 gap-2",
+      "flex items-center rounded-md border text-xs px-2 gap-2",
       color,
       ring && "ring-1 ring-offset-1 ring-inherit",
       dashed && "border-dashed"

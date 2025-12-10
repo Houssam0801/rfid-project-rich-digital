@@ -241,19 +241,19 @@ export const mockCommandes = [
         inProduction: 0,
         inStockage: 1,    // 100% en stockage
         isMultiPiece: true,
+        totalML: 9.4, // Total salon length (3 + 3 + 2 + 1.2 + 0.2)
         articleIds: [articlesEnStock[16]?.id].filter(Boolean),
-        tagIds: [articlesEnStock[16]?.tagId].filter(Boolean), // TAG ID de la banquette principale
+        tagIds: [articlesEnStock[16]?.tagId].filter(Boolean),
         pieces: [
-          { name: "Pièce centrale", picked: false, inStockage: true, tagId: articlesEnStock[17]?.tagId },
-          { name: "Angle gauche", picked: false, inStockage: true, tagId: articlesEnStock[18]?.tagId },
-          { name: "Angle droit", picked: false, inStockage: true, tagId: articlesEnStock[19]?.tagId },
-          { name: "Dossier 1", picked: false, inStockage: true, tagId: articlesEnStock[20]?.tagId },
-          { name: "Dossier 2", picked: false, inStockage: true, tagId: articlesEnStock[21]?.tagId },
-          { name: "Dossier 3", picked: false, inStockage: true, tagId: articlesEnStock[22]?.tagId },
+          { name: "Banquette Salon Royal", dim: "3.00m", ml: 3.0, picked: false, inStockage: true, tagId: articlesEnStock[17]?.tagId },
+          { name: "Banquette Salon Royal", dim: "3.00m", ml: 3.0, picked: false, inStockage: true, tagId: articlesEnStock[18]?.tagId },
+          { name: "Banquette Salon Royal", dim: "2.00m", ml: 2.0, picked: false, inStockage: true, tagId: articlesEnStock[19]?.tagId },
+          { name: "Coin Salon Royal", dim: "1.20m", ml: 1.2, picked: false, inStockage: true, tagId: articlesEnStock[20]?.tagId },
+          { name: "Coin Salon Royal", dim: "0.20m", ml: 0.2, picked: false, inStockage: true, tagId: articlesEnStock[21]?.tagId },
         ]
       }
     ],
-    totalArticles: 6,  // CHANGÉ: 1 banquette + 6 pièces = 7 total
+    totalArticles: 5,  // CHANGÉ: 5 pièces total
     pickedArticles: 0,  // CHANGÉ: 0 pickés
     stockageProgress: 100, // 100% en stockage
     createdAt: generateTimestamp(2, 8),

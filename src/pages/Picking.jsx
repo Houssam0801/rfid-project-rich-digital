@@ -15,6 +15,10 @@ export default function Picking() {
   const [currentZone, setCurrentZone] = useState('STK-1');
   const [pickingHistory, setPickingHistory] = useState([]);
   const [completedOrders, setCompletedOrders] = useState([]);
+  
+  const [activeItemId, setActiveItemId] = useState(null);
+  const [itemSlotMap, setItemSlotMap] = useState({});
+  const [itemZoneMap, setItemZoneMap] = useState({}); // New: Map Item -> Zone
 
   // Get orders ready for picking (industrial flux: Stock -> Picking)
   const pickableCommandes = useMemo(() => getPickableCommandes(), [completedOrders]);
@@ -32,54 +36,160 @@ export default function Picking() {
 
   // Auto-switch zone when article to pick is in a different zone
   useEffect(() => {
-    if (articleToPick && articleToPick.zone) {
-      setCurrentZone(pickableCommandes.length > 0 && selectedCommande ? articleToPick.zone : 'STK-1');
+    if (articleToPick && itemZoneMap[articleToPick.tagId]) {
+      const targetZone = itemZoneMap[articleToPick.tagId];
+      if(targetZone !== currentZone) setCurrentZone(targetZone);
     }
-  }, [articleToPick, selectedCommande]);
+  }, [articleToPick, selectedCommande, itemZoneMap]);
 
-  const handleConfirmPicking = () => {
-    if (!articleToPick || !articleToPick.slot) {
-      alert('Aucun article à picker ou emplacement introuvable');
-      return;
+  // Mapping logic: Assign real slots to order items (Demo Simulation)
+  useEffect(() => {
+      if (selectedCommande) {
+          // Flatten all items first
+          let allItems = [];
+          selectedCommande.articles.forEach(article => {
+             if (article.isMultiPiece && article.pieces) {
+                  // Complex items (Salon)
+                  article.pieces.forEach(p => allItems.push(p.tagId));
+             } else if (article.tagIds && article.tagIds.length > 0) {
+                  // Standard items with multiple quantities (e.g. 6 cushions)
+                  // Push ALL tagIds, not just the first one
+                  article.tagIds.forEach(tag => allItems.push(tag));
+             } else {
+                  // Fallback for single legacy items
+                  allItems.push(article.id);
+             }
+          });
+
+          const newSlotMap = {};
+          const newZoneMap = {};
+          
+          // Helper to get slots
+          const getZoneSlots = (z) => emplacementsByZone[z].slots.filter(s => s.status === 'occupied');
+          const slotsSTK1 = getZoneSlots('STK-1')[0] ? getZoneSlots('STK-1') : []; // Safety check
+          const slotsSTK2 = getZoneSlots('STK-2')[0] ? getZoneSlots('STK-2') : [];
+          const slotsSTK3 = getZoneSlots('STK-3')[0] ? getZoneSlots('STK-3') : [];
+          
+          // Debug logs/fallbacks if slots empty
+          const fallbackSlots = [...slotsSTK1, ...slotsSTK2, ...slotsSTK3];
+
+          // Distribution Logic for Demo
+          allItems.forEach((tagId, index) => {
+              let targetZone = 'STK-1';
+              let targetSlot = null;
+
+              // Custom distribution for specific mocked orders to show multi-zone features
+              if (selectedCommande.id === 'CMD-2024-0160') {
+                  // Youssef: Mix of Zones (Simulate distributed stock)
+                  // 8 items total
+                  if (index < 2) { 
+                      targetZone = 'STK-1'; 
+                      targetSlot = slotsSTK1[index]; 
+                  } else if (index < 5) { 
+                      targetZone = 'STK-2'; 
+                      targetSlot = slotsSTK2[index - 2]; 
+                  } else { 
+                      targetZone = 'STK-3'; 
+                      targetSlot = slotsSTK3[index - 5]; 
+                  }
+              } 
+              else if (selectedCommande.id === 'CMD-2024-0175') {
+                  // Aicha: All in STK-3
+                  targetZone = 'STK-3'; 
+                  targetSlot = slotsSTK3[index];
+              } 
+              else {
+                  // Default (Leila / Others): STK-1
+                  targetZone = 'STK-1';
+                  targetSlot = slotsSTK1[index];
+              }
+
+              // Assign Slot
+              if (targetSlot) {
+                  newSlotMap[tagId] = targetSlot.id;
+                  newZoneMap[tagId] = targetZone;
+              } else {
+                  // Fallback if we run out of slots in a zone (shouldn't happen in demo but safety first)
+                  newSlotMap[tagId] = fallbackSlots[index]?.id || `UNK-${index}`;
+                  newZoneMap[tagId] = fallbackSlots[index]?.zone || 'STK-1';
+              }
+          });
+
+          setItemSlotMap(newSlotMap);
+          setItemZoneMap(newZoneMap);
+      } else {
+          setItemSlotMap({});
+          setItemZoneMap({});
+          setActiveItemId(null);
+      }
+  }, [selectedCommandeId]);
+
+  // ... (existing helper logic)
+
+  const handleConfirmPicking = (item) => {
+    // 1. Interaction Logic: "Click selectionne, Click again confirms"
+    if (activeItemId !== item.tagId) {
+        setActiveItemId(item.tagId);
+        
+        // AUTO-NAVIGATE: If item is in another zone, switch to it
+        const itemZone = itemZoneMap[item.tagId];
+        if (itemZone && itemZone !== currentZone) {
+            setCurrentZone(itemZone);
+            toast.info(`Navigation vers ${itemZone}`, { duration: 1500 });
+        }
+        return; 
     }
+
+    // 2. Confirmation Logic (Active Item Clicked Again)
+    const targetItem = item;
+    const realSlotId = itemSlotMap[targetItem.tagId] || "Unknown";
 
     // Add to picking history
     const historyEntry = {
       time: new Date().toLocaleTimeString('fr-FR'),
-      tagId: articleToPick.article.tagId,
-      designation: articleToPick.article.designation,
-      slot: articleToPick.slot.id,
-      zone: articleToPick.zone,
+      tagId: targetItem.tagId || targetItem.article?.tagId,
+      designation: targetItem.designation || targetItem.article?.designation,
+      slot: realSlotId,
+      zone: currentZone,
     };
 
     setPickingHistory([historyEntry, ...pickingHistory.slice(0, 4)]);
-    setPickedItems([...pickedItems, articleToPick.article.id]);
+    setPickedItems(prev => [...prev, targetItem.tagId]);
 
     // Show success toast
-    toast.success('Article picker avec succès!', {
-      description: `${articleToPick.article.designation} - ${articleToPick.slot?.id}`,
+    toast.success('Article confirmé', {
+      description: `${targetItem.designation || targetItem.article?.designation}`,
     });
 
-    // Update the article line picked count (simulate backend update)
-    if (articleToPick.articleLine) {
-        if (articleToPick.piece) {
-            articleToPick.piece.picked = true;
-            // Also increment total picked count for the order if desired, or relying on piece logic
-            // For now, let's increment the order total to show progress
-            selectedCommande.pickedArticles += 1;
-        } else {
-            articleToPick.articleLine.picked += 1;
-            selectedCommande.pickedArticles += 1;
-        }
-    }
+    // Update the local mock state for the order (Visual progress)
+    selectedCommande.pickedArticles += 1; 
+
+    // Auto-reset selection to allow focusing next item cleanly
+    setActiveItemId(null);
 
     // Check if commande is complete
-    const nextArticle = getNextArticleToPick(selectedCommande.id);
-    if (!nextArticle) {
+    if (selectedCommande.pickedArticles >= selectedCommande.totalArticles) {
        // Order complete
        setCompletedOrders([...completedOrders, selectedCommande.id]);
+       toast.success("Commande Terminée !", { description: "Tous les articles ont été collectés." });
+       // Reset Focus/Grid
+       setItemSlotMap({});
+       setActiveItemId(null);
     }
   };
+
+  // ...
+
+  // RENDER UPDATES:
+  // List Item onClick -> setActiveItemId(item.tagId)
+  // Grid Props:
+  /*
+     targetSlots={Object.values(itemSlotMap)} 
+     activeTargetSlot={itemSlotMap[activeItemId]}
+     pickedSlots={pickedItems.map(tag => itemSlotMap[tag])} // Map tags to slots!
+  */
+
+
 
   const handleCommandeSelect = (commande) => {
     setSelectedCommandeId(commande.id);
@@ -98,7 +208,7 @@ export default function Picking() {
             Picking & Préparation
         </h1>
         <p className="text-muted-foreground mt-1">
-            Préparez les commandes client en collectant les articles en stock
+            Préparez les commandes client en collectant les produits en stock
         </p>
       </div>
 
@@ -165,7 +275,7 @@ export default function Picking() {
           </Card>
         </div>
 
-        {/* Middle Panel - Current Task */}
+        {/* Middle Panel - Picking List */}
         <div className="xl:col-span-1 space-y-4">
             {selectedCommande ? (
                 isOrderComplete ? (
@@ -174,78 +284,103 @@ export default function Picking() {
                             <CheckCircle className="w-10 h-10 text-green-600" />
                         </div>
                         <h2 className="text-xl font-bold text-green-700 dark:text-green-400 mb-2">Commande Prête !</h2>
-                        <p className="text-muted-foreground mb-6">Tous les articles ont été collectés pour {selectedCommande.client.name}.</p>
+                        <p className="text-muted-foreground mb-6">Tous les produits ont été collectés pour {selectedCommande.client.name}.</p>
                         <Button variant="outline" onClick={() => setSelectedCommandeId('')}>
                             Retour à la liste
                         </Button>
                     </Card>
                 ) : (
-                <Card className="border-primary/50 shadow-lg h-full flex flex-col pt-0 gap-0">
-                    <CardHeader className="bg-primary/5 py-3 rounded-t-xl">
-                        <CardTitle className="flex items-center gap-2 text-base">
+                <Card className="flex flex-col h-full pt-0 gap-1">
+                    <CardHeader className="py-3 bg-primary/5 rounded-t-xl">
+                         <CardTitle className="flex items-center gap-2 text-base">
                             <PackageSearch className="w-5 h-5 text-primary" />
-                            Article à Picker ({selectedCommande.pickedArticles + 1}/{selectedCommande.totalArticles})
+                            Liste de Picking ({selectedCommande.pickedArticles}/{selectedCommande.totalArticles})
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-6 pt-6 flex-1">
-                        {articleToPick ? (
-                            <>
-                                <div className="text-center space-y-2">
-                                    <div className="w-16 h-16 bg-muted rounded-2xl mx-auto flex items-center justify-center mb-2 shadow-inner">
-                                        <Box className="w-8 h-8 text-indigo-500" />
-                                    </div>
-                                    <h3 className="font-bold text-lg leading-tight px-2">{articleToPick.article.designation}</h3>
-                                    <div className="flex gap-2 justify-center flex-wrap">
-                                        <Badge variant="secondary">{articleToPick.article.category}</Badge>
-                                        <Badge variant="outline" className="font-mono">{articleToPick.article.tagId}</Badge>
-                                    </div>
-                                </div>
+                    <div className="flex-1 overflow-y-auto p-2 space-y-2">
+                        {/* Access all picking items from the mock data helpers which we'll assume extracts flat list */}
+                        {/* We need to extract all items from the order here. For now, we reuse the structure but flatten it in render */}
+                        {(() => {
+                           // Quick helper to flatten order items for display
+                           // In a real app this would be a clean selector
+                           let allItems = [];
+                           selectedCommande.articles.forEach(article => {
+                               if(article.isMultiPiece && article.pieces) {
+                                   article.pieces.forEach(p => {
+                                       allItems.push({...p, designation: p.name, parentName: article.designation, isPiece: true, articleId: article.id });
+                                   });
+                               } else if (article.tagIds && article.tagIds.length > 0) {
+                                   // Split multi-quantity articles into individual picking tasks
+                                   article.tagIds.forEach((tagId, i) => {
+                                        allItems.push({
+                                            ...article,
+                                            designation: `${article.designation} (${i+1}/${article.quantity})`,
+                                            tagId: tagId,
+                                            isPiece: false
+                                        });
+                                   });
+                               } else {
+                                   // Fallback for single legacy items
+                                    allItems.push({...article, designation: article.designation, isPiece: false });
+                               }
+                           });
 
-                                <div className="space-y-4 animate-in zoom-in-95 duration-300">
-                                    <div className="relative">
-                                        <div className="absolute inset-0 bg-indigo-500/10 blur-xl rounded-full" />
-                                        <div className="relative bg-background border-2 border-indigo-500/30 rounded-xl p-4 text-center">
-                                            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Localisation Cible</p>
-                                            <div className="grid grid-cols-3 gap-2 text-center">
-                                                <div className="bg-muted/50 p-2 rounded">
-                                                    <div className="text-[10px] text-muted-foreground">Zone</div>
-                                                    <div className="font-bold text-indigo-700 dark:text-indigo-400">{articleToPick.zone}</div>
-                                                </div>
-                                                <div className="bg-muted/50 p-2 rounded">
-                                                    <div className="text-[10px] text-muted-foreground">Allée</div>
-                                                    <div className="font-bold text-indigo-700 dark:text-indigo-400">{articleToPick.slot?.row || '-'}</div>
-                                                </div>
-                                                <div className="bg-muted/50 p-2 rounded">
-                                                    <div className="text-[10px] text-muted-foreground">Niveau</div>
-                                                    <div className="font-bold text-indigo-700 dark:text-indigo-400">{articleToPick.slot?.col || '-'}</div>
-                                                </div>
-                                            </div>
-                                            <div className="mt-3 pt-2 border-t flex justify-center items-center gap-2">
-                                                <MapPin className="w-4 h-4 text-indigo-600" />
-                                                <span className="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
-                                                    {articleToPick.slot?.id}
-                                                </span>
-                                            </div>
+                           return allItems.map((item, idx) => {
+                               const slotId = itemSlotMap[item.tagId] || "???";
+                               const zoneId = itemZoneMap[item.tagId] || "STK-1";
+                               const isPicked = pickedItems.includes(item.tagId);
+                               const isActive = activeItemId === item.tagId;
+                               
+                               return (
+                                <div 
+                                    key={idx} 
+                                    onClick={() => {
+                                        setActiveItemId(item.tagId);
+                                        if (zoneId !== currentZone) {
+                                            setCurrentZone(zoneId);
+                                            toast.info(`Navigation vers ${zoneId}`);
+                                        }
+                                    }}
+                                    className={`p-3 rounded-lg border flex flex-col gap-2 transition-all cursor-pointer ${
+                                        isPicked 
+                                            ? "bg-green-50 border-green-200 opacity-60" 
+                                            : isActive 
+                                                ? "bg-primary/5 border-primary ring-1 ring-primary/20 shadow-md scale-[1.02]" 
+                                                : "bg-card hover:border-primary/50"
+                                    }`}
+                                >
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <p className="font-medium text-sm leading-tight">{item.designation}</p>
+                                            <p className="text-xs text-muted-foreground">{item.tagId}</p>
                                         </div>
+                                        {item.ml && <Badge variant="secondary" className="h-5">{item.ml} ml</Badge>}
                                     </div>
-
-                                    <Button 
-                                        size="lg" 
-                                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-12 text-base shadow-lg shadow-indigo-600/20"
-                                        onClick={handleConfirmPicking}
-                                    >
-                                        <CheckCircle className="w-5 h-5 mr-2" />
-                                        Confirmer le Picking
-                                    </Button>
-                                    <p className="text-xs text-center text-muted-foreground">
-                                        Scannez le tag ou confirmez manuellement
-                                    </p>
+                                    
+                                    <div className="flex items-center justify-between mt-1">
+                                         <div className={`flex items-center gap-1 text-xs font-mono px-1.5 py-0.5 rounded ${isActive ? "bg-primary/10 text-primary font-bold" : "bg-muted"}`}>
+                                            <MapPin className="w-3 h-3" />
+                                            <span>{zoneId} - {slotId}</span> 
+                                         </div>
+                                         
+                                         <Button 
+                                            size="sm" 
+                                            variant={isPicked ? "outline" : (isActive ? "default" : "secondary")}
+                                            className={`h-7 text-xs ${isPicked ? "text-green-600 border-green-200" : ""}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // Don't trigger select
+                                                handleConfirmPicking(item);
+                                            }}
+                                            disabled={isPicked}
+                                         >
+                                            {isPicked ? <><CheckCircle className="w-3 h-3 mr-1"/> Fait</> : "Confirmer"}
+                                         </Button>
+                                    </div>
                                 </div>
-                            </>
-                        ) : (
-                           <div className="text-center py-10">Chargement...</div> 
-                        )}
-                    </CardContent>
+                               );
+                           });
+                        })()}
+                    </div>
                 </Card>
                 )
             ) : (
@@ -259,7 +394,7 @@ export default function Picking() {
             )}
         </div>
 
-        {/* Right Panel - Grid */}
+        {/* Right Panel - Full Grid */}
         <div className="xl:col-span-2 space-y-4">
              <Card className="pt-2 h-full flex flex-col gap-2">
                 <CardHeader className="pb-2">
@@ -287,8 +422,11 @@ export default function Picking() {
                         <StorageGrid
                             zone={currentZone}
                             emplacements={emplacementsByZone[currentZone]}
-                            highlightSlot={articleToPick && articleToPick.zone === currentZone ? articleToPick.slot?.id : null}
-                            pickedSlots={[]} 
+                            pickedSlots={pickedItems.map(tag => itemSlotMap[tag]).filter(slot => slot)} 
+                            targetSlots={Object.keys(itemSlotMap)
+                                .filter(tag => itemZoneMap[tag] === currentZone)
+                                .map(tag => itemSlotMap[tag])}
+                            activeTargetSlot={itemZoneMap[activeItemId] === currentZone ? itemSlotMap[activeItemId] : null}
                             mode="picking"
                         />
                     ) : (
@@ -298,26 +436,6 @@ export default function Picking() {
                     )}
                 </CardContent>
             </Card>
-
-            {/* Picking History (Bottom or within same column) */}
-            {/* {pickingHistory.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {pickingHistory.map((entry, index) => (
-                        <div key={index} className="flex items-center justify-between p-2 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-500/30">
-                            <div className="flex items-center space-x-3">
-                                <CheckCircle className="w-4 h-4 text-green-500" />
-                                <div>
-                                    <p className="text-xs font-semibold truncate max-w-[150px]">{entry.designation}</p>
-                                    <p className="text-[10px] text-muted-foreground font-mono">{entry.tagId}</p>
-                                </div>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-xs font-mono font-semibold text-primary">{entry.zone}-{entry.slot}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )} */}
         </div>
 
       </div>

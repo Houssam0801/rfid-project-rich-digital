@@ -39,10 +39,10 @@ export default function Reports() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard icon={Clock} label="Temps moyen Production → Expédition" value="48h 30min" trend="-2h" trendPositive={true} color="blue" />
-        <MetricCard icon={AlertTriangle} label="Taux d'erreurs picking" value="2.3%" trend="-0.5%" trendPositive={true} color="orange" />
-        <MetricCard icon={TrendingUp} label="Taux de livraison à temps" value="94%" trend="+2%" trendPositive={true} color="green" />
-        <MetricCard icon={ClockAlert} label="Articles slow-moving" value="45" trend="-3" trendPositive={true} color="red" />
+        <SingleValueKPICard icon={Clock} title="Temps moyen Production → Expédition" value="48h 30min" color="blue" />
+        <SingleValueKPICard icon={AlertTriangle} title="Taux d'erreurs picking" value="2.3%" color="orange" />
+        <SingleValueKPICard icon={TrendingUp} title="Taux de livraison à temps" value="94%" color="green" />
+        <SingleValueKPICard icon={ClockAlert} title="Articles slow-moving" value="45" color="red" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -133,30 +133,26 @@ export default function Reports() {
   );
 }
 
-function MetricCard({ icon: Icon, label, value, trend, trendPositive, color }) {
+function SingleValueKPICard({ title, icon: Icon, value, color }) {
   const colorClasses = {
     blue: 'text-primary',
-    green: 'text-green-500',
-    red: 'text-red-500',
     purple: 'text-purple-500',
     orange: 'text-orange-500',
+    green: 'text-green-500',
+    teal: 'text-teal-500',
+    red: 'text-red-500',
   };
 
   return (
-    <Card className="shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 gap-2 p-4">
-      <CardHeader className="flex flex-row items-center justify-center space-x-1 space-y-0">
-        <Icon className={`w-5 h-5 ${colorClasses[color]}`} />
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          {label}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-3xl font-bold text-card-foreground text-center">
+    <Card className="p-0 shadow-sm hover:shadow-md transition-all duration-300 border-white h-full">
+      <CardContent className="p-2 flex flex-col items-center justify-center text-center h-full">
+        <div className="flex items-center space-x-2 mb-2">
+          <Icon className={`w-4 h-4 ${colorClasses[color]}`} />
+          <p className="text-xs font-medium text-muted-foreground">{title}</p>
+        </div>
+        <div className={`text-xl font-bold `}>
           {typeof value === 'number' ? value.toLocaleString("fr-FR") : value}
-        </p>
-        <p className={`text-xs text-center ${trendPositive ? 'text-green-500' : 'text-red-500'}`}>
-          {trend} par rapport à hier
-        </p>
+        </div>
       </CardContent>
     </Card>
   );

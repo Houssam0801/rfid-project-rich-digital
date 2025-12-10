@@ -13,16 +13,16 @@ export default function Login() {
     <div className="relative h-[calc(100vh-4.06rem)] w-full overflow-hidden">
       {/* Background Image with Blur */}
       <div
-        className="absolute inset-0 bg-[url('/images/parking2.png')] bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 bg-[url('/images/salon_marrocain.png')] bg-cover bg-center bg-no-repeat"
       >
         {/* Dark overlay with blur effect */}
-        <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"></div>
+        <div className="absolute inset-0 bg-black/20 "></div>
       </div>
 
       {/* Login Card Container */}
       <div className="relative z-10 h-full w-full flex items-center justify-center px-4 sm:px-6 lg:px-8 shadow-3xl">
         <div className="w-full max-w-lg">
-        <div className="bg-white dark:bg-card rounded-lg shadow-xl p-8 space-y-6">
+        <div className="bg-white dark:bg-card rounded-lg shadow-xl p-6 space-y-6">
           {/* Logo & Title */}
           <div className="text-center space-y-3">
             <div className="flex justify-center">
@@ -41,9 +41,9 @@ export default function Login() {
           </div>
 
           {/* Login Form */}
-          <div className="space-y-5">
+          <div className="space-y-2">
             {/* Email Field */}
-            <div className="space-y-2">
+            <div className="space-y-1">
               <Label
                 htmlFor="email"
                 className="text-base font-medium text-gray-700 dark:text-foreground"
@@ -54,12 +54,12 @@ export default function Login() {
                 id="email"
                 type="email"
                 placeholder="operateur@richbond.ma"
-                className="h-11 bg-white dark:bg-input border-gray-300 dark:border-border text-gray-900 dark:text-foreground placeholder:text-gray-400 dark:placeholder:text-muted-foreground"
+                className="h-9 bg-white dark:bg-input border-gray-300 dark:border-border text-gray-900 dark:text-foreground placeholder:text-gray-400 dark:placeholder:text-muted-foreground"
               />
             </div>
 
             {/* Password Field */}
-            <div className="space-y-2">
+            <div className="space-y-1">
               <Label
                 htmlFor="password"
                 className="text-base font-medium text-gray-700 dark:text-foreground"
@@ -70,7 +70,7 @@ export default function Login() {
                 id="password"
                 type="password"
                 placeholder="••••••••"
-                className="h-11 bg-white dark:bg-input border-gray-300 dark:border-border text-gray-900 dark:text-foreground placeholder:text-gray-400 dark:placeholder:text-muted-foreground"
+                className="h-9 bg-white dark:bg-input border-gray-300 dark:border-border text-gray-900 dark:text-foreground placeholder:text-gray-400 dark:placeholder:text-muted-foreground"
               />
             </div>
 
@@ -100,7 +100,7 @@ export default function Login() {
             {/* Login Button */}
             <Button
               onClick={handleSubmit}
-              className="w-full h-11 bg-[#234367] hover:bg-[#234367]/90 text-white font-medium rounded-md mt-5"
+              className="w-full h-10 bg-[#234367] hover:bg-[#234367]/90 text-white font-medium rounded-md mt-5"
             >
               Se connecter
             </Button>
