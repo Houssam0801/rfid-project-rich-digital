@@ -541,23 +541,42 @@ function CommandeDetailModal({ commande, isOpen, onClose }) {
                       </div>
 
                       {article.pieces.map((piece, pIndex) => (
-                        <div key={pIndex} className="flex items-center justify-between text-xs">
-                          <div className="flex items-center gap-2">
-                            <span className="text-muted-foreground">└─ {piece.name}</span>
-                            {/* Piece ML */}
-                            {piece.ml && <span className="text-[10px] font-mono bg-muted px-1 rounded ml-1">{piece.ml}m</span>}
-                            
-                            {piece.tagId && (
+                        <div key={pIndex} className="flex items-center gap-3 text-xs">
+                          {/* Name - fixed width */}
+                          <div className="min-w-[150px] text-muted-foreground">
+                            └─ {piece.name}
+                          </div>
+
+                          {/* Meters - fixed width */}
+                          <div className="min-w-[60px]">
+                            {piece.ml ? (
+                              <span className="text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded">
+                                {piece.ml}m
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-muted-foreground">-</span>
+                            )}
+                          </div>
+
+                          {/* Tag - fixed width */}
+                          <div className="min-w-[140px]">
+                            {piece.tagId ? (
                               <span className="font-mono text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded">
                                 {piece.tagId}
                               </span>
+                            ) : (
+                              <span className="text-[10px] text-muted-foreground italic">-</span>
                             )}
                           </div>
-                          {piece.picked ? (
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                          ) : (
-                            <AlertCircle className="w-3 h-3 text-red-500" />
-                          )}
+
+                          {/* Status - at the end */}
+                          <div className="ml-auto">
+                            {piece.picked ? (
+                              <CheckCircle className="w-3 h-3 text-green-500" />
+                            ) : (
+                              <AlertCircle className="w-3 h-3 text-red-500" />
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>

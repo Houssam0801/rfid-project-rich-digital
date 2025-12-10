@@ -112,8 +112,12 @@ export default function StorageGrid({
     if (mode === 'picking' && orderedTargetSlots.length > 0) {
         const index = orderedTargetSlots.indexOf(slotId);
         if (index !== -1) {
-            // Show number for sequence order
-            return <span className="text-xs font-bold font-mono">{index + 1}</span>;
+            // Show number for sequence order with rounded circle background
+            return (
+                <span className="text-[10px] font-bold text-red-600 bg-white/90 border border-red-200 rounded-full w-4 h-4 flex items-center justify-center shadow-sm z-30">
+                    {index + 1}
+                </span>
+            );
         }
     }
     
