@@ -250,7 +250,7 @@ export default function StorageGrid({
             <>
               <LegendItem color="bg-emerald-100 border-emerald-500 text-emerald-700" label="Suggestion" icon="⭐" ring />
               <LegendItem color="bg-amber-100 border-amber-400 text-amber-700" label="Alternative" icon="⚡" dashed />
-              <LegendItem color="bg-slate-50 border-slate-200 text-slate-400" label="Disponible" icon="" />
+              {/* <LegendItem color="bg-slate-50 border-slate-200 text-slate-400" label="Disponible" icon="" /> */}
               {/* Removed 'Occupied' from legend as requested for Simplified View */}
             </>
           )}

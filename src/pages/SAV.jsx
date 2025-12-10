@@ -1,5 +1,14 @@
-import { useState } from 'react';
-import { ShieldCheck, Search, CheckCircle, XCircle, Package, MapPin, Clock, TrendingUp } from 'lucide-react';
+import { useState } from "react";
+import {
+  ShieldCheck,
+  Search,
+  CheckCircle,
+  XCircle,
+  Package,
+  MapPin,
+  Clock,
+  TrendingUp,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,238 +24,241 @@ import {
 
 // HARDCODED TEST DATA FOR SAV
 const mockSAVData = {
-  'TAG-2024-GARANTIE-OK': {
+  "TAG-2024-GARANTIE-OK": {
     article: {
-      id: 'sav-1',
-      tagId: 'TAG-2024-GARANTIE-OK',
-      category: 'Matelas',
-      designation: 'Matelas Royal 160x200',
-      size: '160x200',
-      lot: 'LOT-2020-001',
-      brand: 'Richbond',
-      currentZone: 'Livré',
-      status: 'Expédié',
-      createdAt: '2020-01-15T08:00:00Z'
+      id: "sav-1",
+      tagId: "TAG-2024-GARANTIE-OK",
+      category: "Matelas",
+      designation: "Matelas Royal 160x200",
+      size: "160x200",
+      lot: "LOT-2020-001",
+      brand: "Richbond",
+      currentZone: "Livré",
+      status: "Expédié",
+      createdAt: "2020-01-15T08:00:00Z",
     },
     history: {
-      totalSejour: '45j 12h',
+      totalSejour: "45j 12h",
       totalMouvements: 5,
-      deliveryDate: '2020-03-01T14:30:00Z', // Delivered 5 years ago - WARRANTY ACTIVE
+      deliveryDate: "2020-03-01T14:30:00Z",
       mouvements: [
         {
-          zone: 'Zone de production',
-          statut: 'En production',
-          lecteur: 'READER-PROD-01',
-          entree: '2020-01-15T08:00:00Z',
-          sortie: '2020-01-17T16:00:00Z',
-          duree: '2j 8h'
+          zone: "Zone de production",
+          statut: "En production",
+          lecteur: "READER-PROD-01",
+          entree: "2020-01-15T08:00:00Z",
+          sortie: "2020-01-16T16:00:00Z",
+          duree: "1j 8h",
         },
         {
-          zone: 'Zone de Stockage 1',
-          statut: 'En stock',
-          lecteur: 'READER-STK1-02',
-          entree: '2020-01-17T16:00:00Z',
-          sortie: '2020-02-10T09:00:00Z',
-          duree: '23j 17h'
+          zone: "Zone de Stockage 1",
+          statut: "En stock",
+          lecteur: "READER-STK1-02",
+          entree: "2020-01-16T16:00:00Z",
+          sortie: "2020-02-05T09:00:00Z",
+          duree: "19j 17h",
         },
         {
-          zone: 'Zone de Préparation',
-          statut: 'En préparation',
-          lecteur: 'READER-PREP-01',
-          entree: '2020-02-10T09:00:00Z',
-          sortie: '2020-02-28T11:00:00Z',
-          duree: '18j 2h'
+          zone: "Zone de Préparation",
+          statut: "En préparation",
+          lecteur: "READER-PREP-01",
+          entree: "2020-02-05T09:00:00Z",
+          sortie: "2020-02-05T12:30:00Z",
+          duree: "3h 30min",
         },
         {
           zone: "Zone d'Expédition",
-          statut: 'Prêt à expédier',
-          lecteur: 'READER-EXP-01',
-          entree: '2020-02-28T11:00:00Z',
-          sortie: '2020-03-01T12:00:00Z',
-          duree: '1j 1h'
+          statut: "Prêt à expédier",
+          lecteur: "READER-EXP-01",
+          entree: "2020-02-05T12:30:00Z",
+          sortie: "2020-02-05T14:00:00Z",
+          duree: "1h 30min",
         },
         {
-          zone: 'En transit',
-          statut: 'En livraison',
-          lecteur: 'READER-TRUCK-05',
-          entree: '2020-03-01T12:00:00Z',
-          sortie: '2020-03-01T14:30:00Z',
-          duree: '2h 30min'
-        }
-      ]
-    }
+          zone: "En transit",
+          statut: "En livraison",
+          lecteur: "READER-TRUCK-05",
+          entree: "2020-02-05T14:00:00Z",
+          sortie: "2020-02-05T16:30:00Z",
+          duree: "2h 30min",
+        },
+      ],
+    },
   },
-  'TAG-2024-GARANTIE-EXPIREE': {
+
+  "TAG-2024-GARANTIE-EXPIREE": {
     article: {
-      id: 'sav-2',
-      tagId: 'TAG-2024-GARANTIE-EXPIREE',
-      category: 'Banquette',
-      designation: 'Banquette Salon Marocain Classique',
-      size: 'Sur-mesure',
-      lot: 'LOT-2010-045',
-      brand: 'Richbond',
-      currentZone: 'Livré',
-      status: 'Expédié',
-      createdAt: '2010-05-10T10:00:00Z'
+      id: "sav-2",
+      tagId: "TAG-2024-GARANTIE-EXPIREE",
+      category: "Banquette",
+      designation: "Banquette Salon Marocain Classique",
+      size: "Sur-mesure",
+      lot: "LOT-2010-045",
+      brand: "Richbond",
+      currentZone: "Livré",
+      status: "Expédié",
+      createdAt: "2010-05-10T10:00:00Z",
     },
     history: {
-      totalSejour: '52j 5h',
+      totalSejour: "39j 22h",
       totalMouvements: 6,
-      deliveryDate: '2010-07-01T15:00:00Z', // Delivered 14+ years ago - WARRANTY EXPIRED
+      deliveryDate: "2010-06-20T15:00:00Z",
       mouvements: [
         {
-          zone: 'Zone de production',
-          statut: 'En production',
-          lecteur: 'READER-PROD-03',
-          entree: '2010-05-10T10:00:00Z',
-          sortie: '2010-05-15T14:00:00Z',
-          duree: '5j 4h'
+          zone: "Zone de production",
+          statut: "En production",
+          lecteur: "READER-PROD-03",
+          entree: "2010-05-10T10:00:00Z",
+          sortie: "2010-05-12T14:00:00Z",
+          duree: "2j 4h",
         },
         {
-          zone: 'Zone de Stockage 2',
-          statut: 'En stock',
-          lecteur: 'READER-STK2-01',
-          entree: '2010-05-15T14:00:00Z',
-          sortie: '2010-06-20T08:00:00Z',
-          duree: '35j 18h'
+          zone: "Zone de Stockage 2",
+          statut: "En stock",
+          lecteur: "READER-STK2-01",
+          entree: "2010-05-12T14:00:00Z",
+          sortie: "2010-06-10T08:00:00Z",
+          duree: "28j 18h",
         },
         {
-          zone: 'Zone de Préparation',
-          statut: 'En préparation',
-          lecteur: 'READER-PREP-02',
-          entree: '2010-06-20T08:00:00Z',
-          sortie: '2010-06-29T16:00:00Z',
-          duree: '9j 8h'
+          zone: "Zone de Préparation",
+          statut: "En préparation",
+          lecteur: "READER-PREP-02",
+          entree: "2010-06-10T08:00:00Z",
+          sortie: "2010-06-10T11:00:00Z",
+          duree: "3h",
         },
         {
           zone: "Zone d'Expédition",
-          statut: 'Prêt à expédier',
-          lecteur: 'READER-EXP-02',
-          entree: '2010-06-29T16:00:00Z',
-          sortie: '2010-07-01T10:00:00Z',
-          duree: '1j 18h'
+          statut: "Prêt à expédier",
+          lecteur: "READER-EXP-02",
+          entree: "2010-06-10T11:00:00Z",
+          sortie: "2010-06-10T12:30:00Z",
+          duree: "1h 30min",
         },
         {
-          zone: 'En transit',
-          statut: 'En livraison',
-          lecteur: 'READER-TRUCK-12',
-          entree: '2010-07-01T10:00:00Z',
-          sortie: '2010-07-01T15:00:00Z',
-          duree: '5h'
-        }
-      ]
-    }
+          zone: "En transit",
+          statut: "En livraison",
+          lecteur: "READER-TRUCK-12",
+          entree: "2010-06-10T12:30:00Z",
+          sortie: "2010-06-10T15:00:00Z",
+          duree: "2h 30min",
+        },
+      ],
+    },
   },
-  'TAG-2024-EN-LIVRAISON': {
+
+  "TAG-2024-EN-LIVRAISON": {
     article: {
-      id: 'sav-3',
-      tagId: 'TAG-2024-EN-LIVRAISON',
-      category: 'Sommier',
-      designation: 'Sommier Luxe 180x200',
-      size: '180x200',
-      lot: 'LOT-2024-892',
-      brand: 'Mesidor',
-      currentZone: 'En transit',
-      status: 'En livraison',
-      createdAt: '2024-11-20T07:00:00Z'
+      id: "sav-3",
+      tagId: "TAG-2024-EN-LIVRAISON",
+      category: "Sommier",
+      designation: "Sommier Luxe 180x200",
+      size: "180x200",
+      lot: "LOT-2024-892",
+      brand: "Mesidor",
+      currentZone: "En transit",
+      status: "En livraison",
+      createdAt: "2024-11-20T07:00:00Z",
     },
     history: {
-      totalSejour: '18j 15h 30min',
+      totalSejour: "18j 6h",
       totalMouvements: 5,
-      deliveryDate: null, // Currently being delivered - IN TRANSIT (not delivered yet)
+      deliveryDate: null,
       mouvements: [
         {
-          zone: 'Zone de production',
-          statut: 'En production',
-          lecteur: 'READER-PROD-02',
-          entree: '2024-11-20T07:00:00Z',
-          sortie: '2024-11-22T15:00:00Z',
-          duree: '2j 8h'
+          zone: "Zone de production",
+          statut: "En production",
+          lecteur: "READER-PROD-02",
+          entree: "2024-11-20T07:00:00Z",
+          sortie: "2024-11-21T15:00:00Z",
+          duree: "1j 8h",
         },
         {
-          zone: 'Zone de Stockage 3',
-          statut: 'En stock',
-          lecteur: 'READER-STK3-01',
-          entree: '2024-11-22T15:00:00Z',
-          sortie: '2024-12-05T10:00:00Z',
-          duree: '12j 19h'
+          zone: "Zone de Stockage 3",
+          statut: "En stock",
+          lecteur: "READER-STK3-01",
+          entree: "2024-11-21T15:00:00Z",
+          sortie: "2024-12-02T10:00:00Z",
+          duree: "10j 19h",
         },
         {
-          zone: 'Zone de Préparation',
-          statut: 'En préparation',
-          lecteur: 'READER-PREP-03',
-          entree: '2024-12-05T10:00:00Z',
-          sortie: '2024-12-07T14:00:00Z',
-          duree: '2j 4h'
+          zone: "Zone de Préparation",
+          statut: "En préparation",
+          lecteur: "READER-PREP-03",
+          entree: "2024-12-02T10:00:00Z",
+          sortie: "2024-12-02T13:00:00Z",
+          duree: "3h",
         },
         {
           zone: "Zone d'Expédition",
-          statut: 'Prêt à expédier',
-          lecteur: 'READER-EXP-01',
-          entree: '2024-12-07T14:00:00Z',
-          sortie: '2024-12-08T08:00:00Z',
-          duree: '18h'
+          statut: "Prêt à expédier",
+          lecteur: "READER-EXP-01",
+          entree: "2024-12-02T13:00:00Z",
+          sortie: "2024-12-02T15:00:00Z",
+          duree: "2h",
         },
         {
-          zone: 'En transit',
-          statut: 'En livraison',
-          lecteur: 'READER-TRUCK-08',
-          entree: '2024-12-08T08:00:00Z',
-          sortie: null, // Currently in delivery
-          duree: '14h 30min'
-        }
-      ]
-    }
+          zone: "En transit",
+          statut: "En livraison",
+          lecteur: "READER-TRUCK-08",
+          entree: "2024-12-02T15:00:00Z",
+          sortie: null,
+          duree: "14h",
+        },
+      ],
+    },
   },
-  'TAG-2024-EN-PREPARATION': {
+
+  "TAG-2024-EN-PREPARATION": {
     article: {
-      id: 'sav-4',
-      tagId: 'TAG-2024-EN-PREPARATION',
-      category: 'Matelas',
-      designation: 'Matelas Confort Plus 140x190',
-      size: '140x190',
-      lot: 'LOT-2024-1205',
-      brand: 'Richbond',
-      currentZone: 'Zone de Préparation',
-      status: 'En préparation',
-      createdAt: '2024-12-01T09:00:00Z'
+      id: "sav-4",
+      tagId: "TAG-2024-EN-PREPARATION",
+      category: "Matelas",
+      designation: "Matelas Confort Plus 140x190",
+      size: "140x190",
+      lot: "LOT-2024-1205",
+      brand: "Richbond",
+      currentZone: "Zone de Préparation",
+      status: "En préparation",
+      createdAt: "2024-12-01T09:00:00Z",
     },
     history: {
-      totalSejour: '8j 6h',
+      totalSejour: "7j 12h",
       totalMouvements: 3,
-      deliveryDate: null, // Not delivered yet - IN FACTORY
+      deliveryDate: null,
       mouvements: [
         {
-          zone: 'Zone de production',
-          statut: 'En production',
-          lecteur: 'READER-PROD-01',
-          entree: '2024-12-01T09:00:00Z',
-          sortie: '2024-12-03T17:00:00Z',
-          duree: '2j 8h'
+          zone: "Zone de production",
+          statut: "En production",
+          lecteur: "READER-PROD-01",
+          entree: "2024-12-01T09:00:00Z",
+          sortie: "2024-12-02T17:00:00Z",
+          duree: "1j 8h",
         },
         {
-          zone: 'Zone de Stockage 1',
-          statut: 'En stock',
-          lecteur: 'READER-STK1-03',
-          entree: '2024-12-03T17:00:00Z',
-          sortie: '2024-12-08T11:00:00Z',
-          duree: '4j 18h'
+          zone: "Zone de Stockage 1",
+          statut: "En stock",
+          lecteur: "READER-STK1-03",
+          entree: "2024-12-02T17:00:00Z",
+          sortie: "2024-12-07T11:00:00Z",
+          duree: "4j 18h",
         },
         {
-          zone: 'Zone de Préparation',
-          statut: 'En préparation',
-          lecteur: 'READER-PREP-01',
-          entree: '2024-12-08T11:00:00Z',
-          sortie: null, // Currently in preparation
-          duree: '1j 4h'
-        }
-      ]
-    }
-  }
+          zone: "Zone de Préparation",
+          statut: "En préparation",
+          lecteur: "READER-PREP-01",
+          entree: "2024-12-07T11:00:00Z",
+          sortie: null,
+          duree: "2h",
+        },
+      ],
+    },
+  },
 };
 
 export default function SAV() {
-  const [tagInput, setTagInput] = useState('');
+  const [tagInput, setTagInput] = useState("");
   const [verifiedArticle, setVerifiedArticle] = useState(null);
   const [isAuthentic, setIsAuthentic] = useState(null);
 
@@ -263,25 +275,78 @@ export default function SAV() {
   };
 
   const handleClear = () => {
-    setTagInput('');
+    setTagInput("");
     setVerifiedArticle(null);
     setIsAuthentic(null);
   };
 
-  const history = verifiedArticle ? mockSAVData[verifiedArticle.tagId]?.history : null;
+  const history = verifiedArticle
+    ? mockSAVData[verifiedArticle.tagId]?.history
+    : null;
 
   // Calculate lifecycle stats
-  const lifecycleStats = verifiedArticle && history ? {
-    age: Math.floor((new Date() - new Date(verifiedArticle.createdAt)) / (1000 * 60 * 60 * 24)),
-    totalMovements: history.totalMouvements || 0,
-    currentPhase: verifiedArticle.status,
-  } : null;
+  // Calculate total duration from movements
+  const calculateTotalDuration = (mouvements) => {
+    if (!mouvements || mouvements.length === 0) return '-';
+
+    let totalMinutes = 0;
+    let totalHours = 0;
+    let totalDays = 0;
+
+    mouvements.forEach(mouvement => {
+      const duration = mouvement.duree;
+
+      // Parse days (format: "Xj")
+      const daysMatch = duration.match(/(\d+)j/);
+      if (daysMatch) totalDays += parseInt(daysMatch[1]);
+
+      // Parse hours (format: "Xh")
+      const hoursMatch = duration.match(/(\d+)h/);
+      if (hoursMatch) totalHours += parseInt(hoursMatch[1]);
+
+      // Parse minutes (format: "Xmin")
+      const minutesMatch = duration.match(/(\d+)min/);
+      if (minutesMatch) totalMinutes += parseInt(minutesMatch[1]);
+    });
+
+    // Normalize minutes to hours (60 min = 1h)
+    totalHours += Math.floor(totalMinutes / 60);
+    totalMinutes = totalMinutes % 60;
+
+    // Normalize hours to days (24h = 1 day)
+    totalDays += Math.floor(totalHours / 24);
+    totalHours = totalHours % 24;
+
+    // Format output
+    let result = '';
+    if (totalDays > 0) result += `${totalDays}j `;
+    if (totalHours > 0) result += `${totalHours}h `;
+    if (totalMinutes > 0) result += `${totalMinutes}min`;
+
+    return result.trim() || '0min';
+  };
+
+  const totalDuration = history?.mouvements ? calculateTotalDuration(history.mouvements) : '-';
+
+  const lifecycleStats =
+    verifiedArticle && history
+      ? {
+          age: Math.floor(
+            (new Date() - new Date(verifiedArticle.createdAt)) /
+              (1000 * 60 * 60 * 24)
+          ),
+          totalMovements: history.totalMouvements || 0,
+          currentPhase: verifiedArticle.status,
+        }
+      : null;
 
   return (
     <div className="space-y-4 animate-in fade-in duration-500">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-card-foreground">SAV & Authenticité</h1>
+        <h1 className="text-3xl font-bold text-card-foreground">
+          SAV & Authenticité
+        </h1>
         <p className="text-muted-foreground mt-1">
           Vérifiez l'origine et l'historique complet de chaque produit
         </p>
@@ -301,7 +366,7 @@ export default function SAV() {
               placeholder="TAG-2024-XXXXX"
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value.toUpperCase())}
-              onKeyPress={(e) => e.key === 'Enter' && handleVerify()}
+              onKeyPress={(e) => e.key === "Enter" && handleVerify()}
               className="font-mono text-lg"
             />
             <Button onClick={handleVerify} size="lg" className="px-8">
@@ -318,7 +383,13 @@ export default function SAV() {
 
       {/* Authenticity Banner */}
       {isAuthentic !== null && (
-        <Card className={isAuthentic ? 'border-green-500 bg-green-500/5' : 'border-red-500 bg-red-500/5'}>
+        <Card
+          className={
+            isAuthentic
+              ? "border-green-500 bg-green-500/5"
+              : "border-red-500 bg-red-500/5"
+          }
+        >
           <CardContent className="">
             <div className="flex flex-col items-center text-center space-y-3">
               {isAuthentic ? (
@@ -341,7 +412,7 @@ export default function SAV() {
                       TAG NON RECONNU
                     </h2>
                     <p className="text-muted-foreground mt-2">
-                      Ce tag n'existe pas dans notre système ou a été désactivé
+                      Ce tag n'existe pas dans notre système.
                     </p>
                   </div>
                 </>
@@ -375,15 +446,21 @@ export default function SAV() {
                 <div className="lg:col-span-2 grid grid-cols-2 gap-3">
                   <div>
                     <p className="text-sm text-muted-foreground">Tag ID</p>
-                    <p className="font-mono font-semibold text-lg text-primary">{verifiedArticle.tagId}</p>
+                    <p className="font-mono font-semibold text-lg text-primary">
+                      {verifiedArticle.tagId}
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Catégorie</p>
-                    <Badge variant="outline" className="mt-1">{verifiedArticle.category}</Badge>
+                    <Badge variant="outline" className="mt-1">
+                      {verifiedArticle.category}
+                    </Badge>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Désignation</p>
-                    <p className="font-semibold">{verifiedArticle.designation}</p>
+                    <p className="font-semibold">
+                      {verifiedArticle.designation}
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Taille</p>
@@ -394,16 +471,32 @@ export default function SAV() {
                     <p className="font-mono">{verifiedArticle.lot}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Date fabrication</p>
-                    <p className="text-sm">{new Date(verifiedArticle.createdAt).toLocaleDateString('fr-FR')}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Date fabrication
+                    </p>
+                    <p className="text-sm">
+                      {new Date(verifiedArticle.createdAt).toLocaleDateString(
+                        "fr-FR"
+                      )}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Date de pairage RFID</p>
-                    <p className="text-sm">{new Date(verifiedArticle.createdAt).toLocaleString('fr-FR')}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Date de pairage RFID
+                    </p>
+                    <p className="text-sm">
+                      {new Date(verifiedArticle.createdAt).toLocaleString(
+                        "fr-FR"
+                      )}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Durée de séjour total</p>
-                    <p className="text-sm font-semibold text-primary">{history?.totalSejour || '-'}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Durée de séjour total
+                    </p>
+                    <p className="text-sm font-semibold text-primary">
+                      {totalDuration}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -419,27 +512,48 @@ export default function SAV() {
               </CardTitle>
             </CardHeader>
             <CardContent className="">
-              {verifiedArticle.status === 'Expédié' && history?.deliveryDate ? (
+              {verifiedArticle.status === "Expédié" && history?.deliveryDate ? (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
-                    <p className="text-sm text-muted-foreground">Date de livraison</p>
-                    <p className="font-semibold text-lg">{new Date(history.deliveryDate).toLocaleDateString('fr-FR')}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Fin de garantie</p>
+                    <p className="text-sm text-muted-foreground">
+                      Date de livraison
+                    </p>
                     <p className="font-semibold text-lg">
-                      {new Date(new Date(history.deliveryDate).setFullYear(new Date(history.deliveryDate).getFullYear() + 10)).toLocaleDateString('fr-FR')}
+                      {new Date(history.deliveryDate).toLocaleDateString(
+                        "fr-FR"
+                      )}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Statut de garantie</p>
+                    <p className="text-sm text-muted-foreground">
+                      Fin de garantie
+                    </p>
+                    <p className="font-semibold text-lg">
+                      {new Date(
+                        new Date(history.deliveryDate).setFullYear(
+                          new Date(history.deliveryDate).getFullYear() + 10
+                        )
+                      ).toLocaleDateString("fr-FR")}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Statut de garantie
+                    </p>
                     {(() => {
                       const warrantyEndDate = new Date(history.deliveryDate);
-                      warrantyEndDate.setFullYear(warrantyEndDate.getFullYear() + 10);
+                      warrantyEndDate.setFullYear(
+                        warrantyEndDate.getFullYear() + 10
+                      );
                       const isUnderWarranty = new Date() < warrantyEndDate;
                       return (
-                        <Badge variant={isUnderWarranty ? "success" : "destructive"} className="mt-1">
-                          {isUnderWarranty ? '✓ Sous garantie' : '✗ Garantie expirée'}
+                        <Badge
+                          variant={isUnderWarranty ? "success" : "destructive"}
+                          className="mt-1"
+                        >
+                          {isUnderWarranty
+                            ? "✓ Sous garantie"
+                            : "✗ Garantie expirée"}
                         </Badge>
                       );
                     })()}
@@ -481,26 +595,38 @@ export default function SAV() {
                 <TableBody>
                   {history?.mouvements.map((mouvement, index) => (
                     <TableRow key={index}>
-                      <TableCell className="font-semibold text-primary">{mouvement.zone}</TableCell>
+                      <TableCell className="font-semibold text-primary">
+                        {mouvement.zone}
+                      </TableCell>
                       <TableCell>
                         <Badge variant="secondary">{mouvement.statut}</Badge>
                       </TableCell>
-                      <TableCell className="font-mono text-xs">{mouvement.lecteur}</TableCell>
-                      <TableCell className="text-sm">
-                        {new Date(mouvement.entree).toLocaleString('fr-FR')}
+                      <TableCell className="font-mono text-xs">
+                        {mouvement.lecteur}
                       </TableCell>
                       <TableCell className="text-sm">
-                        {mouvement.sortie ? new Date(mouvement.sortie).toLocaleString('fr-FR') : 'En cours'}
+                        {new Date(mouvement.entree).toLocaleString("fr-FR")}
                       </TableCell>
-                      <TableCell className="text-right font-bold text-primary">{mouvement.duree}</TableCell>
+                      <TableCell className="text-sm">
+                        {mouvement.sortie
+                          ? new Date(mouvement.sortie).toLocaleString("fr-FR")
+                          : "En cours"}
+                      </TableCell>
+                      <TableCell className="text-right font-bold text-primary">
+                        {mouvement.duree}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
               <div className="mt-4 pt-4 border-t">
                 <div className="flex justify-between items-center">
-                  <p className="text-sm font-semibold text-muted-foreground">Durée totale de séjour:</p>
-                  <p className="text-lg font-bold text-primary">{history?.totalSejour || '-'}</p>
+                  <p className="text-sm font-semibold text-muted-foreground">
+                    Durée totale de séjour:
+                  </p>
+                  <p className="text-lg font-bold text-primary">
+                    {totalDuration}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -519,23 +645,37 @@ export default function SAV() {
               <div className="relative">
                 <div className="flex justify-between items-center mb-5">
                   {history?.mouvements && history.mouvements.length > 0 ? (
-                    history.mouvements.slice().reverse().map((mouvement, index) => (
-                      <div key={index} className="flex flex-col items-center text-center flex-1">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
-                          index === history.mouvements.length - 1
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-accent text-muted-foreground'
-                        }`}>
-                          <MapPin className="w-6 h-6" />
+                    history.mouvements
+                      .slice()
+                      .reverse()
+                      .map((mouvement, index) => (
+                        <div
+                          key={index}
+                          className="flex flex-col items-center text-center flex-1"
+                        >
+                          <div
+                            className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
+                              index === history.mouvements.length - 1
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-accent text-muted-foreground"
+                            }`}
+                          >
+                            <MapPin className="w-6 h-6" />
+                          </div>
+                          <p className="font-semibold text-xs">
+                            {mouvement.zone}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(mouvement.entree).toLocaleDateString(
+                              "fr-FR"
+                            )}
+                          </p>
                         </div>
-                        <p className="font-semibold text-xs">{mouvement.zone}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(mouvement.entree).toLocaleDateString('fr-FR')}
-                        </p>
-                      </div>
-                    ))
+                      ))
                   ) : (
-                    <p className="text-muted-foreground">Aucun mouvement disponible</p>
+                    <p className="text-muted-foreground">
+                      Aucun mouvement disponible
+                    </p>
                   )}
                 </div>
 
@@ -548,7 +688,7 @@ export default function SAV() {
           </Card>
 
           {/* Detailed Movement History */}
-          <Card  className="pt-3">
+          <Card className="pt-3">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Clock className="w-5 h-5" />
@@ -567,25 +707,35 @@ export default function SAV() {
                 </TableHeader>
                 <TableBody>
                   {history?.mouvements && history.mouvements.length > 0 ? (
-                    history.mouvements.slice().reverse().map((mouvement, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="text-sm">
-                          {new Date(mouvement.entree).toLocaleString('fr-FR')}
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {index === 0 ? `Création → ${mouvement.zone}` : `Mouvement → ${mouvement.zone}`}
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          Lecteur: {mouvement.lecteur}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">{mouvement.statut}</Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))
+                    history.mouvements
+                      .slice()
+                      .reverse()
+                      .map((mouvement, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="text-sm">
+                            {new Date(mouvement.entree).toLocaleString("fr-FR")}
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {index === 0
+                              ? `Création → ${mouvement.zone}`
+                              : `Mouvement → ${mouvement.zone}`}
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            Lecteur: {mouvement.lecteur}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="secondary">
+                              {mouvement.statut}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center text-muted-foreground">
+                      <TableCell
+                        colSpan={4}
+                        className="text-center text-muted-foreground"
+                      >
                         Aucun mouvement disponible
                       </TableCell>
                     </TableRow>

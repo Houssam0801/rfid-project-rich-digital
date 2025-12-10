@@ -26,9 +26,9 @@ export default function Login() {
           {/* Logo & Title */}
           <div className="text-center space-y-3">
             <div className="flex justify-center">
-              <img 
-                src="/images/logo_RFID2.png" 
-                alt="RFID SmartTrace Plus" 
+              <img
+                src="/images/logo_RFID2.png"
+                alt="RFID SmartTrace Plus"
                 className="h-15 w-50 rounded-xl "
               />
             </div>

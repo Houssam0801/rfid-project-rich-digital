@@ -237,7 +237,7 @@ export const mockCommandes = [
         designation: "Banquette Salon Moderne",
         category: "Banquette",
         quantity: 1,
-        picked: 0,        // CHANGÉ: 0/1 pické
+        picked: 1,        // CHANGÉ: 0/1 pické
         inProduction: 0,
         inStockage: 1,    // 100% en stockage
         isMultiPiece: true,
@@ -245,16 +245,16 @@ export const mockCommandes = [
         articleIds: [articlesEnStock[16]?.id].filter(Boolean),
         tagIds: [articlesEnStock[16]?.tagId].filter(Boolean),
         pieces: [
-          { name: "Banquette Salon Royal", dim: "3.00m", ml: 3.0, picked: false, inStockage: true, tagId: articlesEnStock[17]?.tagId },
-          { name: "Banquette Salon Royal", dim: "3.00m", ml: 3.0, picked: false, inStockage: true, tagId: articlesEnStock[18]?.tagId },
-          { name: "Banquette Salon Royal", dim: "2.00m", ml: 2.0, picked: false, inStockage: true, tagId: articlesEnStock[19]?.tagId },
-          { name: "Coin Salon Royal", dim: "1.20m", ml: 1.2, picked: false, inStockage: true, tagId: articlesEnStock[20]?.tagId },
-          { name: "Coin Salon Royal", dim: "0.20m", ml: 0.2, picked: false, inStockage: true, tagId: articlesEnStock[21]?.tagId },
+          { name: "Banquette Salon Royal", dim: "3.00m", ml: 3.0, picked: true, inStockage: true, tagId: articlesEnStock[17]?.tagId },
+          { name: "Banquette Salon Royal", dim: "3.00m", ml: 3.0, picked: true, inStockage: true, tagId: articlesEnStock[18]?.tagId },
+          { name: "Banquette Salon Royal", dim: "2.00m", ml: 2.0, picked: true, inStockage: true, tagId: articlesEnStock[19]?.tagId },
+          { name: "Coin Salon Royal", dim: "1.20m", ml: 1.2, picked: true, inStockage: true, tagId: articlesEnStock[20]?.tagId },
+          { name: "Coin Salon Royal", dim: "0.20m", ml: 0.2, picked: true, inStockage: true, tagId: articlesEnStock[21]?.tagId },
         ]
       }
     ],
     totalArticles: 5,  // CHANGÉ: 5 pièces total
-    pickedArticles: 0,  // CHANGÉ: 0 pickés
+    pickedArticles: 5,  // CHANGÉ: 0 pickés
     stockageProgress: 100, // 100% en stockage
     createdAt: generateTimestamp(2, 8),
     updatedAt: generateTimestamp(0, 1),

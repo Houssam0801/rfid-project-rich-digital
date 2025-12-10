@@ -246,17 +246,6 @@ export default function Articles() {
               <Filter className="w-5 h-5" />
               <span>Filtres</span>
             </CardTitle>
-            {activeFiltersCount > 0 && (
-              <Button
-                onClick={clearFilters}
-                variant="ghost"
-                size="sm"
-                className="flex items-center space-x-1"
-              >
-                <X className="w-4 h-4" />
-                <span>Effacer ({activeFiltersCount})</span>
-              </Button>
-            )}
           </div>
         </CardHeader>
         <CardContent>

@@ -180,7 +180,7 @@ export default function Stockage() {
                   Produit Sélectionné
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6 pt-6 flex-1">
+              <CardContent className="space-y-6 pt-2 flex-1">
                 <div className="text-center space-y-2">
                    <div className="w-16 h-16 bg-muted rounded-2xl mx-auto flex items-center justify-center mb-2">
                       <Package className="w-8 h-8 text-muted-foreground" />

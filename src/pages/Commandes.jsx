@@ -433,6 +433,15 @@ function CommandeDetailModal({ commande, isOpen, onClose }) {
                 {getStatusLabel(commande.status)}
               </Badge>
             </div>
+            {/* NEW: Total ML Display */}
+            {(commande.totalML || (commande.type === 'banquettes' && commande.articles.some(a => a.totalML))) && (
+                <div>
+                   <p className="text-sm text-muted-foreground">Métrage Total</p>
+                   <p className="font-semibold text-card-foreground">
+                       {commande.totalML || commande.articles.reduce((acc, a) => acc + (a.totalML || 0), 0).toFixed(2)} ml
+                   </p>
+                </div>
+            )}
           </div>
 
           {/* Progress */}
@@ -455,7 +464,11 @@ function CommandeDetailModal({ commande, isOpen, onClose }) {
                 <div key={index} className="border border-border rounded-lg p-3 space-y-2">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <p className="font-medium text-card-foreground">{article.designation}</p>
+                      <div className="flex items-center gap-2">
+                          <p className="font-medium text-card-foreground">{article.designation}</p>
+                          {/* Item Level ML */}
+                          {article.totalML && <Badge variant="secondary" className="h-5 text-[10px]">{article.totalML} ml</Badge>}
+                      </div>
                       <p className="text-sm text-muted-foreground">Catégorie: {article.category}</p>
                     </div>
                     <div className="text-right">
@@ -522,11 +535,18 @@ function CommandeDetailModal({ commande, isOpen, onClose }) {
                   {/* Multi-piece details */}
                   {article.isMultiPiece && article.pieces && (
                     <div className="mt-3 pl-4 border-l-2 border-primary space-y-1">
-                      <p className="text-xs font-semibold text-muted-foreground">Pièces:</p>
+                      <div className="flex justify-between items-center mb-1">
+                        <p className="text-xs font-semibold text-muted-foreground">Pièces:</p>
+                        {article.totalML && <span className="text-[10px] font-mono text-muted-foreground">Total: {article.totalML}ml</span>}
+                      </div>
+
                       {article.pieces.map((piece, pIndex) => (
                         <div key={pIndex} className="flex items-center justify-between text-xs">
                           <div className="flex items-center gap-2">
                             <span className="text-muted-foreground">└─ {piece.name}</span>
+                            {/* Piece ML */}
+                            {piece.ml && <span className="text-[10px] font-mono bg-muted px-1 rounded ml-1">{piece.ml}m</span>}
+                            
                             {piece.tagId && (
                               <span className="font-mono text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded">
                                 {piece.tagId}

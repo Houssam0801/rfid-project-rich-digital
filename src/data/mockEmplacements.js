@@ -40,7 +40,7 @@ const createEmptyGrid = (zoneId) => {
       }
       
       slots.push({
-        id: generateSlotId(row, col),
+        id: `${zoneId}-${generateSlotId(row, col)}`,
         row,
         col,
         zone: zoneId,
