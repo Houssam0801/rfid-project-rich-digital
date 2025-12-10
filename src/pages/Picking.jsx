@@ -297,7 +297,8 @@ export default function Picking() {
                             Liste de Picking ({selectedCommande.pickedArticles}/{selectedCommande.totalArticles})
                         </CardTitle>
                     </CardHeader>
-                    <div className="flex-1 overflow-y-auto p-2 space-y-2">
+                    {/* SCROLLABLE LIST CONTAINER (Max height 400px as requested) */}
+                    <div className="flex-1 overflow-y-auto p-2 space-y-2 max-h-[450px]">
                         {/* Access all picking items from the mock data helpers which we'll assume extracts flat list */}
                         {/* We need to extract all items from the order here. For now, we reuse the structure but flatten it in render */}
                         {(() => {
