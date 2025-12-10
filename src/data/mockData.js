@@ -136,8 +136,12 @@ const generateTimestamp = (daysAgo, hoursAgo = 0) => {
 };
 
 // ============ GÉNÉRER LES ARTICLES ============
-const generateArticles = (count, status) => {
+// ============ GÉNÉRER LES ARTICLES ============
+const generateArticles = (count, status, startIndex = 0) => {
   return Array.from({ length: count }, (_, i) => {
+    const globalIndex = startIndex + i; // Use global index for unique IDs
+    
+    // ... existing logic ...
     const category = categories[Math.floor(Math.random() * categories.length)];
     const categoryName = category.label;
     const produits = produitsParCategorie[categoryName];
@@ -170,7 +174,7 @@ const generateArticles = (count, status) => {
     else if (status === "Expédié") zone = "EXP";
 
     const daysAgo = Math.floor(Math.random() * 30);
-    const lotIndex = Math.floor(i / 50); // Group articles into lots of ~50
+    const lotIndex = Math.floor(globalIndex / 50); // Group articles into lots of ~50
 
     // Assign brand (70% Richbond, 30% Mesidor)
     const brand = Math.random() < 0.7 ? "Richbond" : "Mesidor";
@@ -183,12 +187,12 @@ const generateArticles = (count, status) => {
     }
 
     return {
-      id: generateArticleId(i),
-      tagId: generateTagId(i),
+      id: generateArticleId(globalIndex),
+      tagId: generateTagId(globalIndex),
       category: categoryName,
       designation: designation,
       size: size,
-      ml: ml, // Added: Linear Meters
+      ml: ml,
       lot: generateLotId(lotIndex),
       currentZone: zone,
       status: status,
@@ -202,11 +206,16 @@ const generateArticles = (count, status) => {
   });
 };
 
-// Générer les articles par statut
-const articlesEnProduction = generateArticles(150, "En production");
-const articlesEnStock = generateArticles(3890, "En stock");
-const articlesEnPreparation = generateArticles(85, "En préparation");
-const articlesExpedies = generateArticles(127, "Expédié");
+// Générer les articles par statut avec des ID uniques (offset cumulatif)
+const countProd = 150;
+const countStock = 3890;
+const countPrep = 85;
+const countExp = 127;
+
+const articlesEnProduction = generateArticles(countProd, "En production", 0);
+const articlesEnStock = generateArticles(countStock, "En stock", countProd);
+const articlesEnPreparation = generateArticles(countPrep, "En préparation", countProd + countStock);
+const articlesExpedies = generateArticles(countExp, "Expédié", countProd + countStock + countPrep);
 
 export const mockArticles = [
   ...articlesEnProduction,
@@ -424,15 +433,22 @@ export const mockArticleHistory = mockArticles.reduce((acc, article) => {
 
   // Calculate total sejour (from first entry to last exit or now)
   const firstMouvement = mouvements[0];
-  const lastMouvement = mouvements[mouvements.length - 1];
+  const lastMouvement = mouvements[mouvements.length - 1]; // Current state
   const sejourEnd = lastMouvement.sortie || new Date().toISOString();
   const totalSejour = calculateDuration(firstMouvement.entree, sejourEnd);
+
+  // Remove the current active step (last one) from the historic list
+  // The user wants to see only *completed* steps
+  const completedMouvements = [...mouvements];
+  if (completedMouvements.length > 0) {
+      completedMouvements.pop();
+  }
 
   acc[article.id] = {
     articleId: article.id,
     tagId: article.tagId,
-    mouvements: mouvements.reverse(), // Most recent first
-    totalMouvements: mouvements.length,
+    mouvements: completedMouvements.reverse(), // Most recent completed first
+    totalMouvements: completedMouvements.length,
     totalSejour,
     deliveryDate: lastMouvement.zone === "En transit" ? lastMouvement.sortie : null,
   };

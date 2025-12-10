@@ -729,37 +729,51 @@ function ArticleDetailsDialog({ article, isOpen, onClose }) {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {history?.mouvements.map((mouvement, index) => (
-                          <TableRow
-                            key={index}
-                            className="hover:bg-gray-50 dark:hover:bg-gray-800/50"
-                          >
-                            <TableCell className="font-semibold text-primary">
-                              {mouvement.zone}
-                            </TableCell>
-                            <TableCell>
-                              <Badge
-                                variant={getStatusBadgeVariant(
-                                  mouvement.statut
-                                )}
+                        {history?.mouvements && history.mouvements.length > 0 ? (
+                            history.mouvements.map((mouvement, index) => (
+                              <TableRow
+                                key={index}
+                                className="hover:bg-gray-50 dark:hover:bg-gray-800/50"
                               >
-                                {mouvement.statut}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="font-mono text-sm text-muted-foreground">
-                              {mouvement.lecteur}
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              {formatDate(mouvement.entree)}
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              {formatDate(mouvement.sortie)}
-                            </TableCell>
-                            <TableCell className="text-right font-bold text-primary">
-                              {mouvement.duree}
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                                <TableCell className="font-semibold text-primary">
+                                  {mouvement.zone}
+                                </TableCell>
+                                <TableCell>
+                                  <Badge
+                                    variant={getStatusBadgeVariant(
+                                      mouvement.statut
+                                    )}
+                                  >
+                                    {mouvement.statut}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="font-mono text-sm text-muted-foreground">
+                                  {mouvement.lecteur}
+                                </TableCell>
+                                <TableCell className="text-sm">
+                                  {formatDate(mouvement.entree)}
+                                </TableCell>
+                                <TableCell className="text-sm">
+                                  {mouvement.sortie ? formatDate(mouvement.sortie) : "-"}
+                                </TableCell>
+                                <TableCell className="text-right font-bold text-primary">
+                                  {mouvement.duree}
+                                </TableCell>
+                              </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={6} className="h-32 text-center">
+                                    <div className="flex flex-col items-center justify-center text-muted-foreground">
+                                        <div className="p-3 bg-muted rounded-full mb-3">
+                                            <SearchX className="w-6 h-6 opacity-40" />
+                                        </div>
+                                        <p className="font-medium">Aucun historique disponible pour le moment</p>
+                                        <p className="text-xs opacity-70 mt-1">L'article est toujours en cours de traitement dans sa première zone.</p>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        )}
                       </TableBody>
                     </Table>
                     <div className="border-t bg-gray-50 dark:bg-gray-800 px-4 py-3">
@@ -820,9 +834,7 @@ function ArticleDetailsDialog({ article, isOpen, onClose }) {
                                   <span className="truncate">
                                     {piece.designation}
                                   </span>
-                                  <span className="font-mono text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded whitespace-nowrap">
-                                    {piece.tagId}
-                                  </span>
+
                                 </div>
                               </TableCell>
                               <TableCell>{piece.size}</TableCell>
